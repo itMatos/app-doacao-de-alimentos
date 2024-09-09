@@ -13,6 +13,6 @@ Sistematizar o cadastro e a gestão de produtos por meio da leitura de código d
 - Visualização de relatório dos produtos
 
 # Tecnologias Utilizadas
-Frontend: React Native
-Backend: Node.js
-Banco de Dados: PostgreSQL
+- Frontend: React Native
+- Backend: Node.js
+- Banco de Dados: PostgreSQL
