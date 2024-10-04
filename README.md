@@ -1,50 +1,21 @@
-# Welcome to your Expo app 👋
+# App para doação de alimentos
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este aplicativo busca facilitar o controle e catalogação de produtos recebidos em doação de alimentos e demais produutos pela Rotary Club de São Carlos Bandeirantes.
 
-## Get started
+# Objetivo:
 
-1. Install dependencies
+Sistematizar o cadastro e a gestão de produtos por meio da leitura de código de barras, e gerar relatório de doações.
 
-   ```bash
-   npm install
-   ```
+# Funcionalidades
 
-2. Start the app
+-   Registro de doação
+-   Criação e visualização de doações de alimentos
+-   Catalogação das doações
+-   Notificações sobre novas doações e status de entrega
+-   Visualização de relatório dos produtos
 
-   ```bash
-    npx expo start
-   ```
+# Tecnologias Utilizadas
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+-   Frontend: React Native
+-   Backend: Node.js
+-   Banco de Dados: PostgreSQL
