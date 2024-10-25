@@ -1,12 +1,11 @@
 import React from 'react';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from 'react-native';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation, PaperProvider } from 'react-native-paper';
+import { BottomNavigation } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EstoqueTabScreens from '@/screens/Estoque/EstoqueScreens';
+import ArrecadacaoTab from '@/screens/Arrecadaçao/ArrecadacaoTab';
 
 export default function TabLayout() {
     const Tab = createBottomTabNavigator();
@@ -14,7 +13,7 @@ export default function TabLayout() {
     return (
         <Tab.Navigator
             id="(tabs)"
-            initialRouteName="Doação"
+            initialRouteName="Arrecadação"
             screenOptions={{
                 headerShown: false,
             }}
@@ -61,22 +60,32 @@ export default function TabLayout() {
             )}
         >
             <Tab.Screen
-                name="Doação"
-                component={EstoqueTabScreens}
+                name="Arrecadação"
+                component={ArrecadacaoTab}
                 options={{
-                    tabBarLabel: 'Doação',
+                    tabBarLabel: 'Arrecadação',
                     tabBarIcon: ({ color, size }) => {
-                        return <Icon name="cart" size={size} color={color} />;
+                        return <Icon name="hand-heart" size={size} color={color} />;
                     },
                 }}
             />
             <Tab.Screen
-                name="Estoque"
+                name="Campanhas"
                 component={EstoqueTabScreens}
                 options={{
-                    tabBarLabel: 'Estoque',
+                    tabBarLabel: 'Campanhas',
                     tabBarIcon: ({ color, size }) => {
-                        return <Icon name="warehouse" size={size} color={color} />;
+                        return <Icon name="account-group" size={size} color={color} />;
+                    },
+                }}
+            />
+            <Tab.Screen
+                name="Produtos"
+                component={EstoqueTabScreens}
+                options={{
+                    tabBarLabel: 'Produtos',
+                    tabBarIcon: ({ color, size }) => {
+                        return <Icon name="view-list-outline" size={size} color={color} />;
                     },
                 }}
             />
