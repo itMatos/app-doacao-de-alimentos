@@ -7,11 +7,11 @@ export default function ArrecadacaoTab({ navigation }: { navigation: any }) {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator>
-            {/* <Stack.Screen
+            <Stack.Screen
                 name="ArrecadacaoTelaInicial"
                 component={TelaInicial}
                 options={{ headerShown: false }}
-            /> */}
+            />
             <Stack.Screen
                 name="CriarNovaCampanha"
                 component={NovaCampanha}
