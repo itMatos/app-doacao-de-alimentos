@@ -48,7 +48,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
                         <Button
                             mode="contained"
                             icon="plus"
-                            onPress={() => console.log('Pressed')}
+                            onPress={() => navigation.navigate('CriarNovaCampanha')}
                             style={styles.buttonNewCampaign}
                             contentStyle={{
                                 height: 60,
