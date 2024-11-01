@@ -40,7 +40,7 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
 
             <Appbar.Header mode="center-aligned" elevated>
                 <Appbar.BackAction onPress={() => navigation.navigate('ArrecadacaoTelaInicial')} />
-                <Appbar.Content title="Nova campanha" />
+                <Appbar.Content title="Arrecadação" />
             </Appbar.Header>
             <View style={styles.container}>
                 <ScrollView
@@ -88,9 +88,9 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
 
                         <View style={styles.innerContainerCategory}>
                             <Surface style={styles.categoryContainer}>
-                                {mockData.map((data, index) => (
+                                {mockData.map((data) => (
                                     <InfoCategoria
-                                        key={index}
+                                        key={data.category}
                                         category={data.category}
                                         quantity={data.quantity}
                                         packages={data.packages}
