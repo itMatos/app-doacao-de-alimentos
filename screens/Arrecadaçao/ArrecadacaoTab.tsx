@@ -1,16 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ArrecadacaoTelaInicial from './ArrecadacaoTelaInicial';
+import TelaInicial from './TelaInicial';
+import CriarNovaCampanha from './CriarNovaCampanha';
+import CampanhaEmAndamento from './CampanhaEmAndamento';
+import { ArrecadacaoProvider } from '@/context/Arrecadacao/ArrecadacaoContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function ArrecadacaoTab({ navigation }: { navigation: any }) {
+export default function ArrecadacaoTab({ navigation, route }: { navigation: any; route: any }) {
     const Stack = createNativeStackNavigator();
     return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="ProdutosEstoque"
-                component={ArrecadacaoTelaInicial}
-                options={{ headerShown: false }}
-            />
-        </Stack.Navigator>
+        <ArrecadacaoProvider>
+            <SafeAreaProvider>
+                <Stack.Navigator>
+                    <Stack.Screen
+                        name="ArrecadacaoTelaInicial"
+                        component={TelaInicial}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="CriarNovaCampanha"
+                        component={CriarNovaCampanha}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="CampanhaEmAndamento"
+                        component={CampanhaEmAndamento}
+                        options={{ headerShown: false }}
+                    />
+                </Stack.Navigator>
+            </SafeAreaProvider>
+        </ArrecadacaoProvider>
     );
 }
