@@ -2,10 +2,11 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from 'react-native-paper';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SemArrecadacao({ navigation, route }: { navigation: any; route: any }) {
     return (
-        <>
+        <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
             <View style={styles.viewContainer}>
                 <Text variant="headlineLarge">Sem arrecadação em andamento.</Text>
                 <Text variant="headlineSmall">
@@ -31,7 +32,7 @@ export default function SemArrecadacao({ navigation, route }: { navigation: any;
                     Criar nova campanha de arrecadação
                 </Button>
             </View>
-        </>
+        </SafeAreaView>
     );
 }
 

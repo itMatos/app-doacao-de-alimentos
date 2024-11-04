@@ -1,96 +1,40 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, View, Image, StatusBar } from 'react-native';
-import { Appbar, FAB, Text } from 'react-native-paper';
-import { Button } from 'react-native-paper';
-import { ScrollView } from 'react-native';
-import { Dimensions } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SafeAreaView } from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet, View, StatusBar } from 'react-native';
+import { Appbar } from 'react-native-paper';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SemArrecadacao from './SemArrecadacao';
 import CampanhaEmAndamento from './CampanhaEmAndamento';
-import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
-
-const vh = Dimensions.get('window').height / 100;
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
-    const { state } = useArrecadacaoContext();
-    return (
-        <>
-            <SafeAreaProvider>
-                <SafeAreaView
-                    style={{
-                        flex: 1,
-                    }}
-                >
-                    <Appbar.Header mode="center-aligned" elevated>
-                        <Appbar.Content title="Arrecadação" />
-                    </Appbar.Header>
+    const { state } = useContext(ArrecadacaoContext);
 
-                    {state.arrecadacaoEmAndamento === false ? (
-                        <SemArrecadacao navigation={navigation} route={route} />
-                    ) : (
-                        <CampanhaEmAndamento navigation={navigation} route={route} />
-                    )}
-                </SafeAreaView>
-            </SafeAreaProvider>
-        </>
+    return (
+        <View style={{ flex: 1 }}>
+            <View>
+                <Appbar.Header mode="center-aligned" elevated>
+                    <Appbar.Content title="Arrecadação" />
+                </Appbar.Header>
+            </View>
+            <View style={styles.content}>
+                {state.arrecadacaoEmAndamento === false ? (
+                    <SemArrecadacao navigation={navigation} route={route} />
+                ) : (
+                    <CampanhaEmAndamento navigation={navigation} route={route} />
+                )}
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    logo: {
-        width: 40,
-        height: 40,
-    },
     container: {
         flex: 1,
-        justifyContent: 'center',
+        width: '100%',
     },
-    viewContainer: {
-        padding: 2,
-        margin: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 0.5,
-    },
-    buttonNewCampaign: {
-        borderRadius: 10,
-        elevation: 0,
-        alignContent: 'center',
-        alignItems: 'center',
-    },
-    textNewCampaign: {
-        color: 'white',
-        fontWeight: '700',
-        alignContent: 'center',
-        alignItems: 'center',
-    },
-    message: {
-        textAlign: 'center',
-        paddingBottom: 10,
-    },
-    camera: {
+    content: {
         flex: 1,
-    },
-    buttonContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        margin: 64,
-    },
-    button: {
-        flex: 1,
-        alignSelf: 'flex-end',
-        alignItems: 'center',
-    },
-    text: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
-    },
-    textBarCode: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'black',
+
+        paddingHorizontal: 10,
     },
 });

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView, Dimensions } from 'react-native';
 import { Appbar, Divider, Surface, Text, Button, IconButton, Chip, Icon } from 'react-native-paper';
 import InfoCategoria from './InfoCategoria';
 import { SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 const vh = Dimensions.get('window').height / 100;
+const vw = Dimensions.get('window').width / 100;
 
 type CampanhaEmAndamentoProps = {
     navigation: any;
@@ -13,7 +14,7 @@ type CampanhaEmAndamentoProps = {
 };
 
 export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAndamentoProps) {
-    const { state, dispatch } = useArrecadacaoContext();
+    const { state, dispatch } = useContext(ArrecadacaoContext);
 
     const mockData = [
         {
@@ -55,93 +56,103 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
     };
 
     return (
-        <>
-            <SafeAreaProvider>
-                <SafeAreaView>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                    >
-                        <Surface style={styles.surface}>
-                            <Divider />
-                            <View style={styles.innerContainer}>
-                                <IconButton
-                                    icon="barcode-scan"
-                                    mode="contained"
-                                    size={100}
-                                    style={styles.iconButton}
-                                    onPress={() => console.log('Pressed escanear código de barras')}
-                                />
-                                <Button
-                                    mode="contained"
-                                    onPress={() => console.log('Pressed Escanear código de barras')}
-                                    style={styles.scanButton}
-                                >
-                                    Escanear código de barras
-                                </Button>
-                            </View>
-                        </Surface>
-
-                        <Surface style={styles.surface}>
-                            <View style={styles.header}>
-                                <Text variant="titleMedium" style={styles.title}>
-                                    Campanha 1
-                                </Text>
-                                <Chip
-                                    icon={() => (
-                                        <Icon source="progress-clock" size={16} color="black" />
-                                    )}
-                                    style={{ backgroundColor: '#81c784' }}
-                                    compact={true}
-                                    textStyle={{ color: 'black' }}
-                                >
-                                    Em andamento
-                                </Chip>
-                            </View>
-
-                            <Divider />
-
-                            <View style={styles.innerContainerCategory}>
-                                <Surface style={styles.categoryContainer}>
-                                    {mockData.map((data) => (
-                                        <InfoCategoria
-                                            key={data.category}
-                                            category={data.category}
-                                            quantity={data.quantity}
-                                            packages={data.packages}
-                                        />
-                                    ))}
-                                </Surface>
-                            </View>
-                        </Surface>
-                        <View>
+        <SafeAreaView style={styles.container}>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+                <View style={styles.container}>
+                    <Surface style={styles.surface}>
+                        <View style={styles.header}>
+                            <Text variant="titleMedium" style={styles.title}>
+                                Registrar doação
+                            </Text>
+                        </View>
+                        <Divider />
+                        <View style={styles.innerContainer}>
+                            <IconButton
+                                icon="barcode-scan"
+                                mode="contained"
+                                size={100}
+                                style={styles.iconButton}
+                                onPress={() => console.log('Pressed escanear código de barras')}
+                            />
                             <Button
                                 mode="contained"
-                                onPress={() => handleCloseCampaign()}
+                                onPress={() => console.log('Pressed Escanear código de barras')}
                                 style={styles.scanButton}
                             >
-                                Encerrar campanha
+                                Escanear código de barras
                             </Button>
                         </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </SafeAreaProvider>
-        </>
+                    </Surface>
+
+                    <Surface style={styles.surface}>
+                        <View style={styles.header}>
+                            <Text variant="titleMedium" style={styles.title}>
+                                Campanha 1
+                            </Text>
+                            <Chip
+                                icon={() => (
+                                    <Icon source="progress-clock" size={16} color="black" />
+                                )}
+                                style={{ backgroundColor: '#81c784' }}
+                                compact={true}
+                                textStyle={{ color: 'black' }}
+                            >
+                                Em andamento
+                            </Chip>
+                        </View>
+
+                        <Divider />
+
+                        <View style={styles.innerContainer}>
+                            <Surface style={styles.categoryContainer}>
+                                {mockData.map((data) => (
+                                    <InfoCategoria
+                                        key={data.category}
+                                        category={data.category}
+                                        quantity={data.quantity}
+                                        packages={data.packages}
+                                    />
+                                ))}
+                            </Surface>
+                        </View>
+                    </Surface>
+
+                    <View
+                        style={{
+                            width: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Button
+                            mode="contained"
+                            icon={'checkbox-marked-circle-outline'}
+                            onPress={() => handleCloseCampaign()}
+                            style={styles.buttonCloseCampaign}
+                        >
+                            Encerrar campanha
+                        </Button>
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: '100%',
     },
     scrollContent: {
-        alignItems: 'center',
+        width: '100%',
         flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     surface: {
-        flex: 1,
-        width: '90%',
-        margin: 20,
+        marginHorizontal: 5,
+        marginVertical: 20,
         borderRadius: 10,
         justifyContent: 'center',
     },
@@ -167,20 +178,26 @@ const styles = StyleSheet.create({
     },
     scanButton: {
         width: '80%',
-        margin: 10,
+        margin: 20,
         borderRadius: 10,
+    },
+    buttonCloseCampaign: {
+        width: '80%',
+        margin: 20,
+        borderRadius: 10,
+        backgroundColor: '#d32f2f',
     },
     categoryContainer: {
         width: '100%',
         elevation: 0,
-        borderRadius: 10,
-        borderTopRightRadius: 5,
         borderTopLeftRadius: 5,
-        borderTopWidth: 0,
+        borderTopRightRadius: 5,
+        borderBottomRightRadius: 10,
+        borderBottomLeftRadius: 10,
     },
     innerContainerCategory: {
         alignItems: 'center',
-        borderRadius: 10,
+        borderRadius: 100,
     },
     chip: {
         backgroundColor: '#81c784',

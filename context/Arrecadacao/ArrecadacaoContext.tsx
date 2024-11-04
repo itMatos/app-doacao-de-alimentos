@@ -9,8 +9,6 @@ export type ArrecadacaoInitialStateType = {
     arrecadacaoEmAndamento: boolean;
 };
 
-const ArrecadacaoContext = createContext({} as ArrecadacaoContextType);
-
 const initialState: ArrecadacaoInitialStateType = {
     arrecadacaoEmAndamento: false,
 };
@@ -19,6 +17,13 @@ export type PayloadReducer = {
     type: string;
     arrecadacaoEmAndamento: boolean;
 };
+
+export type dispatchType = (action: PayloadReducer) => void;
+
+export const ArrecadacaoContext = createContext({
+    state: initialState,
+    dispatch: (() => null) as unknown as dispatchType,
+});
 
 const arrecadacaoReducer = (state: ArrecadacaoInitialStateType, action: PayloadReducer) => {
     switch (action.type) {
@@ -47,4 +52,4 @@ export const ArrecadacaoProvider = ({ children }: { children: React.ReactNode })
     );
 };
 
-export const useArrecadacaoContext = () => useContext(ArrecadacaoContext);
+// export const useArrecadacaoContext = () => useContext(ArrecadacaoContext);

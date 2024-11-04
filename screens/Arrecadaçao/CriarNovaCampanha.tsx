@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 import { Appbar, FAB, Text, TextInput } from 'react-native-paper';
 import { Button } from 'react-native-paper';
@@ -11,12 +11,12 @@ import DateTimePicker, {
     DateTimePickerAndroid,
     DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 const vh = Dimensions.get('window').height / 100;
 
 export default function CriarNovaCampanha({ navigation, route }: { navigation: any; route: any }) {
-    const { state, dispatch } = useArrecadacaoContext();
+    const { state, dispatch } = useContext(ArrecadacaoContext);
 
     const currentDate = new Date();
     const todayDate = `${currentDate.getDate()}/${
