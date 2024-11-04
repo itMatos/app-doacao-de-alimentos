@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, View, StatusBar, ScrollView, Dimensions } from 'react-native';
 import { Appbar, Divider, Surface, Text, Button, IconButton, Chip, Icon } from 'react-native-paper';
 import InfoCategoria from './InfoCategoria';
-
+import { SafeAreaView } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 const vh = Dimensions.get('window').height / 100;
 
 type CampanhaEmAndamentoProps = {
@@ -36,71 +37,75 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
 
     return (
         <>
-            <StatusBar barStyle="dark-content" />
+            <SafeAreaProvider>
+                <SafeAreaView style={{ flex: 1 }}>
+                    <Appbar.Header mode="center-aligned" elevated>
+                        <Appbar.BackAction
+                            onPress={() => navigation.navigate('ArrecadacaoTelaInicial')}
+                        />
+                        <Appbar.Content title="Arrecadação" />
+                    </Appbar.Header>
 
-            <Appbar.Header mode="center-aligned" elevated>
-                <Appbar.BackAction onPress={() => navigation.navigate('ArrecadacaoTelaInicial')} />
-                <Appbar.Content title="Arrecadação" />
-            </Appbar.Header>
-            <View style={styles.container}>
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.scrollContent}
-                >
-                    <Surface style={styles.surface}>
-                        <Divider />
-                        <View style={styles.innerContainer}>
-                            <IconButton
-                                icon="barcode-scan"
-                                mode="contained"
-                                size={100}
-                                style={styles.iconButton}
-                                onPress={() => console.log('Pressed escanear código de barras')}
-                            />
-                            <Button
-                                mode="contained"
-                                onPress={() => console.log('Pressed Escanear código de barras')}
-                                style={styles.scanButton}
-                            >
-                                Escanear código de barras
-                            </Button>
-                        </View>
-                    </Surface>
+                    <ScrollView
+                        style={{ flex: 1 }}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
+                        <Surface style={styles.surface}>
+                            <Divider />
+                            <View style={styles.innerContainer}>
+                                <IconButton
+                                    icon="barcode-scan"
+                                    mode="contained"
+                                    size={100}
+                                    style={styles.iconButton}
+                                    onPress={() => console.log('Pressed escanear código de barras')}
+                                />
+                                <Button
+                                    mode="contained"
+                                    onPress={() => console.log('Pressed Escanear código de barras')}
+                                    style={styles.scanButton}
+                                >
+                                    Escanear código de barras
+                                </Button>
+                            </View>
+                        </Surface>
 
-                    <Surface style={styles.surface}>
-                        <View style={styles.header}>
-                            <Text variant="titleMedium" style={styles.title}>
-                                Campanha 1
-                            </Text>
-                            <Chip
-                                icon={() => (
-                                    <Icon source="progress-clock" size={16} color="black" />
-                                )}
-                                style={{ backgroundColor: '#81c784' }}
-                                compact={true}
-                                textStyle={{ color: 'black' }}
-                            >
-                                Em andamento
-                            </Chip>
-                        </View>
+                        <Surface style={styles.surface}>
+                            <View style={styles.header}>
+                                <Text variant="titleMedium" style={styles.title}>
+                                    Campanha 1
+                                </Text>
+                                <Chip
+                                    icon={() => (
+                                        <Icon source="progress-clock" size={16} color="black" />
+                                    )}
+                                    style={{ backgroundColor: '#81c784' }}
+                                    compact={true}
+                                    textStyle={{ color: 'black' }}
+                                >
+                                    Em andamento
+                                </Chip>
+                            </View>
 
-                        <Divider />
+                            <Divider />
 
-                        <View style={styles.innerContainerCategory}>
-                            <Surface style={styles.categoryContainer}>
-                                {mockData.map((data) => (
-                                    <InfoCategoria
-                                        key={data.category}
-                                        category={data.category}
-                                        quantity={data.quantity}
-                                        packages={data.packages}
-                                    />
-                                ))}
-                            </Surface>
-                        </View>
-                    </Surface>
-                </ScrollView>
-            </View>
+                            <View style={styles.innerContainerCategory}>
+                                <Surface style={styles.categoryContainer}>
+                                    {mockData.map((data) => (
+                                        <InfoCategoria
+                                            key={data.category}
+                                            category={data.category}
+                                            quantity={data.quantity}
+                                            packages={data.packages}
+                                        />
+                                    ))}
+                                </Surface>
+                            </View>
+                        </Surface>
+                    </ScrollView>
+                </SafeAreaView>
+            </SafeAreaProvider>
         </>
     );
 }
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     surface: {
-        width: '95%',
+        width: '90%',
         margin: 20,
         borderRadius: 10,
         justifyContent: 'center',

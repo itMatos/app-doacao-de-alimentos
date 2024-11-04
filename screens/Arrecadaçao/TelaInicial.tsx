@@ -1,42 +1,39 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, StatusBar } from 'react-native';
 import { Appbar, FAB, Text } from 'react-native-paper';
 import { Button } from 'react-native-paper';
-import { StatusBar } from 'react-native';
 import { ScrollView } from 'react-native';
 import { Dimensions } from 'react-native';
-import { CameraType, useCameraPermissions } from 'expo-camera';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 const vh = Dimensions.get('window').height / 100;
 
-export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
-    const [state, setState] = useState({ open: false });
-    const [barCode, setBarCode] = useState('');
-
-    const [facing, setFacing] = useState<CameraType>('back');
-    const [permission, requestPermission] = useCameraPermissions();
-
+export default function TelaInicial() {
     return (
         <>
-            <View style={{ flex: 1 }}>
-                <StatusBar barStyle="dark-content" />
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                }}
+            >
+                <SafeAreaProvider>
+                    <Appbar.Header mode="center-aligned" elevated>
+                        <Appbar.Content title="Arrecadação" />
+                    </Appbar.Header>
+                </SafeAreaProvider>
+            </SafeAreaView>
 
-                <Appbar.Header mode="center-aligned" elevated>
-                    <Appbar.Content title="Arrecadação" />
-                </Appbar.Header>
-
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flex: 1,
-                    }}
-                >
+            <View
+                style={{
+                    flex: 1,
+                }}
+            >
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.viewContainer}>
                         <Text variant="headlineLarge">Sem arrecadação em andamento.</Text>
                         <Text variant="headlineSmall">
-                            Crie uma nova campanha de arrecadação para começar a receber doações.
+                            Crie uma nova campanha de arrecadação para começar a registrar doações.
                         </Text>
                     </View>
                     <View
@@ -48,15 +45,14 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
                         <Button
                             mode="contained"
                             icon="plus"
-                            onPress={() => navigation.navigate('CriarNovaCampanha')}
+                            // onPress={() => navigation.navigate('CriarNovaCampanha')}
                             style={styles.buttonNewCampaign}
                             contentStyle={{
                                 height: 60,
                             }}
+                            uppercase={true}
                         >
-                            <Text variant="titleMedium" style={styles.textNewCampaign}>
-                                Criar nova campanha de arrecadação
-                            </Text>
+                            Criar nova campanha de arrecadação
                         </Button>
                     </View>
                 </ScrollView>
