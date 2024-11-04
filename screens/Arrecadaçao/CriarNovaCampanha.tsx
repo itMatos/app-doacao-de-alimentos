@@ -11,10 +11,13 @@ import DateTimePicker, {
     DateTimePickerAndroid,
     DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
+import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 const vh = Dimensions.get('window').height / 100;
 
-export default function NovaCampanha({ navigation, route }: { navigation: any; route: any }) {
+export default function CriarNovaCampanha({ navigation, route }: { navigation: any; route: any }) {
+    const { state, dispatch } = useArrecadacaoContext();
+
     const currentDate = new Date();
     const todayDate = `${currentDate.getDate()}/${
         months[currentDate.getMonth()]
@@ -47,14 +50,18 @@ export default function NovaCampanha({ navigation, route }: { navigation: any; r
 
     const formattedDate = dayjs(date).format('DD/MM/YYYY');
 
-    const newCampaignPayload = {
-        name: name,
-        startDate: date,
-        endDate: null,
+    const createNewCampaign = () => {
+        toggleCampanhaEmAndamento();
+        navigation.navigate('ArrecadacaoTelaInicial');
     };
 
-    const createNewCampaign = () => {
-        console.log('Creating new campaign with payload: ', newCampaignPayload);
+    const toggleCampanhaEmAndamento = () => {
+        const arrecadacaoEmAndamento = state.arrecadacaoEmAndamento;
+        if (!arrecadacaoEmAndamento) {
+            dispatch({ type: 'NovaCampanha', arrecadacaoEmAndamento: true });
+        } else {
+            console.log('Já existe uma campanha em andamento');
+        }
     };
 
     return (
@@ -118,7 +125,7 @@ export default function NovaCampanha({ navigation, route }: { navigation: any; r
                                             height: 60,
                                         }}
                                         style={{
-											borderTopWidth: 0,
+                                            borderTopWidth: 0,
                                             borderWidth: 0,
                                             borderColor: 'none',
                                         }}
@@ -134,7 +141,9 @@ export default function NovaCampanha({ navigation, route }: { navigation: any; r
                         <Button
                             mode="contained"
                             icon="plus"
-                            onPress={() => createNewCampaign()}
+                            onPress={() => {
+                                createNewCampaign();
+                            }}
                             contentStyle={{
                                 height: 60,
                             }}

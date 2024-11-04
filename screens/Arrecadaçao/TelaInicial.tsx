@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Image, StatusBar } from 'react-native';
 import { Appbar, FAB, Text } from 'react-native-paper';
 import { Button } from 'react-native-paper';
@@ -6,57 +6,33 @@ import { ScrollView } from 'react-native';
 import { Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native';
+import SemArrecadacao from './SemArrecadacao';
+import CampanhaEmAndamento from './CampanhaEmAndamento';
+import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 const vh = Dimensions.get('window').height / 100;
 
-export default function TelaInicial() {
+export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
+    const { state } = useArrecadacaoContext();
     return (
         <>
-            <SafeAreaView
-                style={{
-                    flex: 1,
-                }}
-            >
-                <SafeAreaProvider>
+            <SafeAreaProvider>
+                <SafeAreaView
+                    style={{
+                        flex: 1,
+                    }}
+                >
                     <Appbar.Header mode="center-aligned" elevated>
                         <Appbar.Content title="Arrecadação" />
                     </Appbar.Header>
-                </SafeAreaProvider>
-            </SafeAreaView>
 
-            <View
-                style={{
-                    flex: 1,
-                }}
-            >
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={styles.viewContainer}>
-                        <Text variant="headlineLarge">Sem arrecadação em andamento.</Text>
-                        <Text variant="headlineSmall">
-                            Crie uma nova campanha de arrecadação para começar a registrar doações.
-                        </Text>
-                    </View>
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Button
-                            mode="contained"
-                            icon="plus"
-                            // onPress={() => navigation.navigate('CriarNovaCampanha')}
-                            style={styles.buttonNewCampaign}
-                            contentStyle={{
-                                height: 60,
-                            }}
-                            uppercase={true}
-                        >
-                            Criar nova campanha de arrecadação
-                        </Button>
-                    </View>
-                </ScrollView>
-            </View>
+                    {state.arrecadacaoEmAndamento === false ? (
+                        <SemArrecadacao navigation={navigation} route={route} />
+                    ) : (
+                        <CampanhaEmAndamento navigation={navigation} route={route} />
+                    )}
+                </SafeAreaView>
+            </SafeAreaProvider>
         </>
     );
 }

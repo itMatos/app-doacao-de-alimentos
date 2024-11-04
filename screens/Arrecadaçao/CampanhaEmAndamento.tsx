@@ -4,6 +4,7 @@ import { Appbar, Divider, Surface, Text, Button, IconButton, Chip, Icon } from '
 import InfoCategoria from './InfoCategoria';
 import { SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 const vh = Dimensions.get('window').height / 100;
 
 type CampanhaEmAndamentoProps = {
@@ -12,6 +13,8 @@ type CampanhaEmAndamentoProps = {
 };
 
 export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAndamentoProps) {
+    const { state, dispatch } = useArrecadacaoContext();
+
     const mockData = [
         {
             category: 'Feijão',
@@ -35,19 +38,27 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
         },
     ];
 
+    const handleCloseCampaign = () => {
+        const arrecadacaoEmAndamento = state.arrecadacaoEmAndamento;
+        // TODO - adicionar modal de confirmação
+        if (arrecadacaoEmAndamento) {
+            closeCampaign();
+            navigation.navigate('ArrecadacaoTelaInicial');
+        } else {
+            // TODO: adicionar snackbar
+            console.log('Erro ao encerrar campanha');
+        }
+    };
+
+    const closeCampaign = () => {
+        dispatch({ type: 'EncerrarCampanha', arrecadacaoEmAndamento: false });
+    };
+
     return (
         <>
             <SafeAreaProvider>
-                <SafeAreaView style={{ flex: 1 }}>
-                    <Appbar.Header mode="center-aligned" elevated>
-                        <Appbar.BackAction
-                            onPress={() => navigation.navigate('ArrecadacaoTelaInicial')}
-                        />
-                        <Appbar.Content title="Arrecadação" />
-                    </Appbar.Header>
-
+                <SafeAreaView>
                     <ScrollView
-                        style={{ flex: 1 }}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.scrollContent}
                     >
@@ -103,6 +114,15 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
                                 </Surface>
                             </View>
                         </Surface>
+                        <View>
+                            <Button
+                                mode="contained"
+                                onPress={() => handleCloseCampaign()}
+                                style={styles.scanButton}
+                            >
+                                Encerrar campanha
+                            </Button>
+                        </View>
                     </ScrollView>
                 </SafeAreaView>
             </SafeAreaProvider>
@@ -119,6 +139,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     surface: {
+        flex: 1,
         width: '90%',
         margin: 20,
         borderRadius: 10,
