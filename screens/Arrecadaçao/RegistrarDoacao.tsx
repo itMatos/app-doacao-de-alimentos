@@ -11,7 +11,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
             <Appbar.Header mode="center-aligned" elevated>
-                <Appbar.BackAction onPress={() => navigation.navigate('CampanhaEmAndamento')} />
+                <Appbar.BackAction onPress={() => navigation.navigate('ArrecadacaoTelaInicial')} />
                 <Appbar.Content title="Registrar doação" />
             </Appbar.Header>
             <View style={styles.container}>

@@ -44,6 +44,7 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
         // TODO - adicionar modal de confirmação
         if (arrecadacaoEmAndamento) {
             closeCampaign();
+            // TODO: redirecionar para a tela de campanhas
             navigation.navigate('ArrecadacaoTelaInicial');
         } else {
             // TODO: adicionar snackbar
