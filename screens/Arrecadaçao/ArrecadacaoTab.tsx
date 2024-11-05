@@ -5,6 +5,7 @@ import CriarNovaCampanha from './CriarNovaCampanha';
 import CampanhaEmAndamento from './CampanhaEmAndamento';
 import { ArrecadacaoProvider } from '@/context/Arrecadacao/ArrecadacaoContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import RegistrarDoacao from './RegistrarDoacao';
 
 export default function ArrecadacaoTab({ navigation, route }: { navigation: any; route: any }) {
     const Stack = createNativeStackNavigator();
@@ -25,6 +26,11 @@ export default function ArrecadacaoTab({ navigation, route }: { navigation: any;
                     <Stack.Screen
                         name="CampanhaEmAndamento"
                         component={CampanhaEmAndamento}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="RegistrarDoacao"
+                        component={RegistrarDoacao}
                         options={{ headerShown: false }}
                     />
                 </Stack.Navigator>

@@ -8,6 +8,7 @@ import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
     const { state } = useContext(ArrecadacaoContext);
+    const teste = false;
 
     return (
         <View style={{ flex: 1 }}>
@@ -17,7 +18,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
                 </Appbar.Header>
             </View>
             <View style={styles.content}>
-                {state.arrecadacaoEmAndamento === false ? (
+                {teste ? (
                     <SemArrecadacao navigation={navigation} route={route} />
                 ) : (
                     <CampanhaEmAndamento navigation={navigation} route={route} />

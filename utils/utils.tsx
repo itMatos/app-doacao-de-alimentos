@@ -1,3 +1,5 @@
+import { Dimensions } from 'react-native';
+
 export const months = [
     'Jan',
     'Fev',
@@ -12,3 +14,5 @@ export const months = [
     'Nov',
     'Dez',
 ];
+
+export const vh = Dimensions.get('window').height / 100;

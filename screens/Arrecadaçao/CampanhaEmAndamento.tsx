@@ -72,11 +72,10 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
                                 mode="contained"
                                 size={100}
                                 style={styles.iconButton}
-                                onPress={() => console.log('Pressed escanear código de barras')}
                             />
                             <Button
                                 mode="contained"
-                                onPress={() => console.log('Pressed Escanear código de barras')}
+                                onPress={() => navigation.navigate('RegistrarDoacao')}
                                 style={styles.scanButton}
                             >
                                 Escanear código de barras
