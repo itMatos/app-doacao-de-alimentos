@@ -1,9 +1,6 @@
-import { vh } from '@/utils/utils';
 import React, { useState } from 'react';
-import { Modal, StyleSheet, View } from 'react-native';
-import { Button, Divider, Icon, Portal, Surface, Text, TextInput } from 'react-native-paper';
-import { Dropdown } from 'react-native-paper-dropdown';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { ProdutoEncontradoType } from '@/types/types';
 
@@ -55,82 +52,81 @@ export default function ProdutoEncontrado({
     };
 
     return (
-        <View
-            style={{
-                flex: 1,
-            }}
-        >
-            <View style={styles.container}>
-                <Text variant="titleMedium" style={{ marginVertical: 10 }}>
-                    <Icon source="check-circle-outline" size={24} color="#81c784" />
-                    Produto encontrado
-                </Text>
-
-                <Text variant="titleMedium" style={{ marginVertical: 10 }}>
-                    Confirme os dados de doação
-                </Text>
-
-                <TextInput
-                    label="Nome do produto"
-                    value={produtoTeste.nome}
-                    mode="outlined"
-                    editable={false}
-                />
-
-                <TextInput
-                    label="Peso"
-                    mode="outlined"
-                    value={produtoTeste.peso + produtoTeste.unidadeMedida}
-                    editable={false}
-                />
-
-                {/* TODO: Ajustar a label de componentes que tem atributo render*/}
-
-                <TextInput
-                    label="Categoria"
-                    value={produtoTeste.categoria}
-                    mode="outlined"
-                    render={(props) => (
-                        <Picker
-                            selectedValue={selectedCategory}
-                            onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}
-                            mode="dropdown"
-                        >
-                            {/* TODO: se a categoria não tiver sido selecionada, exibir "Selecione a categoria" */}
-                            <Picker.Item label="Selecione a categoria" value={selectedQuantity} />
-                            {categories.map((category) => (
-                                <Picker.Item
-                                    key={category.label}
-                                    label={category.label}
-                                    value={category.value}
-                                />
-                            ))}
-                        </Picker>
-                    )}
-                />
-
-                <TextInput
-                    label="Quantidade"
-                    value={`${produtoTeste.quantidade}`}
-                    mode="outlined"
-                    render={(props) => (
-                        <Picker
-                            selectedValue={selectedQuantity}
-                            onValueChange={(itemValue) => handleQuantityChange(itemValue)}
-                            mode="dropdown"
-                        >
-                            <Picker.Item label="Selecione a quantidade" value={selectedQuantity} />
-                            {Array.from({ length: 15 }, (_, i) => (
-                                <Picker.Item key={i + 1} label={`${i + 1}`} value={i + 1} />
-                            ))}
-                        </Picker>
-                    )}
-                />
+        <View style={{ padding: 16 }}>
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Icon source="check-circle-outline" size={30} color="#81c784" />
+                    <Text variant="titleLarge" style={{ marginHorizontal: 5 }}>
+                        Produto encontrado
+                    </Text>
+                </View>
             </View>
 
-            <Divider />
+            <View style={{ marginBottom: 20, alignItems: 'center' }}>
+                <Text variant="titleMedium">Confirme os dados de doação</Text>
+            </View>
 
-            <View style={styles.header}>
+            <TextInput
+                label="Nome do produto"
+                value={produtoTeste.nome}
+                mode="outlined"
+                editable={false}
+                style={{ marginBottom: 16 }}
+            />
+
+            <TextInput
+                label="Peso"
+                mode="outlined"
+                value={produtoTeste.peso + produtoTeste.unidadeMedida}
+                editable={false}
+                style={{ marginBottom: 16 }}
+            />
+
+            <TextInput
+                label="Categoria"
+                value={produtoTeste.categoria}
+                mode="outlined"
+                style={{ marginBottom: 16 }}
+                render={(props) => (
+                    <Picker
+                        selectedValue={selectedCategory}
+                        onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                        mode="dropdown"
+                    >
+                        <Picker.Item label="Selecione a categoria" value="" />
+                        {categories.map((category) => (
+                            <Picker.Item
+                                key={category.label}
+                                label={category.label}
+                                value={category.value}
+                            />
+                        ))}
+                    </Picker>
+                )}
+            />
+
+            <TextInput
+                label="Quantidade"
+                value={`${produtoTeste.quantidade}`}
+                mode="outlined"
+                style={{ marginBottom: 16 }}
+                render={(props) => (
+                    <Picker
+                        selectedValue={selectedQuantity}
+                        onValueChange={(itemValue) => handleQuantityChange(itemValue)}
+                        mode="dropdown"
+                    >
+                        <Picker.Item label="Selecione a quantidade" value="" />
+                        {Array.from({ length: 15 }, (_, i) => (
+                            <Picker.Item key={i + 1} label={`${i + 1}`} value={i + 1} />
+                        ))}
+                    </Picker>
+                )}
+            />
+
+            <Divider style={{ marginVertical: 20 }} />
+
+            <View style={[styles.header, { marginBottom: 20, alignItems: 'center' }]}>
                 <Text variant="headlineSmall" style={styles.title}>
                     Doação total
                 </Text>
@@ -141,13 +137,17 @@ export default function ProdutoEncontrado({
 
             <Button
                 mode="contained"
-                onPress={() => handleClickRegisterDonation()}
+                onPress={handleClickRegisterDonation}
                 style={styles.scanButton}
             >
-                Registrar doação
+                Registrar
             </Button>
 
-            <Button mode="outlined" onPress={() => hideModal()} style={styles.scanButton}>
+            <Button
+                mode="outlined"
+                onPress={hideModal}
+                style={[styles.scanButton, { marginTop: 10 }]}
+            >
                 Voltar
             </Button>
         </View>
@@ -155,10 +155,6 @@ export default function ProdutoEncontrado({
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: '100%',
-    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',

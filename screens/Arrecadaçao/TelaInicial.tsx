@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { StyleSheet, View, StatusBar } from 'react-native';
+import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SemArrecadacao from './SemArrecadacao';
@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-
         paddingHorizontal: 10,
     },
 });

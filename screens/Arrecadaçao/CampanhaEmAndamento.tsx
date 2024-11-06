@@ -144,12 +144,6 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
-    scrollContent: {
-        width: '100%',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     surface: {
         marginHorizontal: 5,
         marginVertical: 20,
@@ -194,10 +188,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 5,
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
-    },
-    innerContainerCategory: {
-        alignItems: 'center',
-        borderRadius: 100,
     },
     chip: {
         backgroundColor: '#81c784',

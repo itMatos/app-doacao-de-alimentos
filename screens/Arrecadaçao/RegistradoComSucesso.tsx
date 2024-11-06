@@ -11,23 +11,6 @@ export default function RegistradoComSucesso({
 }: {
     handleClickNewRegister: () => void;
 }) {
-    const produtoTeste = {
-        nome: 'Arroz Tio João',
-        categoria: 'Arroz',
-        quantidade: '1',
-        peso: 2,
-        unidadeMedida: 'kg',
-    };
-    const OPTIONS = [
-        { label: 'Male', value: 'male' },
-        { label: 'Female', value: 'female' },
-        { label: 'Other', value: 'other' },
-    ];
-
-    const [visible, setVisible] = React.useState(false);
-
-    const showModal = () => setVisible(true);
-
     return (
         <View
             style={{
@@ -35,10 +18,12 @@ export default function RegistradoComSucesso({
             }}
         >
             <View style={styles.container}>
-                <Text variant="titleMedium" style={{ marginVertical: 10 }}>
-                    <Icon source="check-circle-outline" size={24} color="#81c784" />
-                    Doação registrada com sucesso
-                </Text>
+                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                    <Icon source="check-circle-outline" size={60} color="#81c784" />
+                    <Text variant="titleMedium" style={{ marginTop: 10, textAlign: 'center' }}>
+                        Doação registrada com sucesso
+                    </Text>
+                </View>
             </View>
             <Button
                 icon={'camera'}
@@ -64,13 +49,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        margin: 10,
-        color: 'black',
     },
     title: {
         color: 'black',
