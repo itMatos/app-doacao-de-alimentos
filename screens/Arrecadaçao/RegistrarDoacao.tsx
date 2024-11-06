@@ -1,12 +1,31 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { Appbar, Button, Chip, Divider, Icon, IconButton, Surface, Text } from 'react-native-paper';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, ScrollView, Animated, Modal } from 'react-native';
+import { Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
+import { CameraType, useCameraPermissions } from 'expo-camera';
 import { vh } from '@/utils/utils';
+import ProdutoEncontrado from './ProdutoEncontrado';
 
 export default function RegistrarDoacao({ navigation, route }: { navigation: any; route: any }) {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
+    const [visible, setVisible] = useState(false);
+    const [successReading, setSuccessReading] = useState(false);
+
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+
+    const showProduct = () => setSuccessReading(true);
+    const hideProduct = () => setSuccessReading(false);
+
+    // TODO: Implementar a lógica de captura de código de barras
+    // produto encontrado
+    // produto nao encontrado
+    // falha ao ler código de barras
+    // Falha ao clicar no botao de registrar
+
+    const handleClickRegister = () => {
+        hideProduct();
+    };
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -20,6 +39,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         <Text style={styles.message} variant="titleMedium">
                             É necessário permissão para acessar a câmera do dispositivo
                         </Text>
+
                         <Button
                             onPress={requestPermission}
                             mode="contained"
@@ -40,13 +60,79 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                     <Text style={styles.messageCamera} variant="headlineSmall">
                         Aponte a câmera do dispositivo para o código de barras
                     </Text>
-                    <CameraView style={styles.camera} facing={facing}>
+                    <View
+                        style={{
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Button
+                            mode="contained"
+                            onPress={() => {
+                                showModal();
+                                showProduct();
+                            }}
+                            style={styles.scanButton}
+                        >
+                            abrir modal{' '}
+                        </Button>
+                    </View>
+                    {/* <CameraView style={styles.camera} facing={facing}>
                         <View style={styles.buttonContainer}>
                             {/* <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}> */}
-                            {/* <Text style={styles.text}>Flip Camera</Text> */}
-                            {/* </TouchableOpacity> */}
-                        </View>
-                    </CameraView>
+                    {/* <Text style={styles.text}>Flip Camera</Text> */}
+                    {/* </TouchableOpacity> */}
+                    {/* </View> */}
+                    {/* </CameraView> */}
+
+                    <Portal>
+                        <Modal
+                            visible={visible}
+                            onDismiss={hideModal}
+                            animationType="slide"
+                            transparent={true}
+                        >
+                            <Surface
+                                style={{
+                                    flex: 1,
+                                    padding: 20,
+                                    borderTopLeftRadius: 20,
+                                    borderTopRightRadius: 20,
+                                    borderBottomLeftRadius: 0,
+                                    borderBottomRightRadius: 0,
+                                    backgroundColor: '#ffffff',
+                                    elevation: 4,
+                                    marginHorizontal: 10,
+                                    marginTop: 20 * vh,
+                                    height: 50 * vh,
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                {successReading && <ProdutoEncontrado />}
+
+                                <Button
+                                    mode="contained"
+                                    onPress={() => handleClickRegister()}
+                                    style={styles.scanButton}
+                                >
+                                    Registrar
+                                </Button>
+                                <Button
+                                    mode="outlined"
+                                    onPress={() => {}}
+                                    style={styles.scanButton}
+                                >
+                                    Voltar
+                                </Button>
+                                <Button
+                                    mode="outlined"
+                                    onPress={() => hideModal()}
+                                    style={styles.scanButton}
+                                >
+                                    fechar modal{' '}
+                                </Button>
+                            </Surface>
+                        </Modal>
+                    </Portal>
                 </View>
             </View>
         </ScrollView>
