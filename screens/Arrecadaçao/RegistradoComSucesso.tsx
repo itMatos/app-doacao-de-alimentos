@@ -6,7 +6,11 @@ import { Dropdown } from 'react-native-paper-dropdown';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 
-export default function RegistradoComSucesso() {
+export default function RegistradoComSucesso({
+    handleClickNewRegister,
+}: {
+    handleClickNewRegister: () => void;
+}) {
     const produtoTeste = {
         nome: 'Arroz Tio João',
         categoria: 'Arroz',
@@ -23,7 +27,6 @@ export default function RegistradoComSucesso() {
     const [visible, setVisible] = React.useState(false);
 
     const showModal = () => setVisible(true);
-    const hideModal = () => setVisible(false);
 
     return (
         <View
@@ -37,6 +40,22 @@ export default function RegistradoComSucesso() {
                     Doação registrada com sucesso
                 </Text>
             </View>
+            <Button
+                icon={'camera'}
+                mode="contained"
+                onPress={() => handleClickNewRegister()}
+                style={styles.scanButton}
+            >
+                Registrar nova doação
+            </Button>
+
+            <Button
+                mode="outlined"
+                onPress={() => handleClickNewRegister()}
+                style={styles.scanButton}
+            >
+                Voltar para o menu inicial
+            </Button>
         </View>
     );
 }

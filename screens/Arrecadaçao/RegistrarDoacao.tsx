@@ -1,26 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Animated, Modal } from 'react-native';
 import { Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
 import { CameraType, useCameraPermissions } from 'expo-camera';
 import { vh } from '@/utils/utils';
-import ProdutoEncontrado from './ProdutoEncontrado';
-import RegistradoComSucesso from './RegistradoComSucesso';
+import { ProdutoEncontradoType } from '@/types/types';
+import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
+
+const produtoTeste: ProdutoEncontradoType = {
+    id: '123123',
+    nome: 'Arroz Tio João 2kg',
+    categoria: 'Arroz',
+    quantidade: 1,
+    peso: 2,
+    unidadeMedida: 'kg',
+};
 
 export default function RegistrarDoacao({ navigation, route }: { navigation: any; route: any }) {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
-    const [visible, setVisible] = useState(false);
-    const [successReading, setSuccessReading] = useState(false);
-    const [successRegister, setSuccessRegister] = useState(false);
+    const [visibleModal, setVisibleModal] = useState(false);
 
-    const showModal = () => setVisible(true);
-    const hideModal = () => setVisible(false);
-
-    const showProductFound = () => setSuccessReading(true);
-    const hideProductFound = () => setSuccessReading(false);
-
-    const showSuccessRegister = () => setSuccessRegister(true);
-    const hideSuccessRegister = () => setSuccessRegister(false);
+    const showModal = () => setVisibleModal(true);
+    const hideModal = () => setVisibleModal(false);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
@@ -28,15 +29,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     // falha ao ler código de barras
     // Falha ao clicar no botao de registrar
 
-    const handleClickRegister = () => {
-        hideProductFound();
-        showSuccessRegister();
-    };
-
-    const handleClickNewRegister = () => {
-        hideSuccessRegister();
-        hideModal();
-    };
+    const [produto, setProduto] = useState<ProdutoEncontradoType | null>(null);
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -80,7 +73,6 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             mode="contained"
                             onPress={() => {
                                 showModal();
-                                showProductFound();
                             }}
                             style={styles.scanButton}
                         >
@@ -95,63 +87,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                     {/* </View> */}
                     {/* </CameraView> */}
 
-                    <Portal>
-                        <Modal
-                            visible={visible}
-                            onDismiss={hideModal}
-                            animationType="slide"
-                            transparent={true}
-                        >
-                            <Surface
-                                style={{
-                                    flex: 1,
-                                    padding: 20,
-                                    borderTopLeftRadius: 20,
-                                    borderTopRightRadius: 20,
-                                    borderBottomLeftRadius: 0,
-                                    borderBottomRightRadius: 0,
-                                    backgroundColor: '#ffffff',
-                                    elevation: 4,
-                                    marginHorizontal: 10,
-                                    marginTop: 20 * vh,
-                                    height: 50 * vh,
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                {successReading && <ProdutoEncontrado />}
-
-                                {successReading && (
-                                    <Button
-                                        mode="contained"
-                                        onPress={() => handleClickRegister()}
-                                        style={styles.scanButton}
-                                    >
-                                        Registrar
-                                    </Button>
-                                )}
-
-                                {successRegister && <RegistradoComSucesso />}
-
-                                {successRegister && (
-                                    <Button
-                                        mode="contained"
-                                        onPress={() => handleClickNewRegister()}
-                                        style={styles.scanButton}
-                                    >
-                                        Registrar nova doação
-                                    </Button>
-                                )}
-
-                                <Button
-                                    mode="outlined"
-                                    onPress={() => handleClickNewRegister()}
-                                    style={styles.scanButton}
-                                >
-                                    Voltar
-                                </Button>
-                            </Surface>
-                        </Modal>
-                    </Portal>
+                    <ModalRegistroDeDoacao visible={visibleModal} hideModal={hideModal} />
                 </View>
             </View>
         </ScrollView>

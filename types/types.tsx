@@ -7,3 +7,12 @@ export type ProdutoUpdateType = {
     eh_combo: boolean;
     key_img?: string;
 };
+
+export type ProdutoEncontradoType = {
+    id: string;
+    nome: string;
+    categoria: string;
+    quantidade: number;
+    peso: number;
+    unidadeMedida: string;
+};
