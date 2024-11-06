@@ -4,18 +4,23 @@ import { Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
 import { CameraType, useCameraPermissions } from 'expo-camera';
 import { vh } from '@/utils/utils';
 import ProdutoEncontrado from './ProdutoEncontrado';
+import RegistradoComSucesso from './RegistradoComSucesso';
 
 export default function RegistrarDoacao({ navigation, route }: { navigation: any; route: any }) {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
     const [visible, setVisible] = useState(false);
     const [successReading, setSuccessReading] = useState(false);
+    const [successRegister, setSuccessRegister] = useState(false);
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
 
-    const showProduct = () => setSuccessReading(true);
-    const hideProduct = () => setSuccessReading(false);
+    const showProductFound = () => setSuccessReading(true);
+    const hideProductFound = () => setSuccessReading(false);
+
+    const showSuccessRegister = () => setSuccessRegister(true);
+    const hideSuccessRegister = () => setSuccessRegister(false);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
@@ -24,7 +29,13 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     // Falha ao clicar no botao de registrar
 
     const handleClickRegister = () => {
-        hideProduct();
+        hideProductFound();
+        showSuccessRegister();
+    };
+
+    const handleClickNewRegister = () => {
+        hideSuccessRegister();
+        hideModal();
     };
 
     return (
@@ -69,7 +80,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             mode="contained"
                             onPress={() => {
                                 showModal();
-                                showProduct();
+                                showProductFound();
                             }}
                             style={styles.scanButton}
                         >
@@ -109,26 +120,34 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             >
                                 {successReading && <ProdutoEncontrado />}
 
-                                <Button
-                                    mode="contained"
-                                    onPress={() => handleClickRegister()}
-                                    style={styles.scanButton}
-                                >
-                                    Registrar
-                                </Button>
+                                {successReading && (
+                                    <Button
+                                        mode="contained"
+                                        onPress={() => handleClickRegister()}
+                                        style={styles.scanButton}
+                                    >
+                                        Registrar
+                                    </Button>
+                                )}
+
+                                {successRegister && <RegistradoComSucesso />}
+
+                                {successRegister && (
+                                    <Button
+                                        mode="contained"
+                                        onPress={() => handleClickNewRegister()}
+                                        style={styles.scanButton}
+                                    >
+                                        Registrar nova doação
+                                    </Button>
+                                )}
+
                                 <Button
                                     mode="outlined"
-                                    onPress={() => {}}
+                                    onPress={() => handleClickNewRegister()}
                                     style={styles.scanButton}
                                 >
                                     Voltar
-                                </Button>
-                                <Button
-                                    mode="outlined"
-                                    onPress={() => hideModal()}
-                                    style={styles.scanButton}
-                                >
-                                    fechar modal{' '}
                                 </Button>
                             </Surface>
                         </Modal>
