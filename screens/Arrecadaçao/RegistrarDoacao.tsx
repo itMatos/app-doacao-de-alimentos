@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Animated, Modal, TouchableOpacity } from 'react-native';
 import { Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
-import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraType, CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { vh } from '@/utils/utils';
-import { ProdutoEncontradoType } from '@/types/types';
+import { ProdutoEncontradoApiType } from '@/types/types';
 import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
+import { getProductByBarCode } from '@/services/RotaryApi';
+import axios from 'axios';
 
-const produtoTeste: ProdutoEncontradoType = {
-    id: '123123',
-    nome: 'Arroz Tio João 2kg',
-    categoria: 'Arroz',
-    quantidade: 1,
-    peso: 2,
-    unidadeMedida: 'kg',
+const produtoTeste: ProdutoEncontradoApiType = {
+    gtin: '7897954900073',
+    id_produto_categoria: 'Arroz',
+    codigo_ncm: '10063021',
+    medida_por_embalagem: null,
+    produto_medida_sigla: null,
+    produto_marca: 'NÃO INFORMADO',
+    nome: 'Arroz Minamimai Curto Japones T1 5kg',
+    nome_sem_acento: 'Arroz Minamimai Curto Japones T1 5kg',
 };
 
 export default function RegistrarDoacao({ navigation, route }: { navigation: any; route: any }) {
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
     const [visibleModal, setVisibleModal] = useState(false);
+    const [cameraVisible, setCameraVisible] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
+
+    const showCamera = () => setCameraVisible(true);
+    const hideCamera = () => setCameraVisible(false);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
@@ -29,7 +38,36 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     // falha ao ler código de barras
     // Falha ao clicar no botao de registrar
 
-    const [produto, setProduto] = useState<ProdutoEncontradoType | null>(null);
+    const simulateRequest = async () => {
+        showModal();
+        setIsLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setProduto(produtoTeste);
+        setIsLoading(false);
+        return produtoTeste;
+    };
+
+    const [produto, setProduto] = useState<any | null>(null);
+
+    const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
+        const code = barcode.data;
+        searchProductInDatabase(code);
+    };
+
+    const searchProductInDatabase = async (code: string) => {
+        showModal();
+        setIsLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+            const response = await getProductByBarCode(code);
+            setProduto(response);
+        } catch (error: any) {
+            // TODO: deve mostrar modal de registrar novo produto
+            console.error('Erro ao buscar produto:', error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -47,7 +85,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         <Button
                             onPress={requestPermission}
                             mode="contained"
-                            style={{ margin: 20, borderRadius: 10, backgroundColor: '#81c784' }}
+                            style={styles.allowCamera}
                         >
                             Conceder permissão
                         </Button>
@@ -72,16 +110,25 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         <Button
                             mode="contained"
                             onPress={() => {
-                                showModal();
+                                {
+                                    simulateRequest();
+                                }
                             }}
                             style={styles.scanButton}
                         >
-                            abrir modal
+                            simular request
                         </Button>
                     </View>
 
                     {!visibleModal && (
-                        <CameraView style={styles.camera} facing={facing}>
+                        <CameraView
+                            style={styles.camera}
+                            facing={facing}
+                            barcodeScannerSettings={{
+                                barcodeTypes: ['ean13', 'ean8'],
+                            }}
+                            onBarcodeScanned={handleBarCodeScanned}
+                        >
                             <View style={styles.buttonContainer}>
                                 <TouchableOpacity style={styles.button} onPress={() => {}}>
                                     <Text style={styles.text}>{''}</Text>
@@ -107,7 +154,11 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         </Button>
                     </View>
 
-                    <ModalRegistroDeDoacao visible={visibleModal} hideModal={hideModal} />
+                    <ModalRegistroDeDoacao
+                        visible={visibleModal}
+                        hideModal={hideModal}
+                        isLoading={isLoading}
+                    />
                 </View>
             </View>
         </ScrollView>
@@ -174,5 +225,22 @@ const styles = StyleSheet.create({
     chip: {
         backgroundColor: '#81c784',
         marginVertical: 4,
+    },
+    surfaceStyle: {
+        flex: 1,
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        backgroundColor: '#ffffff',
+        marginHorizontal: 10,
+        marginTop: 20 * vh,
+        justifyContent: 'center',
+    },
+    allowCamera: {
+        margin: 20,
+        borderRadius: 10,
+        backgroundColor: '#81c784',
     },
 });

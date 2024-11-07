@@ -1,10 +1,6 @@
-import { vh } from '@/utils/utils';
-import React, { useState } from 'react';
-import { Modal, StyleSheet, View } from 'react-native';
-import { Button, Divider, Icon, Portal, Surface, Text, TextInput } from 'react-native-paper';
-import { Dropdown } from 'react-native-paper-dropdown';
-import { Provider as PaperProvider } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button, Icon, Text } from 'react-native-paper';
 
 export default function RegistradoComSucesso({
     handleClickNewRegister,
@@ -15,6 +11,8 @@ export default function RegistradoComSucesso({
         <View
             style={{
                 flex: 1,
+                justifyContent: 'center',
+                marginHorizontal: 'auto',
             }}
         >
             <View style={styles.container}>

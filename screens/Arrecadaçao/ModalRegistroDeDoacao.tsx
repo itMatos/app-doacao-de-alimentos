@@ -1,31 +1,49 @@
 import React, { useState } from 'react';
-import { Surface } from 'react-native-paper';
-import { ProdutoEncontradoType } from '@/types/types';
+import { Surface, Text } from 'react-native-paper';
+import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
 import { Modal, StyleSheet } from 'react-native';
 import ProdutoEncontrado from './ProdutoEncontrado';
 import { vh } from '@/utils/utils';
 import RegistradoComSucesso from './RegistradoComSucesso';
 
-const produtoTeste: ProdutoEncontradoType = {
-    id: '123123',
-    nome: 'Arroz Tio João 2kg',
-    categoria: 'Arroz',
-    quantidade: 1,
-    peso: 2,
-    unidadeMedida: 'kg',
+// objeto para teste sem precisar utilizar api
+const produtoTesteApiResult: ProdutoEncontradoApiType = {
+    gtin: '7893500020134',
+    id_produto_categoria: 'Arroz',
+    codigo_ncm: '10063021',
+    medida_por_embalagem: null,
+    produto_medida_sigla: null,
+    produto_marca: 'NÃO INFORMADO',
+    nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
+    nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
 };
+
+const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
+    codigoDeBarras: data.gtin,
+    categoriaId: data.id_produto_categoria ?? 'Arroz',
+    codigoNCM: data.codigo_ncm,
+    quantidadePorEmbalagem: data.medida_por_embalagem ?? '1',
+    siglaMedida: data.produto_medida_sigla ?? 'kg',
+    marca: data.produto_marca ?? 'MARCA NÃO INFORMADA',
+    nome: data.nome,
+    nomeSemAcento: data.nome_sem_acento,
+});
 
 export default function ModalRegistroDeDoacao({
     visible,
     hideModal,
+    isLoading,
 }: {
     visible: boolean;
     hideModal: () => void;
+    isLoading: boolean;
 }) {
     const [successRegister, setSuccessRegister] = useState(false);
 
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
+
+    const produtoFiltered = mapProdutoEncontrado(produtoTesteApiResult);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado: ok
@@ -33,7 +51,7 @@ export default function ModalRegistroDeDoacao({
     // falha ao ler código de barras: vai ser usado botao de inserir manualmente
     // Falha ao clicar no botao de registrar: voltar para a tela de registrar doacao
 
-    const [produto, setProduto] = useState<ProdutoEncontradoType | null>(null);
+    const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
 
     const handleClickRegisterDonation = () => {
         showSuccessRegister();
@@ -47,15 +65,16 @@ export default function ModalRegistroDeDoacao({
     return (
         <Modal visible={visible} onDismiss={hideModal} animationType="slide" transparent={true}>
             <Surface mode="flat" style={styles.surfaceStyle}>
-                {!successRegister && (
+                {isLoading && <Text>Carregando...</Text>}
+                {!successRegister && !isLoading && (
                     <ProdutoEncontrado
-                        produto={produtoTeste}
-                        setProduto={setProduto}
+                        produto={produto}
+                        setProduto={() => {}}
                         handleClickRegisterDonation={handleClickRegisterDonation}
                         hideModal={handleClickNewRegister}
                     />
                 )}
-                {successRegister && (
+                {successRegister && !isLoading && (
                     <RegistradoComSucesso handleClickNewRegister={handleClickNewRegister} />
                 )}
             </Surface>

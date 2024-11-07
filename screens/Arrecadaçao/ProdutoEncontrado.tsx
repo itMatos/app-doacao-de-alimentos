@@ -2,16 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { ProdutoEncontradoType } from '@/types/types';
-
-const produtoTeste: ProdutoEncontradoType = {
-    id: '123123',
-    nome: 'Arroz Tio João 2kg',
-    categoria: 'Arroz',
-    quantidade: 1,
-    peso: 2,
-    unidadeMedida: 'kg',
-};
+import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
 
 const categories = [
     { label: 'Feijão', value: 'Feijão' },
@@ -37,18 +28,19 @@ export default function ProdutoEncontrado({
     handleClickRegisterDonation,
     hideModal,
 }: {
-    produto: ProdutoEncontradoType;
-    setProduto: (produto: ProdutoEncontradoType) => void;
+    produto: ProdutoType | null;
+    setProduto: (produto: ProdutoEncontradoApiType) => void;
     handleClickRegisterDonation: () => void;
     hideModal: () => void;
 }) {
-    const [selectedCategory, setSelectedCategory] = useState(produto.categoria);
-    const [selectedQuantity, setSelectedQuantity] = useState(produto.quantidade);
-    const [total, setTotal] = useState(produto.peso * produto.quantidade);
+    const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
+    const [totalDonation, setTotalDonation] = useState(Number(produto?.quantidadePorEmbalagem));
 
     const handleQuantityChange = (value: number) => {
+        const pesoTotal = Number(produto?.quantidadePorEmbalagem) * value;
         setSelectedQuantity(value);
-        setTotal(produto.peso * value);
+        setTotalDonation(pesoTotal);
     };
 
     return (
@@ -68,23 +60,24 @@ export default function ProdutoEncontrado({
 
             <TextInput
                 label="Nome do produto"
-                value={produtoTeste.nome}
+                value={produto?.nomeSemAcento}
                 mode="outlined"
                 editable={false}
                 style={{ marginBottom: 16 }}
+                multiline={true}
             />
 
             <TextInput
                 label="Peso"
                 mode="outlined"
-                value={produtoTeste.peso + produtoTeste.unidadeMedida}
+                value={`${produto?.quantidadePorEmbalagem ?? ''}${produto?.siglaMedida ?? ''}`}
                 editable={false}
                 style={{ marginBottom: 16 }}
             />
 
             <TextInput
                 label="Categoria"
-                value={produtoTeste.categoria}
+                value={produto?.categoriaId}
                 mode="outlined"
                 style={{ marginBottom: 16 }}
                 render={(props) => (
@@ -107,7 +100,7 @@ export default function ProdutoEncontrado({
 
             <TextInput
                 label="Quantidade"
-                value={`${produtoTeste.quantidade}`}
+                value={`${selectedQuantity}`}
                 mode="outlined"
                 style={{ marginBottom: 16 }}
                 render={(props) => (
@@ -131,7 +124,7 @@ export default function ProdutoEncontrado({
                     Doação total
                 </Text>
                 <Text style={styles.title} variant="headlineSmall">
-                    {total} {produtoTeste.unidadeMedida}
+                    {totalDonation} {produto?.siglaMedida}
                 </Text>
             </View>
 
