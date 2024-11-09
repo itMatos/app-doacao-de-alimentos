@@ -7,6 +7,7 @@ import { ProdutoEncontradoApiType } from '@/types/types';
 import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
 import { getProductByBarCode } from '@/services/RotaryApi';
 import axios from 'axios';
+import RegistrarManualmente from './RegistrarManualmente';
 
 const produtoTeste: ProdutoEncontradoApiType = {
     gtin: '7897954900073',
@@ -25,12 +26,16 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const [visibleModal, setVisibleModal] = useState(false);
     const [cameraVisible, setCameraVisible] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const [manualRegister, setManualRegister] = useState(false);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
 
     const showCamera = () => setCameraVisible(true);
     const hideCamera = () => setCameraVisible(false);
+
+    const showManualRegister = () => setManualRegister(true);
+    const hideManualRegister = () => setManualRegister(false);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
@@ -44,7 +49,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setProduto(produtoTeste);
         setIsLoading(false);
-        return produtoTeste;
+        // return produtoTeste;
     };
 
     const [produto, setProduto] = useState<any | null>(null);
@@ -92,74 +97,82 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                     </View>
                 )}
 
-                <View
-                    style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                    }}
-                >
-                    <Text style={styles.messageCamera} variant="headlineSmall">
-                        Aponte a câmera do dispositivo para o código de barras
-                    </Text>
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Button
-                            mode="contained"
-                            onPress={() => {
-                                {
-                                    simulateRequest();
-                                }
-                            }}
-                            style={styles.scanButton}
-                        >
-                            simular request
-                        </Button>
-                    </View>
-
-                    {!visibleModal && (
-                        <CameraView
-                            style={styles.camera}
-                            facing={facing}
-                            barcodeScannerSettings={{
-                                barcodeTypes: ['ean13', 'ean8'],
-                            }}
-                            onBarcodeScanned={handleBarCodeScanned}
-                        >
-                            <View style={styles.buttonContainer}>
-                                <TouchableOpacity style={styles.button} onPress={() => {}}>
-                                    <Text style={styles.text}>{''}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </CameraView>
-                    )}
-
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Button
-                            mode="contained"
-                            style={{
-                                margin: 20,
-                                borderRadius: 10,
-                            }}
-                        >
-                            Inserir código manualmente
-                        </Button>
-                    </View>
-
-                    <ModalRegistroDeDoacao
-                        visible={visibleModal}
-                        hideModal={hideModal}
-                        isLoading={isLoading}
+                {manualRegister ? (
+                    <RegistrarManualmente
+                        hideManualRegister={hideManualRegister}
+                        simulateRequest={simulateRequest}
+                        searchProductInDatabase={searchProductInDatabase}
                     />
-                </View>
+                ) : (
+                    <View
+                        style={{
+                            flex: 1,
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <Text style={styles.messageCamera} variant="headlineSmall">
+                            Aponte a câmera do dispositivo para o código de barras
+                        </Text>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Button
+                                mode="contained"
+                                onPress={() => {
+                                    {
+                                        simulateRequest();
+                                    }
+                                }}
+                                style={styles.scanButton}
+                            >
+                                simular request
+                            </Button>
+                        </View>
+
+                        {!visibleModal && (
+                            <CameraView
+                                style={styles.camera}
+                                facing={facing}
+                                barcodeScannerSettings={{
+                                    barcodeTypes: ['ean13', 'ean8'],
+                                }}
+                                onBarcodeScanned={handleBarCodeScanned}
+                            >
+                                <View style={styles.buttonContainer}>
+                                    <TouchableOpacity style={styles.button} onPress={() => {}}>
+                                        <Text style={styles.text}>{''}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </CameraView>
+                        )}
+
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Button
+                                mode="contained"
+                                style={{
+                                    margin: 20,
+                                    borderRadius: 10,
+                                }}
+                                onPress={() => showManualRegister()}
+                            >
+                                Inserir código manualmente
+                            </Button>
+                        </View>
+                    </View>
+                )}
+                <ModalRegistroDeDoacao
+                    visible={visibleModal}
+                    hideModal={hideModal}
+                    isLoading={isLoading}
+                />
             </View>
         </ScrollView>
     );
