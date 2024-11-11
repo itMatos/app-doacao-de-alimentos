@@ -4,8 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BottomNavigation } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import EstoqueTabScreens from '@/screens/Estoque/EstoqueScreens';
+import EstoqueTabScreens from '@/screens/Produtos/EstoqueScreens';
 import ArrecadacaoTab from '@/screens/Arrecadaçao/ArrecadacaoTab';
+import ProdutosTab from '@/screens/Produtos/ProdutosTab';
 
 export default function TabLayout() {
     const Tab = createBottomTabNavigator();
@@ -81,7 +82,7 @@ export default function TabLayout() {
             />
             <Tab.Screen
                 name="Produtos"
-                component={EstoqueTabScreens}
+                component={ProdutosTab}
                 options={{
                     tabBarLabel: 'Produtos',
                     tabBarIcon: ({ color, size }) => {
