@@ -8,6 +8,7 @@ import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
 import { getProductByBarCode } from '@/services/RotaryApi';
 import axios from 'axios';
 import RegistrarManualmente from './RegistrarManualmente';
+import ModalCadastrarNovoProduto from './ModalCadastrarNovoProduto';
 
 const produtoTeste: ProdutoEncontradoApiType = {
     gtin: '7897954900073',
@@ -27,6 +28,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const [cameraVisible, setCameraVisible] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [manualRegister, setManualRegister] = useState(false);
+    const [visibleModalProductNotFoundVisible, setVisibleModalProductNotFound] = useState(false);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -36,6 +38,9 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
 
     const showManualRegister = () => setManualRegister(true);
     const hideManualRegister = () => setManualRegister(false);
+
+    const showModalProductNotFound = () => setVisibleModalProductNotFound(true);
+    const hideModalProductNotFound = () => setVisibleModalProductNotFound(false);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
@@ -50,6 +55,13 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         setProduto(produtoTeste);
         setIsLoading(false);
         // return produtoTeste;
+    };
+
+    const simulateNotFound = async () => {
+        showModalProductNotFound();
+        setIsLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsLoading(false);
     };
 
     const [produto, setProduto] = useState<any | null>(null);
@@ -68,6 +80,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
             setProduto(response);
         } catch (error: any) {
             // TODO: deve mostrar modal de registrar novo produto
+            // TODO: deve mostrar o modal de cadastrar novo produto
             console.error('Erro ao buscar produto:', error.message);
         } finally {
             setIsLoading(false);
@@ -130,9 +143,21 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             >
                                 simular request
                             </Button>
+
+                            <Button
+                                mode="contained"
+                                onPress={() => {
+                                    {
+                                        simulateNotFound();
+                                    }
+                                }}
+                                style={styles.scanButton}
+                            >
+                                simular produto nao encontrado
+                            </Button>
                         </View>
 
-                        {!visibleModal && (
+                        {!visibleModalProductNotFoundVisible && (
                             <CameraView
                                 style={styles.camera}
                                 facing={facing}
@@ -167,6 +192,14 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             </Button>
                         </View>
                     </View>
+                )}
+                {visibleModalProductNotFoundVisible && (
+                    <ModalCadastrarNovoProduto
+                        visible={visibleModalProductNotFoundVisible}
+                        hideModalProductNotFound={hideModalProductNotFound}
+                        isLoading={isLoading}
+                        code={'123123123'}
+                    />
                 )}
                 <ModalRegistroDeDoacao
                     visible={visibleModal}
