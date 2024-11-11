@@ -44,6 +44,7 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
         // TODO - adicionar modal de confirmação
         if (arrecadacaoEmAndamento) {
             closeCampaign();
+            // TODO: redirecionar para a tela de campanhas
             navigation.navigate('ArrecadacaoTelaInicial');
         } else {
             // TODO: adicionar snackbar
@@ -72,11 +73,10 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
                                 mode="contained"
                                 size={100}
                                 style={styles.iconButton}
-                                onPress={() => console.log('Pressed escanear código de barras')}
                             />
                             <Button
                                 mode="contained"
-                                onPress={() => console.log('Pressed Escanear código de barras')}
+                                onPress={() => navigation.navigate('RegistrarDoacao')}
                                 style={styles.scanButton}
                             >
                                 Escanear código de barras
@@ -144,12 +144,6 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
-    scrollContent: {
-        width: '100%',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     surface: {
         marginHorizontal: 5,
         marginVertical: 20,
@@ -194,10 +188,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 5,
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
-    },
-    innerContainerCategory: {
-        alignItems: 'center',
-        borderRadius: 100,
     },
     chip: {
         backgroundColor: '#81c784',
