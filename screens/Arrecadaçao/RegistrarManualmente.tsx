@@ -1,6 +1,6 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Animated, Modal, TouchableOpacity } from 'react-native';
-import { Appbar, Button, Portal, Surface, Text, TextInput } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, ScrollView } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 
 export default function RegistrarManualmente({
     hideManualRegister,
@@ -12,7 +12,6 @@ export default function RegistrarManualmente({
     searchProductInDatabase: (code: string) => void;
 }) {
     const [code, setCode] = useState('');
-    const [visibleModalProductNotFoundVisible, setVisibleModalProductNotFound] = useState(false);
 
     const handleBarCodeInput = (code: string) => {
         setCode(code);
