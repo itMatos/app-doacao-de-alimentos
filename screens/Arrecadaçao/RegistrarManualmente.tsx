@@ -1,33 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { SetStateAction, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Animated, Modal, TouchableOpacity } from 'react-native';
 import { Appbar, Button, Portal, Surface, Text, TextInput } from 'react-native-paper';
-import { CameraType, CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { vh } from '@/utils/utils';
-import { ProdutoEncontradoApiType } from '@/types/types';
-import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
-import { getProductByBarCode } from '@/services/RotaryApi';
 
 export default function RegistrarManualmente({
     hideManualRegister,
     simulateRequest,
-    searchProductInDatabase,
+    searchProductInDatabase
 }: {
     hideManualRegister: () => void;
     simulateRequest: () => void;
     searchProductInDatabase: (code: string) => void;
 }) {
     const [code, setCode] = useState('');
-
-    const handleSearchProduct = async () => {
-        const code = '123456789';
-        const product = await getProductByBarCode(code);
-        console.log(product);
-        // TODO: Implementar a lógica de captura de código de barras
-        // searchProductInDatabase (code)
-    };
+    const [visibleModalProductNotFoundVisible, setVisibleModalProductNotFound] = useState(false);
 
     const handleBarCodeInput = (code: string) => {
-        console.log('code', code);
         setCode(code);
     };
 
@@ -54,9 +41,9 @@ export default function RegistrarManualmente({
                     <Button
                         icon={'magnify'}
                         mode="contained"
-                        onPress={() => {
-                            {
-                                simulateRequest();
+                        onPress={async () => {
+                            {  
+                                searchProductInDatabase(code)
                             }
                         }}
                         style={{ marginTop: 20 }}
