@@ -18,7 +18,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
                 </Appbar.Header>
             </View>
             <View style={styles.content}>
-                {teste ? (
+                {!state.arrecadacaoEmAndamento ? (
                     <SemArrecadacao navigation={navigation} route={route} />
                 ) : (
                     <CampanhaEmAndamento navigation={navigation} route={route} />

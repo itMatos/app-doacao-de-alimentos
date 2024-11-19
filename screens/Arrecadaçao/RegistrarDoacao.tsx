@@ -14,7 +14,7 @@ const produtoTeste: ProdutoEncontradoApiType = {
     gtin: '7897954900073',
     id_produto_categoria: 'Arroz',
     codigo_ncm: '10063021',
-    medida_por_embalagem: null,
+    medida_por_embalagem: '2',
     produto_medida_sigla: null,
     produto_marca: 'NÃO INFORMADO',
     nome: 'Arroz Minamimai Curto Japones T1 5kg',

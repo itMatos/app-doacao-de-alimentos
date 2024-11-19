@@ -11,7 +11,7 @@ const produtoTesteApiResult: ProdutoEncontradoApiType = {
     gtin: '7893500020134',
     id_produto_categoria: 'Arroz',
     codigo_ncm: '10063021',
-    medida_por_embalagem: null,
+    medida_por_embalagem: '2',
     produto_medida_sigla: null,
     produto_marca: 'NÃO INFORMADO',
     nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',

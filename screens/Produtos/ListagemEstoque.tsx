@@ -11,7 +11,13 @@ import { TouchableOpacity } from 'react-native';
 
 const vh = Dimensions.get('window').height / 100;
 
-export default function ListagemEstoqueScreen({ navigation, route }: { navigation: any; route: any }) {
+export default function ListagemEstoqueScreen({
+    navigation,
+    route,
+}: {
+    navigation: any;
+    route: any;
+}) {
     const [state, setState] = useState({ open: false });
     const [barCode, setBarCode] = useState('');
 
@@ -39,6 +45,7 @@ export default function ListagemEstoqueScreen({ navigation, route }: { navigatio
 
     const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
         const teste = `Bar code with type ${type} and data ${data} has been scanned!`;
+        console.log('teste', teste);
         setBarCode(data);
     };
 
@@ -79,7 +86,10 @@ export default function ListagemEstoqueScreen({ navigation, route }: { navigatio
                             }
                         >
                             <View style={styles.buttonContainer}>
-                                <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={toggleCameraFacing}
+                                >
                                     <Text style={styles.text}>Flip Camera</Text>
                                 </TouchableOpacity>
                             </View>
