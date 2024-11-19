@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ProdutosListagemCategorias from './ProdutosListagemCategorias';
+import ConsultarProdutoUsandoCamera from './ConsultarProdutoUsandoCamera';
 
 export default function ProdutosTab({ navigation, route }: { navigation: any; route: any }) {
     const Stack = createNativeStackNavigator();
@@ -11,6 +12,11 @@ export default function ProdutosTab({ navigation, route }: { navigation: any; ro
                 <Stack.Screen
                     name="ProdutosListagemCategorias"
                     component={ProdutosListagemCategorias}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ConsultarUsandoCamera"
+                    component={ConsultarProdutoUsandoCamera}
                     options={{ headerShown: false }}
                 />
                 {/* <Stack.Screen

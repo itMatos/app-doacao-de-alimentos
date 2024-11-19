@@ -16,7 +16,7 @@ export default function ProdutosListagemCategorias({
     const teste = false;
 
     return (
-        <View style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }}>
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Produtos" />
@@ -39,7 +39,7 @@ export default function ProdutosListagemCategorias({
                     />
                     <Button
                         mode="contained"
-                        onPress={() => navigation.navigate('RegistrarDoacao')}
+                        onPress={() => navigation.navigate('ConsultarUsandoCamera')}
                         style={styles.scanButton}
                     >
                         Consultar usando a câmera
@@ -48,7 +48,7 @@ export default function ProdutosListagemCategorias({
             </Surface>
 
             <ListagemCategorias />
-        </View>
+        </ScrollView>
     );
 }
 
