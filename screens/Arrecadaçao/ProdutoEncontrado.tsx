@@ -1,26 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
-
-const categories = [
-    { label: 'Feijão', value: 'Feijão' },
-    { label: 'Arroz', value: 'Arroz' },
-    { label: 'Macarrão', value: 'Macarrão' },
-    { label: 'Açúcar', value: 'Açúcar' },
-    { label: 'Óleo', value: 'Óleo' },
-    { label: 'Leite', value: 'Leite' },
-    { label: 'Farinha', value: 'Farinha' },
-    { label: 'Sal', value: 'Sal' },
-    { label: 'Café', value: 'Café' },
-    { label: 'Biscoito', value: 'Biscoito' },
-    { label: 'Enlatados', value: 'Enlatados' },
-    { label: 'Bebidas', value: 'Bebidas' },
-    { label: 'Higiene pessoal', value: 'Higiene pessoal' },
-    { label: 'Limpeza', value: 'Limpeza' },
-    { label: 'Outros', value: 'Outros' },
-];
+import { getAllCategories } from '@/services/RotaryApi';
 
 export default function ProdutoEncontrado({
     produto,
@@ -37,11 +20,23 @@ export default function ProdutoEncontrado({
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [totalDonation, setTotalDonation] = useState(Number(produto?.quantidadePorEmbalagem));
 
+    const [categories, setCategories] = useState<String[]>([])
+
+    useEffect(() => {
+        const getCategories = async () => {
+            await getAllCategories()
+            .then(categoriesList => setCategories(categoriesList))
+            .catch(error => console.error(error))
+        }
+    
+        getCategories()
+      }, []);
+
     const handleQuantityChange = (value: number) => {
         const pesoTotal = Number(produto?.quantidadePorEmbalagem) * value;
         setSelectedQuantity(value);
         setTotalDonation(pesoTotal);
-    };
+    };    
 
     return (
         <View style={{ padding: 16 }}>
@@ -89,9 +84,9 @@ export default function ProdutoEncontrado({
                         <Picker.Item label="Selecione a categoria" value="" />
                         {categories.map((category) => (
                             <Picker.Item
-                                key={category.label}
-                                label={category.label}
-                                value={category.value}
+                                key={category}
+                                label={category}
+                                value={category}
                             />
                         ))}
                     </Picker>
@@ -165,3 +160,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
 });
+// function useEffect(arg0: () => void, arg1: never[]) {
+//     throw new Error('Function not implemented.');
+// }
+
