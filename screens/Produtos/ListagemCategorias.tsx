@@ -38,12 +38,15 @@ export default function ListagemCategorias() {
 
                 <View style={styles.innerContainer}>
                     <Divider />
-                    {mockCategorias.map((categoria) => (
-                        <>
-                            <View style={styles.rowContainer} key={categoria}>
-                                <Text style={styles.leftText}>{categoria}</Text>
+                    {mockCategorias.map((categoria, index) => (
+                        <React.Fragment key={`fragment-${categoria}`}>
+                            <View style={styles.rowContainer} key={`view-${categoria}`}>
+                                <Text style={styles.leftText} key={`text-${categoria}`}>
+                                    {categoria}
+                                </Text>
                                 <View style={styles.rightContainer}>
                                     <Button
+                                        key={`button-${categoria}`}
                                         icon={() => <Icon source="arrow-right" size={16} />}
                                         mode="text"
                                         onPress={() => console.log('Ver detalhes produto')}
@@ -56,10 +59,13 @@ export default function ListagemCategorias() {
                                     </Button>
                                 </View>
                             </View>
-                            <View style={{ flex: 1, width: '100%' }}>
+                            <View
+                                style={{ flex: 1, width: '100%' }}
+                                key={`category-divider-${index}`}
+                            >
                                 <Divider />
                             </View>
-                        </>
+                        </React.Fragment>
                     ))}
                 </View>
             </Surface>
