@@ -54,7 +54,6 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setProduto(produtoTeste);
         setIsLoading(false);
-        // return produtoTeste;
     };
 
     const simulateNotFound = async () => {
@@ -64,7 +63,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         setIsLoading(false);
     };
 
-    const [produto, setProduto] = useState<any | null>(null);
+    const [produto, setProduto] = useState<any | null>({});
 
     const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
         const code = barcode.data;
@@ -78,10 +77,9 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         try {
             const response = await getProductByBarCode(code);
             setProduto(response);
+            hideModalProductNotFound();
         } catch (error: any) {
-            // TODO: deve mostrar modal de registrar novo produto
-            // TODO: deve mostrar o modal de cadastrar novo produto
-            console.error('Erro ao buscar produto:', error.message);
+            showModalProductNotFound()
         } finally {
             setIsLoading(false);
         }
@@ -205,6 +203,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                     visible={visibleModal}
                     hideModal={hideModal}
                     isLoading={isLoading}
+                    produto={produto}
                 />
             </View>
         </ScrollView>
