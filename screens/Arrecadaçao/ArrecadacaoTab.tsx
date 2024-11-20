@@ -20,7 +20,7 @@ export default function ArrecadacaoTab({ navigation, route }: { navigation: any;
                     />
                     <Stack.Screen
                         name="CriarNovaCampanha"
-                        component={CriarNovaCampanha}
+                        component={CriarNovaCampanha} 
                         options={{ headerShown: false }}
                     />
                     <Stack.Screen

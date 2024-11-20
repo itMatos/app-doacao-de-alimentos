@@ -33,17 +33,19 @@ export default function ModalRegistroDeDoacao({
     visible,
     hideModal,
     isLoading,
+    produto,
 }: {
     visible: boolean;
     hideModal: () => void;
     isLoading: boolean;
+    produto: ProdutoEncontradoApiType;
 }) {
     const [successRegister, setSuccessRegister] = useState(false);
 
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
 
-    const produtoFiltered = mapProdutoEncontrado(produtoTesteApiResult);
+    const produtoFiltered = mapProdutoEncontrado(produto);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado: ok
@@ -51,7 +53,7 @@ export default function ModalRegistroDeDoacao({
     // falha ao ler código de barras: vai ser usado botao de inserir manualmente
     // Falha ao clicar no botao de registrar: voltar para a tela de registrar doacao
 
-    const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
+    // const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
 
     const handleClickRegisterDonation = () => {
         showSuccessRegister();
@@ -68,7 +70,7 @@ export default function ModalRegistroDeDoacao({
                 {isLoading && <Text>Carregando...</Text>}
                 {!successRegister && !isLoading && (
                     <ProdutoEncontrado
-                        produto={produto}
+                        produto={produtoFiltered}
                         setProduto={() => {}}
                         handleClickRegisterDonation={handleClickRegisterDonation}
                         hideModal={handleClickNewRegister}
