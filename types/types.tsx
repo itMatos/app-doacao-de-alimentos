@@ -15,7 +15,7 @@ export type ProdutoEncontradoApiType = {
     medida_por_embalagem: string | null;
     produto_medida_sigla: string | null;
     produto_marca: string | null;
-    nome: string;
+    nome?: string;
     nome_sem_acento: string;
 };
 

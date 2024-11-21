@@ -18,7 +18,7 @@ import { BarcodeScanningResult, CameraType, CameraView } from 'expo-camera';
 import { vh } from '@/utils/utils';
 import { getProductByBarCode } from '@/services/RotaryApi';
 import { ProdutoEncontradoApiType } from '@/types/types';
-import ModalDetalhesDoProduto from './ModalDetalhesDoProduto';
+import DetalhesDoProduto from './DetalhesDoProduto';
 
 // objeto para teste sem precisar utilizar api
 const produtoTesteApiResult: ProdutoEncontradoApiType = {
@@ -42,7 +42,7 @@ export default function ConsultarProdutoUsandoCamera({
     const { state } = useContext(ArrecadacaoContext);
     const teste = false;
 
-    const [visibleCamera, setVisibleCamera] = useState(true);
+    const [visibleCamera, setVisibleCamera] = useState(false);
     const [productDetails, setProductDetails] = useState<any>();
     const [facing, setFacing] = useState<CameraType>('back');
     const [showModalProductDetails, setShowModalProductDetails] = useState(true);
@@ -61,6 +61,15 @@ export default function ConsultarProdutoUsandoCamera({
         const mockCode = '7893500020134';
         // TODO alterar para code e remover mockCode
         searchProductInDatabase(mockCode);
+    };
+
+    const hideModalAndShowCamera = () => {
+        setShowModalProductDetails(false);
+        showCamera();
+    };
+
+    const goBackToProductsList = () => {
+        navigation.navigate('ProdutosListagemCategorias');
     };
 
     const searchProductInDatabase = async (code: string) => {
@@ -84,13 +93,21 @@ export default function ConsultarProdutoUsandoCamera({
 
     return (
         <>
+            <StatusBar barStyle="dark-content" />
+
+            <Appbar.Header mode="center-aligned" elevated>
+                <Appbar.BackAction
+                    onPress={() => navigation.navigate('ProdutosListagemCategorias')}
+                />
+                <Appbar.Content title="Consultar produto" />
+            </Appbar.Header>
             {visibleCamera && (
                 <CameraView
                     facing={facing}
                     barcodeScannerSettings={{
                         barcodeTypes: ['ean13', 'ean8'],
                     }}
-                    style={{ zIndex: 1, width: '100%', height: 100 * vh }}
+                    style={{ width: '100%', height: 100 * vh }}
                     onBarcodeScanned={handleBarCodeScanned}
                 >
                     <View style={styles.buttonContainer}>
@@ -102,53 +119,13 @@ export default function ConsultarProdutoUsandoCamera({
             )}
 
             {!visibleCamera && (
-                <View style={styles.container}>
-                    <Card>
-                        <Card.Content>
-                            <Title>{produtoTesteApiResult.nome_sem_acento}</Title>
-                            <Paragraph>
-                                <Text style={styles.label}>Categoria: </Text>
-                                {produtoTesteApiResult.id_produto_categoria}
-                            </Paragraph>
-                            <Paragraph>
-                                <Text style={styles.label}>GTIN: </Text>
-                                {produtoTesteApiResult.gtin}
-                            </Paragraph>
-                            <Paragraph>
-                                <Text style={styles.label}>Unidade de medida: </Text>
-                                {produtoTesteApiResult.produto_medida_sigla ?? 'kg'}
-                            </Paragraph>
-                            <Paragraph>
-                                <Text style={styles.label}>Medida por embalagem: </Text>
-                                {produtoTesteApiResult.medida_por_embalagem}{' '}
-                                {produtoTesteApiResult.produto_medida_sigla ?? 'kg'}
-                            </Paragraph>
-                            <Paragraph>
-                                <Text style={styles.label}>Marca: </Text>
-                                {produtoTesteApiResult.produto_marca}
-                            </Paragraph>
-                            <Paragraph>
-                                <Text style={styles.label}>Código NCM: </Text>
-                                {produtoTesteApiResult.codigo_ncm}
-                            </Paragraph>
-                        </Card.Content>
-                        <Divider />
-                        <Card.Actions>
-                            <Button mode="outlined" onPress={() => console.log('Editar produto')}>
-                                Editar
-                            </Button>
-                            <Button mode="contained" onPress={() => console.log('Excluir produto')}>
-                                Excluir
-                            </Button>
-                        </Card.Actions>
-                    </Card>
-                    <ModalDetalhesDoProduto
-                        visible={showModalProductDetails}
-                        isLoading={false}
-                        hideDetalhesProduto={() => setShowModalProductDetails(false)}
-                        // produto={produtoTesteApiResult}
-                    />
-                </View>
+                <DetalhesDoProduto
+                    visible={showModalProductDetails}
+                    hideModal={() => hideModalAndShowCamera()}
+                    isLoading={false}
+                    produto={produtoTesteApiResult}
+                    goBackToProductsList={goBackToProductsList}
+                />
             )}
         </>
     );
@@ -156,7 +133,7 @@ export default function ConsultarProdutoUsandoCamera({
 
 const styles = StyleSheet.create({
     container: {
-        margin: 16,
+        flex: 1,
     },
     label: {
         fontWeight: 'bold',
