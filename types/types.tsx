@@ -29,3 +29,9 @@ export type ProdutoType = {
     nome: string;
     nomeSemAcento: string;
 };
+
+export type ArrecadacaoType = {
+    id_campanha: number;
+    id_produto: string;
+    qtd_total: number;
+}

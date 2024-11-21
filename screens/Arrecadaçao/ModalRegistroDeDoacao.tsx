@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Surface, Text } from 'react-native-paper';
-import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
+import { ArrecadacaoType, ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
 import { Modal, StyleSheet } from 'react-native';
 import ProdutoEncontrado from './ProdutoEncontrado';
 import { vh } from '@/utils/utils';
 import RegistradoComSucesso from './RegistradoComSucesso';
+import { useContextKey } from 'expo-router/build/Route';
+import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
+import { saveNewArrecadacao } from '@/services/RotaryApi';
 
 const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
     codigoDeBarras: data.gtin,
@@ -33,6 +36,8 @@ export default function ModalRegistroDeDoacao({
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
 
+    const {campanhaAtualId} = useContext(CampanhaContext);
+
     const produtoFiltered = mapProdutoEncontrado(produto);
 
     // TODO: Implementar a lógica de captura de código de barras
@@ -43,7 +48,21 @@ export default function ModalRegistroDeDoacao({
 
     // const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
 
-    const handleClickRegisterDonation = () => {
+    const handleClickRegisterDonation = async (gtinProduto: string, quantidade: number) => {
+        const newArrecadacao : ArrecadacaoType = {
+            id_campanha: campanhaAtualId,
+            id_produto: gtinProduto,
+            qtd_total: quantidade
+        };
+
+        console.log("Enviando arrecadacao: ", newArrecadacao)
+        try{
+            await saveNewArrecadacao(newArrecadacao)
+        }
+        catch(error) {
+            console.error("erro ao salvar arrecadacao: ", error)
+        }
+
         showSuccessRegister();
     };
 

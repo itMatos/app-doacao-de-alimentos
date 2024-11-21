@@ -13,7 +13,7 @@ export default function ProdutoEncontrado({
 }: {
     produto: ProdutoType | null;
     setProduto: (produto: ProdutoEncontradoApiType) => void;
-    handleClickRegisterDonation: () => void;
+    handleClickRegisterDonation:(gtinProduto: string, quantidade: number) => Promise<void>;
     hideModal: () => void;
 }) {
     const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
@@ -125,7 +125,7 @@ export default function ProdutoEncontrado({
 
             <Button
                 mode="contained"
-                onPress={handleClickRegisterDonation}
+                onPress={() => handleClickRegisterDonation(produto?.codigoDeBarras, selectedQuantity )}
                 style={styles.scanButton}
             >
                 Registrar

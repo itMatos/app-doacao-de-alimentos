@@ -47,7 +47,7 @@ export default function RegistrarManualmente({
                         }}
                         style={{ marginTop: 20 }}
                     >
-                        Buscar produto (simular)
+                        Buscar produto
                     </Button>
 
                     <Button

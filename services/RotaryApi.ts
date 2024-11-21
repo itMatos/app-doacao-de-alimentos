@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from './config';
+import { ArrecadacaoType } from '@/types/types';
 
 const RotaryApi = axios.create({ baseURL: config.RotaryApi, withCredentials: true });
 
@@ -28,4 +29,11 @@ export async function getAllCategories() {
     .then(res => res.data)
     .then(response => response.map((category: { nome_categoria: any; }) => category.nome_categoria))
     return res;
+}
+
+export async function saveNewArrecadacao(newArrecadacao: ArrecadacaoType) {
+    console.log('saveNewArrecadacao: ', config.RotaryApi);
+
+    const endpoint = `/arrecadacao`;
+    await RotaryApi.post(endpoint, newArrecadacao)
 }
