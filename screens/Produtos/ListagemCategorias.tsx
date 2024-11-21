@@ -14,7 +14,7 @@ const mockCategorias = [
     'Café',
 ];
 
-export default function ListagemCategorias() {
+export default function ListagemCategorias({ navigation }: { navigation: any }) {
     // TODO: trazer listagem de categorias da api
 
     return (
@@ -49,7 +49,7 @@ export default function ListagemCategorias() {
                                         key={`button-${categoria}`}
                                         icon={() => <Icon source="arrow-right" size={16} />}
                                         mode="text"
-                                        onPress={() => console.log('Ver detalhes produto')}
+                                        onPress={() => navigation.navigate('ProdutosPorCategoria')}
                                         style={styles.buttonDetails}
                                         contentStyle={{
                                             flexDirection: 'row-reverse',

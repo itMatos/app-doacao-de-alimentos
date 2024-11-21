@@ -47,7 +47,7 @@ export default function ProdutosListagemCategorias({
                 </View>
             </Surface>
 
-            <ListagemCategorias />
+            <ListagemCategorias navigation={navigation} />
         </ScrollView>
     );
 }
