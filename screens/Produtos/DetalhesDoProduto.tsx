@@ -23,12 +23,14 @@ export default function DetalhesDoProduto({
     hideModal,
     produto,
     goBackToProductsList,
+    showCloseDetailsButton,
 }: {
     visible: boolean;
     isLoading: boolean;
     hideModal: () => void;
     produto: ProdutoEncontradoApiType;
     goBackToProductsList: () => void;
+    showCloseDetailsButton: boolean;
 }) {
     const [modalConfirmationDelete, setModalConfirmationDelete] = useState(false);
     const [editInformation, setEditInformation] = useState(false);
@@ -40,7 +42,7 @@ export default function DetalhesDoProduto({
     const hideEditInformation = () => setEditInformation(false);
 
     const [formData, setFormData] = useState({
-        nome_sem_acento: produto.nome_sem_acento,
+        nome_sem_acento: produto?.nome_sem_acento,
         gtin: produto.gtin,
         id_produto_categoria: produto.id_produto_categoria ?? 'Arroz',
         produto_medida_sigla: produto.produto_medida_sigla ?? 'kg',
@@ -61,7 +63,6 @@ export default function DetalhesDoProduto({
 
         // linha seguinte salva localmente sem precisar fazer um novo get
         produto = Object.assign(produto, formData);
-        console.log('formData', formData);
     };
 
     const handleDeleteProduct = () => {
@@ -73,6 +74,8 @@ export default function DetalhesDoProduto({
     };
 
     const containerStyle = { backgroundColor: 'none', padding: 20, margin: 20 };
+    if (!visible) return null;
+
     return (
         <View style={styles.container}>
             {isLoading ? (
@@ -269,10 +272,18 @@ export default function DetalhesDoProduto({
                         </ScrollView>
                     )}
 
-                    {!editInformation && (
+                    {!editInformation && !showCloseDetailsButton && (
                         <View style={styles.footer}>
                             <Button icon="camera" mode="contained" onPress={hideModal}>
                                 Consultar outro produto
+                            </Button>
+                        </View>
+                    )}
+
+                    {showCloseDetailsButton && (
+                        <View style={styles.footer}>
+                            <Button mode="outlined" onPress={hideModal} style={{ margin: 'auto' }}>
+                                Fechar
                             </Button>
                         </View>
                     )}
@@ -339,6 +350,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 10,
+        marginBottom: 10,
     },
     card: {
         elevation: 0,

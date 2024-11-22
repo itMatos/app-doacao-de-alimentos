@@ -86,7 +86,6 @@ export default function ConsultarProdutoUsandoCamera({
             // showModalProductNotFound();
         } finally {
             // setIsLoading(false);
-            console.log('finally');
             hideLoadingProductInfo();
         }
     };
@@ -125,6 +124,7 @@ export default function ConsultarProdutoUsandoCamera({
                     isLoading={false}
                     produto={produtoTesteApiResult}
                     goBackToProductsList={goBackToProductsList}
+                    showCloseDetailsButton={false}
                 />
             )}
         </>

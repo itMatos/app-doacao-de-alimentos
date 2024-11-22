@@ -11,12 +11,14 @@ import {
     IconButton,
     Badge,
     Searchbar,
+    Portal,
+    Surface,
 } from 'react-native-paper';
 
 // Tipo para os produtos
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
-import { vh, vw } from '@/utils/utils';
+import DetalhesDoProduto from './DetalhesDoProduto';
 
 // Dados fictícios
 const produtosFicticios: ProdutoEncontradoApiType[] = [
@@ -79,6 +81,8 @@ const produtosFicticios: ProdutoEncontradoApiType[] = [
 // TODO: Trazer categorias da API
 const categorias = ['Arroz', 'Feijão', 'Macarrão'];
 
+const containerStyle = { backgroundColor: 'none', padding: 20, margin: 20 };
+
 export default function ProdutosPorCategoria({
     navigation,
     route,
@@ -93,6 +97,8 @@ export default function ProdutosPorCategoria({
         Record<string, ProdutoEncontradoApiType[]>
     >({});
     const [searchQuery, setSearchQuery] = useState('');
+    const [showModalProductDetails, setShowModalProductDetails] = useState(false);
+    const [productToShow, setProductToShow] = useState<ProdutoEncontradoApiType | null>(null);
 
     // Filtra os produtos pela categoria selecionada e ordena
     useEffect(() => {
@@ -118,10 +124,12 @@ export default function ProdutosPorCategoria({
         setGroupedProductsByInitial(grouped);
     }, [sortedProducts]);
 
+    // para deixar todos os accordions expandidos ao carregar a tela
     useEffect(() => {
         setExpandedAccordions(Object.keys(groupedProductsByInitial));
     }, [groupedProductsByInitial]);
 
+    // expandir ou recolher um accordion
     const handleAccordionPress = (id: string) => {
         setExpandedAccordions((prev) =>
             prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -130,6 +138,11 @@ export default function ProdutosPorCategoria({
 
     const handleFilterByCategory = (category: string) => {
         setSelectedCategory(category);
+    };
+
+    const showProductDetails = (produto: ProdutoEncontradoApiType) => {
+        setProductToShow(produto);
+        setShowModalProductDetails(true);
     };
 
     const filteredGroupedProducts = searchQuery
@@ -154,6 +167,7 @@ export default function ProdutosPorCategoria({
             </Appbar.Header>
 
             <View style={styles.pickerContainer}>
+                <Text style={styles.pickerLabel}>Filtrar por categoria</Text>
                 <TextInput
                     mode="outlined"
                     dense
@@ -214,7 +228,10 @@ export default function ProdutosPorCategoria({
                                         title={produto.nome_sem_acento}
                                         description={`Embalagem de ${produto.medida_por_embalagem} ${produto.produto_medida_sigla}`}
                                         right={(props) => (
-                                            <Button icon="plus" onPress={() => {}}>
+                                            <Button
+                                                icon="plus"
+                                                onPress={() => showProductDetails(produto)}
+                                            >
                                                 Detalhes
                                             </Button>
                                         )}
@@ -226,13 +243,38 @@ export default function ProdutosPorCategoria({
                         </List.Accordion>
                     ))}
                 </View>
-            </ScrollView>
 
-            <Modal visible={false} onDismiss={() => {}}>
-                <View>
-                    <Text>Example Modal</Text>
-                </View>
-            </Modal>
+                <Portal>
+                    <Modal
+                        visible={showModalProductDetails}
+                        onDismiss={() => setShowModalProductDetails(false)}
+                        contentContainerStyle={{
+                            borderRadius: 10,
+                            overflow: 'hidden',
+                            padding: 0,
+                            marginHorizontal: 10,
+                            backgroundColor: 'white',
+                        }}
+                    >
+                        {showModalProductDetails && productToShow !== null && (
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                <Surface elevation={2} style={{ borderRadius: 20 }}>
+                                    <DetalhesDoProduto
+                                        visible={showModalProductDetails}
+                                        isLoading={false}
+                                        hideModal={() => setShowModalProductDetails(false)}
+                                        produto={productToShow}
+                                        goBackToProductsList={() =>
+                                            setShowModalProductDetails(false)
+                                        }
+                                        showCloseDetailsButton={true}
+                                    />
+                                </Surface>
+                            </ScrollView>
+                        )}
+                    </Modal>
+                </Portal>
+            </ScrollView>
         </View>
     );
 }
@@ -244,6 +286,7 @@ const styles = StyleSheet.create({
     pickerLabel: {
         marginBottom: 8,
         fontSize: 16,
+        fontWeight: 'bold',
     },
     scrollView: {
         flex: 1,
@@ -263,5 +306,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginLeft: 150,
         marginRight: 10,
+    },
+    containerStyle: {
+        backgroundColor: 'none',
+        margin: 10,
+        borderRadius: 10,
     },
 });
