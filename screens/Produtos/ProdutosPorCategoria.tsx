@@ -19,6 +19,7 @@ import {
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
 import DetalhesDoProduto from './DetalhesDoProduto';
+import { getAllCategories, getAllProductsByCategory } from '@/services/RotaryApi';
 
 // Dados fictícios
 const produtosFicticios: ProdutoEncontradoApiType[] = [
@@ -91,6 +92,7 @@ export default function ProdutosPorCategoria({
     route: any;
 }) {
     const [selectedCategory, setSelectedCategory] = useState<string>(route.params.category);
+    const [productsByCategory, setProductsByCategory] = useState<ProdutoEncontradoApiType[]>([]);
     const [sortedProducts, setSortedProducts] = useState<ProdutoEncontradoApiType[]>([]);
     const [expandedAccordions, setExpandedAccordions] = useState<string[]>([]);
     const [groupedProductsByInitial, setGroupedProductsByInitial] = useState<
@@ -99,17 +101,45 @@ export default function ProdutosPorCategoria({
     const [searchQuery, setSearchQuery] = useState('');
     const [showModalProductDetails, setShowModalProductDetails] = useState(false);
     const [productToShow, setProductToShow] = useState<ProdutoEncontradoApiType | null>(null);
+    const [allCategories, setAllCategories] = useState<string[]>([]);
+
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    const getCategories = async () => {
+        try {
+            const response = await getAllCategories();
+            console.log('response get categories', response);
+            setAllCategories(response);
+        } catch (error) {
+            console.error('Error fetching categories', error);
+        }
+    };
+
+    useEffect(() => {
+        getProductsByCategory(selectedCategory);
+    }, [selectedCategory]);
+
+    const getProductsByCategory = async (category: string) => {
+        try {
+            const response = await getAllProductsByCategory(category);
+            setSortedProducts(response);
+        } catch (error) {
+            console.error('Error fetching products by category', error);
+        }
+    };
 
     // Filtra os produtos pela categoria selecionada e ordena
     useEffect(() => {
-        const filteredProducts = produtosFicticios.filter(
+        const filteredProducts = productsByCategory.filter(
             (produto) => produto.id_produto_categoria === selectedCategory
         );
         const sorted = filteredProducts.sort((a, b) =>
             a.nome_sem_acento.localeCompare(b.nome_sem_acento)
         );
         setSortedProducts(sorted);
-    }, [selectedCategory]);
+    }, [productsByCategory]);
 
     // Depois de ordenado, agrupa os produtos por inicial do nome
     useEffect(() => {
@@ -181,7 +211,7 @@ export default function ProdutosPorCategoria({
                                 label={'Selecione uma categoria'}
                                 value={selectedCategory}
                             />
-                            {categorias.map((categoria) => (
+                            {allCategories.map((categoria) => (
                                 <Picker.Item key={categoria} label={categoria} value={categoria} />
                             ))}
                         </Picker>

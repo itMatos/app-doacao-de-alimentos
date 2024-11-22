@@ -1,6 +1,8 @@
-import React, { useContext } from 'react';
+import { CategoriaType } from '@/types/types';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
 import { Button, Chip, Divider, Icon, Surface, Text } from 'react-native-paper';
+import { getAllCategories } from '@/services/RotaryApi';
 
 const mockCategorias = [
     'Arroz',
@@ -16,6 +18,22 @@ const mockCategorias = [
 
 export default function ListagemCategorias({ navigation }: { navigation: any }) {
     // TODO: trazer listagem de categorias da api
+
+    const [allCategories, setAllCategories] = useState<string[]>([]);
+
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    const getCategories = async () => {
+        try {
+            const response = await getAllCategories();
+            console.log('response get categories', response);
+            setAllCategories(response);
+        } catch (error) {
+            console.error('Error fetching categories', error);
+        }
+    };
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -38,7 +56,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
 
                 <View style={styles.innerContainer}>
                     <Divider />
-                    {mockCategorias.map((categoria, index) => (
+                    {allCategories.map((categoria, index) => (
                         <React.Fragment key={`fragment-${categoria}`}>
                             <View style={styles.rowContainer} key={`view-${categoria}`}>
                                 <Text style={styles.leftText} key={`text-${categoria}`}>
@@ -50,7 +68,6 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                                         icon={() => <Icon source="arrow-right" size={16} />}
                                         mode="text"
                                         onPress={() => {
-                                            // navigation.navigate('ProdutosPorCategoria')}
                                             navigation.navigate('ProdutosPorCategoria', {
                                                 category: categoria,
                                             });

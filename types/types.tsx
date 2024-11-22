@@ -29,3 +29,8 @@ export type ProdutoType = {
     nome: string;
     nomeSemAcento: string;
 };
+
+export type CategoriaType = {
+    nomeCategoria: string;
+    medidaSigla: string;
+};
