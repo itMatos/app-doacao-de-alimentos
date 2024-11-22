@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, StyleSheet, StatusBar } from 'react-native';
-import { Appbar, List, Text, Button, Divider, TextInput } from 'react-native-paper';
+import {
+    Appbar,
+    List,
+    Text,
+    Button,
+    Divider,
+    TextInput,
+    Modal,
+    IconButton,
+    Badge,
+    Searchbar,
+} from 'react-native-paper';
 
 // Tipo para os produtos
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
+import { vh, vw } from '@/utils/utils';
 
 // Dados fictícios
 const produtosFicticios: ProdutoEncontradoApiType[] = [
@@ -15,7 +27,7 @@ const produtosFicticios: ProdutoEncontradoApiType[] = [
         medida_por_embalagem: '2',
         produto_medida_sigla: 'kg',
         produto_marca: 'Tio João',
-        nome_sem_acento: 'Arroz Polido Tipo 1 2kg',
+        nome_sem_acento: 'Arroz Polido Tipo 1 2kg e aqui ainda pode ter um nome bem aqui né',
     },
     {
         gtin: '7891234567890',
@@ -80,6 +92,7 @@ export default function ProdutosPorCategoria({
     const [groupedProductsByInitial, setGroupedProductsByInitial] = useState<
         Record<string, ProdutoEncontradoApiType[]>
     >({});
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Filtra os produtos pela categoria selecionada e ordena
     useEffect(() => {
@@ -119,6 +132,18 @@ export default function ProdutosPorCategoria({
         setSelectedCategory(category);
     };
 
+    const filteredGroupedProducts = searchQuery
+        ? Object.keys(groupedProductsByInitial).reduce((acc, key) => {
+              const filtered = groupedProductsByInitial[key].filter((produto) =>
+                  produto.nome_sem_acento.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+              if (filtered.length) {
+                  acc[key] = filtered;
+              }
+              return acc;
+          }, {} as Record<string, ProdutoEncontradoApiType[]>)
+        : groupedProductsByInitial;
+
     return (
         <View style={{ flex: 1 }}>
             <StatusBar barStyle="dark-content" />
@@ -129,68 +154,92 @@ export default function ProdutosPorCategoria({
             </Appbar.Header>
 
             <View style={styles.pickerContainer}>
-                <View style={styles.inputGroup}>
-                    <Text style={styles.labelInput}>Categoria</Text>
-                    <TextInput
-                        mode="outlined"
-                        dense
-                        render={(props) => (
-                            <Picker
-                                selectedValue={selectedCategory}
-                                onValueChange={(itemValue) => handleFilterByCategory(itemValue)}
-                                mode="dropdown"
-                            >
-                                <Picker.Item
-                                    label={'Selecione uma categoria'}
-                                    value={selectedCategory}
-                                />
-                                {categorias.map((categoria) => (
-                                    <Picker.Item
-                                        key={categoria}
-                                        label={categoria}
-                                        value={categoria}
-                                    />
-                                ))}
-                            </Picker>
-                        )}
-                    />
-                </View>
+                <TextInput
+                    mode="outlined"
+                    dense
+                    render={(props) => (
+                        <Picker
+                            selectedValue={selectedCategory}
+                            onValueChange={(itemValue) => handleFilterByCategory(itemValue)}
+                            mode="dropdown"
+                        >
+                            <Picker.Item
+                                label={'Selecione uma categoria'}
+                                value={selectedCategory}
+                            />
+                            {categorias.map((categoria) => (
+                                <Picker.Item key={categoria} label={categoria} value={categoria} />
+                            ))}
+                        </Picker>
+                    )}
+                />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View>
-                    <View>
-                        {Object.keys(groupedProductsByInitial).map((initial) => (
-                            <List.Accordion
-                                title={initial}
-                                id={initial}
-                                key={initial}
-                                style={styles.accordion}
-                                expanded={expandedAccordions.includes(initial)}
-                                onPress={() => handleAccordionPress(initial)}
-                            >
-                                {groupedProductsByInitial[initial]?.map((produto) => (
-                                    <View key={produto.gtin}>
-                                        <List.Item
-                                            title={produto.nome_sem_acento}
-                                            description={`Embalagem de ${produto.medida_por_embalagem} ${produto.produto_medida_sigla}`}
-                                        />
-                                        <Divider />
-                                    </View>
-                                ))}
-                                <Divider />
-                            </List.Accordion>
-                        ))}
-                    </View>
+                {
+                    <Searchbar
+                        placeholder="Buscar produto"
+                        onChangeText={(query) => setSearchQuery(query)}
+                        value={searchQuery}
+                        style={styles.searchInput}
+                        mode="bar"
+                        clearIcon={() =>
+                            searchQuery.length > 0 && (
+                                <IconButton icon="close" onPress={() => setSearchQuery('')} />
+                            )
+                        }
+                        elevation={1}
+                    />
+                }
+
+                <View style={{ marginHorizontal: 2 }}>
+                    {Object.keys(filteredGroupedProducts).length === 0 && (
+                        <View style={{ alignItems: 'center', marginTop: 20 }}>
+                            <Text style={styles.labelInput}>Nenhum produto encontrado</Text>
+                        </View>
+                    )}
+
+                    {Object.keys(filteredGroupedProducts).map((initial) => (
+                        <List.Accordion
+                            title={initial}
+                            id={initial}
+                            key={initial}
+                            style={styles.accordion}
+                            expanded={expandedAccordions.includes(initial)}
+                            onPress={() => handleAccordionPress(initial)}
+                        >
+                            {filteredGroupedProducts[initial]?.map((produto) => (
+                                <View key={produto.gtin}>
+                                    <List.Item
+                                        title={produto.nome_sem_acento}
+                                        description={`Embalagem de ${produto.medida_por_embalagem} ${produto.produto_medida_sigla}`}
+                                        right={(props) => (
+                                            <Button icon="plus" onPress={() => {}}>
+                                                Detalhes
+                                            </Button>
+                                        )}
+                                    />
+                                    <Divider />
+                                </View>
+                            ))}
+                            <Divider />
+                        </List.Accordion>
+                    ))}
                 </View>
             </ScrollView>
+
+            <Modal visible={false} onDismiss={() => {}}>
+                <View>
+                    <Text>Example Modal</Text>
+                </View>
+            </Modal>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     pickerContainer: {
-        padding: 16,
+        padding: 10,
     },
     pickerLabel: {
         marginBottom: 8,
@@ -202,7 +251,6 @@ const styles = StyleSheet.create({
     },
     accordion: {
         backgroundColor: '#FFF',
-        marginHorizontal: 5,
     },
     inputGroup: {
         marginBottom: 10,
@@ -210,5 +258,10 @@ const styles = StyleSheet.create({
     labelInput: {
         fontSize: 16,
         marginBottom: 5,
+    },
+    searchInput: {
+        marginBottom: 10,
+        marginLeft: 150,
+        marginRight: 10,
     },
 });

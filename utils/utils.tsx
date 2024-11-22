@@ -16,3 +16,4 @@ export const months = [
 ];
 
 export const vh = Dimensions.get('window').height / 100;
+export const vw = Dimensions.get('window').width / 100;
