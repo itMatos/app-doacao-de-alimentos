@@ -19,7 +19,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            <Surface style={styles.surface}>
+            <Surface style={styles.surface} mode="flat" elevation={5}>
                 <View style={styles.header}>
                     <Text variant="titleMedium" style={styles.title}>
                         Produtos por categoria
@@ -49,7 +49,12 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                                         key={`button-${categoria}`}
                                         icon={() => <Icon source="arrow-right" size={16} />}
                                         mode="text"
-                                        onPress={() => navigation.navigate('ProdutosPorCategoria')}
+                                        onPress={() => {
+                                            // navigation.navigate('ProdutosPorCategoria')}
+                                            navigation.navigate('ProdutosPorCategoria', {
+                                                category: categoria,
+                                            });
+                                        }}
                                         style={styles.buttonDetails}
                                         contentStyle={{
                                             flexDirection: 'row-reverse',

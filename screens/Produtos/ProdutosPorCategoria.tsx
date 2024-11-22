@@ -36,6 +36,15 @@ const produtosFicticios: ProdutoEncontradoApiType[] = [
         nome_sem_acento: 'Arroz Branco Tipo 1 5kg',
     },
     {
+        gtin: '7899876543211',
+        id_produto_categoria: 'Arroz',
+        codigo_ncm: '10063022',
+        medida_por_embalagem: '0.5',
+        produto_medida_sigla: 'kg',
+        produto_marca: 'Camil',
+        nome_sem_acento: 'Bolinho de arroz 500g',
+    },
+    {
         gtin: '7891122334455',
         id_produto_categoria: 'Feijão',
         codigo_ncm: '07133319',
@@ -44,15 +53,35 @@ const produtosFicticios: ProdutoEncontradoApiType[] = [
         produto_marca: 'Biju',
         nome_sem_acento: 'Feijão Carioca 2kg',
     },
+    {
+        gtin: '7891122334477',
+        id_produto_categoria: 'Feijão',
+        codigo_ncm: '07133325',
+        medida_por_embalagem: '2',
+        produto_medida_sigla: 'kg',
+        produto_marca: 'Biju',
+        nome_sem_acento: 'Biju Feijão Preto 2kg',
+    },
 ];
 
+// TODO: Trazer categorias da API
 const categorias = ['Arroz', 'Feijão', 'Macarrão'];
 
-export default function ProdutosPorCategoria({ navigation }: { navigation: any }) {
-    const [selectedCategory, setSelectedCategory] = useState<string>('Arroz');
+export default function ProdutosPorCategoria({
+    navigation,
+    route,
+}: {
+    navigation: any;
+    route: any;
+}) {
+    const [selectedCategory, setSelectedCategory] = useState<string>(route.params.category);
     const [sortedProducts, setSortedProducts] = useState<ProdutoEncontradoApiType[]>([]);
     const [expandedAccordions, setExpandedAccordions] = useState<string[]>([]);
+    const [groupedProductsByInitial, setGroupedProductsByInitial] = useState<
+        Record<string, ProdutoEncontradoApiType[]>
+    >({});
 
+    // Filtra os produtos pela categoria selecionada e ordena
     useEffect(() => {
         const filteredProducts = produtosFicticios.filter(
             (produto) => produto.id_produto_categoria === selectedCategory
@@ -63,9 +92,22 @@ export default function ProdutosPorCategoria({ navigation }: { navigation: any }
         setSortedProducts(sorted);
     }, [selectedCategory]);
 
-    const [groupedProducts, setGroupedProducts] = useState<
-        Record<string, ProdutoEncontradoApiType[]>
-    >({});
+    // Depois de ordenado, agrupa os produtos por inicial do nome
+    useEffect(() => {
+        const grouped: Record<string, ProdutoEncontradoApiType[]> = {};
+        sortedProducts.forEach((produto) => {
+            const initial = produto.nome_sem_acento[0].toUpperCase();
+            if (!grouped[initial]) {
+                grouped[initial] = [];
+            }
+            grouped[initial].push(produto);
+        });
+        setGroupedProductsByInitial(grouped);
+    }, [sortedProducts]);
+
+    useEffect(() => {
+        setExpandedAccordions(Object.keys(groupedProductsByInitial));
+    }, [groupedProductsByInitial]);
 
     const handleAccordionPress = (id: string) => {
         setExpandedAccordions((prev) =>
@@ -73,27 +115,8 @@ export default function ProdutosPorCategoria({ navigation }: { navigation: any }
         );
     };
 
-    // Agrupa os produtos por inicial e organiza alfabeticamente
-    useEffect(() => {
-        const grouped: Record<string, ProdutoEncontradoApiType[]> = {};
-        produtosFicticios
-            .sort((a, b) => a.nome_sem_acento.localeCompare(b.nome_sem_acento))
-            .forEach((produto) => {
-                const initial = produto.nome_sem_acento[0].toUpperCase();
-                if (!grouped[initial]) {
-                    grouped[initial] = [];
-                }
-                grouped[initial].push(produto);
-            });
-        setGroupedProducts(grouped);
-    }, []);
-
     const handleFilterByCategory = (category: string) => {
         setSelectedCategory(category);
-        const filtered = produtosFicticios.filter(
-            (produto) => produto.id_produto_categoria === category
-        );
-        setSortedProducts(filtered);
     };
 
     return (
@@ -136,32 +159,29 @@ export default function ProdutosPorCategoria({ navigation }: { navigation: any }
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
-                    <List.AccordionGroup>
-                        <View>
-                            {Object.keys(groupedProducts).map((initial) => (
-                                <List.Accordion
-                                    title={initial}
-                                    id={initial}
-                                    key={initial}
-                                    style={styles.accordion}
-                                >
-                                    {groupedProducts[initial].map((produto) => (
-                                        <View key={produto.gtin}>
-                                            <List.Item
-                                                title={produto.nome_sem_acento}
-                                                description={`Embalagem de ${produto.medida_por_embalagem} ${produto.produto_medida_sigla}`}
-                                                right={() => (
-                                                    <Text>{produto.produto_medida_sigla}</Text>
-                                                )}
-                                            />
-                                            <Divider />
-                                        </View>
-                                    ))}
-                                    <Divider />
-                                </List.Accordion>
-                            ))}
-                        </View>
-                    </List.AccordionGroup>
+                    <View>
+                        {Object.keys(groupedProductsByInitial).map((initial) => (
+                            <List.Accordion
+                                title={initial}
+                                id={initial}
+                                key={initial}
+                                style={styles.accordion}
+                                expanded={expandedAccordions.includes(initial)}
+                                onPress={() => handleAccordionPress(initial)}
+                            >
+                                {groupedProductsByInitial[initial]?.map((produto) => (
+                                    <View key={produto.gtin}>
+                                        <List.Item
+                                            title={produto.nome_sem_acento}
+                                            description={`Embalagem de ${produto.medida_por_embalagem} ${produto.produto_medida_sigla}`}
+                                        />
+                                        <Divider />
+                                    </View>
+                                ))}
+                                <Divider />
+                            </List.Accordion>
+                        ))}
+                    </View>
                 </View>
             </ScrollView>
         </View>
@@ -182,7 +202,7 @@ const styles = StyleSheet.create({
     },
     accordion: {
         backgroundColor: '#FFF',
-        marginHorizontal: 20,
+        marginHorizontal: 5,
     },
     inputGroup: {
         marginBottom: 10,

@@ -16,14 +16,14 @@ export default function ProdutosListagemCategorias({
     const teste = false;
 
     return (
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Produtos" />
                 </Appbar.Header>
             </View>
 
-            <Surface style={styles.surface}>
+            <Surface style={styles.surface} mode="flat" elevation={5}>
                 <View style={styles.header}>
                     <Text variant="titleMedium" style={styles.title}>
                         Consultar produtos
