@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
@@ -39,7 +39,7 @@ export default function ProdutoEncontrado({
     };    
 
     return (
-        <View style={{ padding: 16 }}>
+        <ScrollView style={{ padding: 16 }}>
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon source="check-circle-outline" size={30} color="#81c784" />
@@ -138,7 +138,7 @@ export default function ProdutoEncontrado({
             >
                 Voltar
             </Button>
-        </View>
+        </ScrollView>
     );
 }
 

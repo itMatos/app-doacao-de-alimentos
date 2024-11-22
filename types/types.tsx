@@ -10,13 +10,13 @@ export type ProdutoUpdateType = {
 
 export type ProdutoEncontradoApiType = {
     gtin: string;
-    id_produto_categoria: string | null;
-    codigo_ncm: string;
-    medida_por_embalagem: string | null;
-    produto_medida_sigla: string | null;
-    produto_marca: string | null;
-    nome: string;
-    nome_sem_acento: string;
+    id_produto_categoria: string | "";
+    codigo_ncm: string | "";
+    medida_por_embalagem: string | "";
+    produto_medida_sigla: string | "";
+    produto_marca: string | "";
+    nome: string | "";
+    nome_sem_acento: string | "";
 };
 
 export type ProdutoType = {
@@ -34,4 +34,9 @@ export type ArrecadacaoType = {
     id_campanha: number;
     id_produto: string;
     qtd_total: number;
+}
+
+export type CategoriaType = {
+    nome_categoria: string;
+    medida_sigla: string; 
 }
