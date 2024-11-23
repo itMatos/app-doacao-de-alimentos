@@ -13,76 +13,12 @@ import {
     Searchbar,
     Portal,
     Surface,
+    ActivityIndicator,
 } from 'react-native-paper';
-
-// Tipo para os produtos
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
 import DetalhesDoProduto from './DetalhesDoProduto';
 import { getAllCategories, getAllProductsByCategory } from '@/services/RotaryApi';
-
-// Dados fictícios
-const produtosFicticios: ProdutoEncontradoApiType[] = [
-    {
-        gtin: '7893500020134',
-        id_produto_categoria: 'Arroz',
-        codigo_ncm: '10063021',
-        medida_por_embalagem: '2',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Tio João',
-        nome_sem_acento: 'Arroz Polido Tipo 1 2kg e aqui ainda pode ter um nome bem aqui né',
-    },
-    {
-        gtin: '7891234567890',
-        id_produto_categoria: 'Feijão',
-        codigo_ncm: '07133319',
-        medida_por_embalagem: '1',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Carioca',
-        nome_sem_acento: 'Feijão Preto 1kg',
-    },
-    {
-        gtin: '7899876543210',
-        id_produto_categoria: 'Arroz',
-        codigo_ncm: '10063021',
-        medida_por_embalagem: '5',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Camil',
-        nome_sem_acento: 'Arroz Branco Tipo 1 5kg',
-    },
-    {
-        gtin: '7899876543211',
-        id_produto_categoria: 'Arroz',
-        codigo_ncm: '10063022',
-        medida_por_embalagem: '0.5',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Camil',
-        nome_sem_acento: 'Bolinho de arroz 500g',
-    },
-    {
-        gtin: '7891122334455',
-        id_produto_categoria: 'Feijão',
-        codigo_ncm: '07133319',
-        medida_por_embalagem: '2',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Biju',
-        nome_sem_acento: 'Feijão Carioca 2kg',
-    },
-    {
-        gtin: '7891122334477',
-        id_produto_categoria: 'Feijão',
-        codigo_ncm: '07133325',
-        medida_por_embalagem: '2',
-        produto_medida_sigla: 'kg',
-        produto_marca: 'Biju',
-        nome_sem_acento: 'Biju Feijão Preto 2kg',
-    },
-];
-
-// TODO: Trazer categorias da API
-const categorias = ['Arroz', 'Feijão', 'Macarrão'];
-
-const containerStyle = { backgroundColor: 'none', padding: 20, margin: 20 };
 
 export default function ProdutosPorCategoria({
     navigation,
@@ -102,33 +38,48 @@ export default function ProdutosPorCategoria({
     const [showModalProductDetails, setShowModalProductDetails] = useState(false);
     const [productToShow, setProductToShow] = useState<ProdutoEncontradoApiType | null>(null);
     const [allCategories, setAllCategories] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const getCategories = async () => {
+        try {
+            setIsLoading(true);
+            const response = await getAllCategories();
+            setAllCategories(response);
+        } catch (error) {
+            console.error('Error fetching categories', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getProductsByCategory = async (category: string) => {
+        try {
+            setIsLoading(true);
+            const response = await getAllProductsByCategory(category);
+            setSortedProducts(response);
+        } catch (error) {
+            console.error('Error fetching products by category', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFilterByCategory = (category: string) => {
+        setSelectedCategory(category);
+    };
+
+    const showProductDetails = (produto: ProdutoEncontradoApiType) => {
+        setProductToShow(produto);
+        setShowModalProductDetails(true);
+    };
 
     useEffect(() => {
         getCategories();
     }, []);
 
-    const getCategories = async () => {
-        try {
-            const response = await getAllCategories();
-            console.log('response get categories', response);
-            setAllCategories(response);
-        } catch (error) {
-            console.error('Error fetching categories', error);
-        }
-    };
-
     useEffect(() => {
         getProductsByCategory(selectedCategory);
     }, [selectedCategory]);
-
-    const getProductsByCategory = async (category: string) => {
-        try {
-            const response = await getAllProductsByCategory(category);
-            setSortedProducts(response);
-        } catch (error) {
-            console.error('Error fetching products by category', error);
-        }
-    };
 
     // Filtra os produtos pela categoria selecionada e ordena
     useEffect(() => {
@@ -164,15 +115,6 @@ export default function ProdutosPorCategoria({
         setExpandedAccordions((prev) =>
             prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
         );
-    };
-
-    const handleFilterByCategory = (category: string) => {
-        setSelectedCategory(category);
-    };
-
-    const showProductDetails = (produto: ProdutoEncontradoApiType) => {
-        setProductToShow(produto);
-        setShowModalProductDetails(true);
     };
 
     const filteredGroupedProducts = searchQuery
@@ -237,7 +179,12 @@ export default function ProdutosPorCategoria({
                 }
 
                 <View style={{ marginHorizontal: 2 }}>
-                    {Object.keys(filteredGroupedProducts).length === 0 && (
+                    {isLoading && (
+                        <View style={{ alignItems: 'center', marginTop: 20 }}>
+                            <ActivityIndicator animating={true} />
+                        </View>
+                    )}
+                    {Object.keys(filteredGroupedProducts).length === 0 && !isLoading && (
                         <View style={{ alignItems: 'center', marginTop: 20 }}>
                             <Text style={styles.labelInput}>Nenhum produto encontrado</Text>
                         </View>

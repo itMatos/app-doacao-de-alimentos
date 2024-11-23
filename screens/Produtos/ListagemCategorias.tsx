@@ -1,7 +1,7 @@
 import { CategoriaType } from '@/types/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
-import { Button, Chip, Divider, Icon, Surface, Text } from 'react-native-paper';
+import { ActivityIndicator, Button, Chip, Divider, Icon, Surface, Text } from 'react-native-paper';
 import { getAllCategories } from '@/services/RotaryApi';
 
 const mockCategorias = [
@@ -28,7 +28,6 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
     const getCategories = async () => {
         try {
             const response = await getAllCategories();
-            console.log('response get categories', response);
             setAllCategories(response);
         } catch (error) {
             console.error('Error fetching categories', error);
@@ -56,6 +55,9 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
 
                 <View style={styles.innerContainer}>
                     <Divider />
+                    {allCategories.length === 0 && (
+                        <ActivityIndicator animating={true} style={{ marginVertical: 10 }} />
+                    )}
                     {allCategories.map((categoria, index) => (
                         <React.Fragment key={`fragment-${categoria}`}>
                             <View style={styles.rowContainer} key={`view-${categoria}`}>
