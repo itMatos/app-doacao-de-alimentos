@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ScrollView, View, StyleSheet, StatusBar } from 'react-native';
 import {
     Appbar,
@@ -20,6 +20,20 @@ import { Picker } from '@react-native-picker/picker';
 import DetalhesDoProduto from './DetalhesDoProduto';
 import { getAllCategories, getAllProductsByCategory } from '@/services/RotaryApi';
 
+const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
 export default function ProdutosPorCategoria({
     navigation,
     route,
@@ -39,6 +53,12 @@ export default function ProdutosPorCategoria({
     const [productToShow, setProductToShow] = useState<ProdutoEncontradoApiType | null>(null);
     const [allCategories, setAllCategories] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+    const showProductDetails = (produto: ProdutoEncontradoApiType) => {
+        setProductToShow(produto);
+        setShowModalProductDetails(true);
+    };
 
     const getCategories = async () => {
         try {
@@ -56,7 +76,7 @@ export default function ProdutosPorCategoria({
         try {
             setIsLoading(true);
             const response = await getAllProductsByCategory(category);
-            setSortedProducts(response);
+            setProductsByCategory(response);
         } catch (error) {
             console.error('Error fetching products by category', error);
         } finally {
@@ -64,70 +84,71 @@ export default function ProdutosPorCategoria({
         }
     };
 
-    const handleFilterByCategory = (category: string) => {
-        setSelectedCategory(category);
-    };
-
-    const showProductDetails = (produto: ProdutoEncontradoApiType) => {
-        setProductToShow(produto);
-        setShowModalProductDetails(true);
-    };
-
     useEffect(() => {
         getCategories();
     }, []);
 
     useEffect(() => {
-        getProductsByCategory(selectedCategory);
+        if (selectedCategory) {
+            getProductsByCategory(selectedCategory);
+        }
     }, [selectedCategory]);
 
-    // Filtra os produtos pela categoria selecionada e ordena
-    useEffect(() => {
+    // Usar useMemo para otimizar a filtragem, ordenação e agrupamento
+    const filteredAndGroupedProducts = useMemo(() => {
         const filteredProducts = productsByCategory.filter(
             (produto) => produto.id_produto_categoria === selectedCategory
         );
         const sorted = filteredProducts.sort((a, b) =>
             a.nome_sem_acento.localeCompare(b.nome_sem_acento)
         );
-        setSortedProducts(sorted);
-    }, [productsByCategory]);
+        const grouped = sorted.reduce(
+            (acc: Record<string, ProdutoEncontradoApiType[]>, produto) => {
+                const initial = produto.nome_sem_acento[0].toUpperCase();
+                if (!acc[initial]) {
+                    acc[initial] = [];
+                }
+                acc[initial].push(produto);
+                return acc;
+            },
+            {}
+        );
+        return grouped;
+    }, [productsByCategory, selectedCategory]);
 
-    // Depois de ordenado, agrupa os produtos por inicial do nome
     useEffect(() => {
-        const grouped: Record<string, ProdutoEncontradoApiType[]> = {};
-        sortedProducts.forEach((produto) => {
-            const initial = produto.nome_sem_acento[0].toUpperCase();
-            if (!grouped[initial]) {
-                grouped[initial] = [];
-            }
-            grouped[initial].push(produto);
-        });
-        setGroupedProductsByInitial(grouped);
-    }, [sortedProducts]);
+        setGroupedProductsByInitial(filteredAndGroupedProducts);
+    }, [filteredAndGroupedProducts]);
 
-    // para deixar todos os accordions expandidos ao carregar a tela
+    // Para deixar todos os accordions expandidos ao carregar a tela
     useEffect(() => {
         setExpandedAccordions(Object.keys(groupedProductsByInitial));
     }, [groupedProductsByInitial]);
 
-    // expandir ou recolher um accordion
     const handleAccordionPress = (id: string) => {
         setExpandedAccordions((prev) =>
             prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
         );
     };
 
-    const filteredGroupedProducts = searchQuery
-        ? Object.keys(groupedProductsByInitial).reduce((acc, key) => {
-              const filtered = groupedProductsByInitial[key].filter((produto) =>
-                  produto.nome_sem_acento.toLowerCase().includes(searchQuery.toLowerCase())
-              );
-              if (filtered.length) {
-                  acc[key] = filtered;
-              }
-              return acc;
-          }, {} as Record<string, ProdutoEncontradoApiType[]>)
-        : groupedProductsByInitial;
+    const filteredGroupedProducts = useMemo(() => {
+        if (!debouncedSearchQuery) return groupedProductsByInitial;
+
+        return Object.keys(groupedProductsByInitial).reduce(
+            (acc: Record<string, ProdutoEncontradoApiType[]>, key) => {
+                const filtered = groupedProductsByInitial[key].filter((produto) =>
+                    produto.nome_sem_acento
+                        .toLowerCase()
+                        .includes(debouncedSearchQuery.toLowerCase())
+                );
+                if (filtered.length) {
+                    acc[key] = filtered;
+                }
+                return acc;
+            },
+            {}
+        );
+    }, [debouncedSearchQuery, groupedProductsByInitial]);
 
     return (
         <View style={{ flex: 1 }}>
@@ -146,7 +167,7 @@ export default function ProdutosPorCategoria({
                     render={(props) => (
                         <Picker
                             selectedValue={selectedCategory}
-                            onValueChange={(itemValue) => handleFilterByCategory(itemValue)}
+                            onValueChange={(itemValue) => setSelectedCategory(itemValue)}
                             mode="dropdown"
                         >
                             <Picker.Item

@@ -4,26 +4,8 @@ import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
 import { ActivityIndicator, Button, Chip, Divider, Icon, Surface, Text } from 'react-native-paper';
 import { getAllCategories } from '@/services/RotaryApi';
 
-const mockCategorias = [
-    'Arroz',
-    'Feijão',
-    'Macarrão',
-    'Açúcar',
-    'Óleo',
-    'Leite',
-    'Farinha',
-    'Sal',
-    'Café',
-];
-
 export default function ListagemCategorias({ navigation }: { navigation: any }) {
-    // TODO: trazer listagem de categorias da api
-
     const [allCategories, setAllCategories] = useState<string[]>([]);
-
-    useEffect(() => {
-        getCategories();
-    }, []);
 
     const getCategories = async () => {
         try {
@@ -33,6 +15,10 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
             console.error('Error fetching categories', error);
         }
     };
+
+    useEffect(() => {
+        getCategories();
+    }, []);
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -93,6 +79,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                     ))}
                 </View>
             </Surface>
+            {/* TODO adicionar botão para criar nova categoria */}
         </ScrollView>
     );
 }
