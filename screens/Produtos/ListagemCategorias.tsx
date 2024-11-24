@@ -1,11 +1,29 @@
 import { CategoriaType } from '@/types/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
-import { ActivityIndicator, Button, Chip, Divider, Icon, Surface, Text } from 'react-native-paper';
-import { getAllCategories } from '@/services/RotaryApi';
+import {
+    ActivityIndicator,
+    Button,
+    Chip,
+    Divider,
+    Icon,
+    Modal,
+    Portal,
+    Surface,
+    Text,
+    TextInput,
+} from 'react-native-paper';
+import { createNewCategory, getAllCategories } from '@/services/RotaryApi';
+import { Picker } from '@react-native-picker/picker';
+
+const mockMedidas = ['kg', 'g', 'ml', 'L'];
 
 export default function ListagemCategorias({ navigation }: { navigation: any }) {
     const [allCategories, setAllCategories] = useState<string[]>([]);
+    const [modalNewCategoryVisible, setModalNewCategoryVisible] = useState(false);
+
+    const showModalNewCategory = () => setModalNewCategoryVisible(true);
+    const hideModalNewCategory = () => setModalNewCategoryVisible(false);
 
     const getCategories = async () => {
         try {
@@ -16,9 +34,34 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
         }
     };
 
+    // TODO trazer as medidas da api
+
+    const [formNewCategory, setFormNewCategory] = useState({
+        nomeCategoria: '',
+        medidaSigla: 'kg',
+    });
+
+    const handleInputChange = (field: string, value: string) => {
+        setFormNewCategory((prev) => ({ ...prev, [field]: value }));
+    };
+
     useEffect(() => {
         getCategories();
     }, []);
+
+    const handleCreateNewCategory = async () => {
+        if (!formNewCategory.nomeCategoria) {
+            throw new Error('Categoria não informada');
+        }
+        try {
+            await createNewCategory(formNewCategory as CategoriaType);
+            getCategories();
+        } catch (error) {
+            console.error('Error creating new category', error);
+        } finally {
+            hideModalNewCategory();
+        }
+    };
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -27,14 +70,6 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                     <Text variant="titleMedium" style={styles.title}>
                         Produtos por categoria
                     </Text>
-
-                    <Button
-                        icon={() => <Icon source="plus" size={16} color="white" />}
-                        mode="contained"
-                        style={{ borderRadius: 10 }}
-                    >
-                        Criar nova categoria
-                    </Button>
                 </View>
 
                 <Divider />
@@ -77,9 +112,108 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                             </View>
                         </React.Fragment>
                     ))}
+                    <Button
+                        icon={() => <Icon source="plus" size={16} color="white" />}
+                        mode="contained"
+                        style={{ borderRadius: 10, marginVertical: 10 }}
+                        onPress={() => showModalNewCategory()}
+                    >
+                        Criar nova categoria
+                    </Button>
                 </View>
             </Surface>
-            {/* TODO adicionar botão para criar nova categoria */}
+
+            <Portal>
+                <Modal
+                    visible={modalNewCategoryVisible}
+                    onDismiss={() => hideModalNewCategory()}
+                    contentContainerStyle={{
+                        borderRadius: 10,
+                        overflow: 'hidden',
+                        padding: 0,
+                        marginHorizontal: 10,
+                        backgroundColor: 'white',
+                    }}
+                >
+                    {modalNewCategoryVisible && (
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Surface elevation={2} style={{ borderRadius: 20 }}>
+                                <View style={{ flex: 1, margin: 20 }}>
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.labelInput}>Nome da categoria</Text>
+                                        <TextInput
+                                            mode="outlined"
+                                            value={formNewCategory.nomeCategoria}
+                                            onChangeText={(text) =>
+                                                handleInputChange('nomeCategoria', text)
+                                            }
+                                            multiline
+                                            style={{
+                                                paddingVertical: 5,
+                                                alignContent: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                            dense
+                                        />
+                                    </View>
+
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.labelInput}>Unidade de medida</Text>
+                                        <TextInput
+                                            value={formNewCategory.medidaSigla}
+                                            mode="outlined"
+                                            dense
+                                            render={(props) => (
+                                                <Picker
+                                                    selectedValue={formNewCategory.medidaSigla}
+                                                    onValueChange={(itemValue) =>
+                                                        handleInputChange('medidaSigla', itemValue)
+                                                    }
+                                                    mode="dropdown"
+                                                >
+                                                    <Picker.Item
+                                                        label={'Selecione uma unidade de medida'}
+                                                        value={formNewCategory.medidaSigla}
+                                                    />
+                                                    {mockMedidas.map((medida) => (
+                                                        <Picker.Item
+                                                            key={medida}
+                                                            label={medida}
+                                                            value={medida}
+                                                        />
+                                                    ))}
+                                                </Picker>
+                                            )}
+                                        />
+                                    </View>
+
+                                    <View style={styles.inputGroup}>
+                                        <Button
+                                            mode="contained"
+                                            onPress={() => {
+                                                handleCreateNewCategory();
+                                            }}
+                                            style={styles.button}
+                                        >
+                                            Salvar
+                                        </Button>
+
+                                        <Button
+                                            mode="outlined"
+                                            onPress={() => {
+                                                hideModalNewCategory();
+                                            }}
+                                            style={styles.button}
+                                        >
+                                            Fechar
+                                        </Button>
+                                    </View>
+                                </View>
+                            </Surface>
+                        </ScrollView>
+                    )}
+                </Modal>
+            </Portal>
         </ScrollView>
     );
 }
@@ -144,5 +278,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         alignContent: 'center',
+    },
+    inputGroup: {
+        marginBottom: 10,
+    },
+    labelInput: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+    button: {
+        marginVertical: 5,
+        alignSelf: 'center',
     },
 });

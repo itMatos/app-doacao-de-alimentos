@@ -23,10 +23,23 @@ export default function ProdutosListagemCategorias({
                 </Appbar.Header>
             </View>
 
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                <Button
+                    mode="contained"
+                    onPress={() => navigation.navigate('ConsultarUsandoCamera')}
+                    style={styles.scanButton}
+                >
+                    Cadastrar novo produto
+                </Button>
+            </View>
+
             <Surface style={styles.surface} mode="flat" elevation={5}>
                 <View style={styles.header}>
                     <Text variant="titleMedium" style={styles.title}>
                         Consultar produtos
+                    </Text>
+                    <Text variant="titleSmall" style={styles.title}>
+                        Verifique se um produto já foi cadastrado
                     </Text>
                 </View>
                 <Divider />
@@ -36,6 +49,7 @@ export default function ProdutosListagemCategorias({
                         mode="contained"
                         size={100}
                         style={styles.iconButton}
+                        onPress={() => navigation.navigate('ConsultarUsandoCamera')}
                     />
                     <Button
                         mode="contained"
@@ -68,9 +82,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     header: {
-        flexDirection: 'row',
+        flexDirection: 'column',
+        textAlign: 'right',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         margin: 10,
         color: 'black',
     },
@@ -80,16 +95,17 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     iconButton: {
-        height: 150,
-        width: 150,
+        height: 140,
+        width: 140,
         borderRadius: 100,
+        backgroundColor: '#f5f5f5',
     },
     scanButton: {
-        width: '80%',
-        margin: 20,
+        width: '70%',
+        marginBottom: 15,
         borderRadius: 10,
     },
     title: {
-        margin: 5,
+        margin: 1,
     },
 });
