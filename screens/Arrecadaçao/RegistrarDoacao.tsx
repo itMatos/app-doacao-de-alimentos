@@ -42,6 +42,8 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const showModalProductNotFound = () => setVisibleModalProductNotFound(true);
     const hideModalProductNotFound = () => setVisibleModalProductNotFound(false);
 
+    const [code, setCode] = useState<string>('')
+
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado
     // produto nao encontrado
@@ -67,10 +69,11 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
 
     const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
         const code = barcode.data;
-        searchProductInDatabase(code);
+        setCode(code);
+        searchProductInDatabase();
     };
 
-    const searchProductInDatabase = async (code: string) => {
+    const searchProductInDatabase = async () => {
         showModal();
         setIsLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -113,6 +116,8 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         hideManualRegister={hideManualRegister}
                         simulateRequest={simulateRequest}
                         searchProductInDatabase={searchProductInDatabase}
+                        code={code}
+                        setCode={setCode}
                     />
                 ) : (
                     <View
@@ -196,7 +201,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         visible={visibleModalProductNotFoundVisible}
                         hideModalProductNotFound={hideModalProductNotFound}
                         isLoading={isLoading}
-                        code={'123123123'}
+                        code={code}
                     />
                 )}
                 <ModalRegistroDeDoacao

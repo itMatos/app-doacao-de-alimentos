@@ -5,13 +5,16 @@ import { Button, Text, TextInput } from 'react-native-paper';
 export default function RegistrarManualmente({
     hideManualRegister,
     simulateRequest,
-    searchProductInDatabase
+    searchProductInDatabase,
+    code,
+    setCode,
 }: {
     hideManualRegister: () => void;
     simulateRequest: () => void;
-    searchProductInDatabase: (code: string) => void;
+    searchProductInDatabase: () => void;
+    code: string;
+    setCode: (code: string) => void;
 }) {
-    const [code, setCode] = useState('');
 
     const handleBarCodeInput = (code: string) => {
         setCode(code);
@@ -42,12 +45,12 @@ export default function RegistrarManualmente({
                         mode="contained"
                         onPress={async () => {
                             {  
-                                searchProductInDatabase(code)
+                                searchProductInDatabase()
                             }
                         }}
                         style={{ marginTop: 20 }}
                     >
-                        Buscar produto (simular)
+                        Buscar produto
                     </Button>
 
                     <Button
