@@ -12,9 +12,6 @@ export default function ProdutosListagemCategorias({
     navigation: any;
     route: any;
 }) {
-    const { state } = useContext(ArrecadacaoContext);
-    const teste = false;
-
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             <View>
@@ -26,7 +23,7 @@ export default function ProdutosListagemCategorias({
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
                 <Button
                     mode="contained"
-                    onPress={() => navigation.navigate('ConsultarUsandoCamera')}
+                    onPress={() => navigation.navigate('CadastrarNovoProduto')}
                     style={styles.scanButton}
                 >
                     Cadastrar novo produto

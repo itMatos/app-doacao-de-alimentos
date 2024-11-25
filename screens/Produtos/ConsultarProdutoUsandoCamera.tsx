@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
 import {
+    ActivityIndicator,
     Appbar,
     Button,
     Card,
@@ -39,11 +40,8 @@ export default function ConsultarProdutoUsandoCamera({
     navigation: any;
     route: any;
 }) {
-    const { state } = useContext(ArrecadacaoContext);
-    const teste = false;
-
-    const [visibleCamera, setVisibleCamera] = useState(false);
-    const [productDetails, setProductDetails] = useState<any>();
+    const [visibleCamera, setVisibleCamera] = useState(true);
+    const [productDetails, setProductDetails] = useState<ProdutoEncontradoApiType | null>(null);
     const [facing, setFacing] = useState<CameraType>('back');
     const [showModalProductDetails, setShowModalProductDetails] = useState(true);
 
@@ -57,10 +55,7 @@ export default function ConsultarProdutoUsandoCamera({
         showLoadingProductInfo();
         hideCamera();
         const code = barcode.data;
-        console.log('code', code);
-        const mockCode = '7893500020134';
-        // TODO alterar para code e remover mockCode
-        searchProductInDatabase(mockCode);
+        searchProductInDatabase(code);
     };
 
     const hideModalAndShowCamera = () => {
@@ -68,27 +63,29 @@ export default function ConsultarProdutoUsandoCamera({
         showCamera();
     };
 
-    const goBackToProductsList = () => {
-        navigation.navigate('ProdutosListagemCategorias');
-    };
-
     const searchProductInDatabase = async (code: string) => {
-        // setIsLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
+            setIsLoadingProductInfo(true);
             const response = await getProductByBarCode(code);
-            const mockResponse = produtoTesteApiResult;
-            setProductDetails(mockResponse);
+            // const mockResponse = produtoTesteApiResult;
+            setProductDetails(response);
             setShowModalProductDetails(true);
             // hideModalProductNotFound();
         } catch (error: any) {
             console.log('error', error);
             // showModalProductNotFound();
         } finally {
-            // setIsLoading(false);
+            setIsLoadingProductInfo(false);
             hideLoadingProductInfo();
         }
     };
+
+    const goBackToProductsList = () => {
+        navigation.navigate('ProdutosListagemCategorias');
+    };
+
+    //TODO - mostrar mensagem clara de produto nao encontrado
 
     return (
         <>
@@ -117,12 +114,20 @@ export default function ConsultarProdutoUsandoCamera({
                 </CameraView>
             )}
 
-            {!visibleCamera && (
+            {isLoadingProductInfo && (
+                <View style={styles.content}>
+                    <ActivityIndicator animating={true} style={{ marginVertical: 10 }} />
+
+                    <Title>Carregando informações do produto...</Title>
+                </View>
+            )}
+
+            {!visibleCamera && productDetails !== null && (
                 <DetalhesDoProduto
                     visible={showModalProductDetails}
                     hideModal={() => hideModalAndShowCamera()}
-                    isLoading={false}
-                    produto={produtoTesteApiResult}
+                    isLoading={isLoadingProductInfo}
+                    produto={productDetails}
                     goBackToProductsList={goBackToProductsList}
                     showCloseDetailsButton={false}
                 />

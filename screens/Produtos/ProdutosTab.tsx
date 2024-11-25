@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ProdutosListagemCategorias from './ProdutosListagemCategorias';
 import ConsultarProdutoUsandoCamera from './ConsultarProdutoUsandoCamera';
 import ProdutosPorCategoria from './ProdutosPorCategoria';
+import CadastrarNovoProduto from './CadastrarNovoProduto';
 
 export default function ProdutosTab({ navigation, route }: { navigation: any; route: any }) {
     const Stack = createNativeStackNavigator();
@@ -25,6 +26,12 @@ export default function ProdutosTab({ navigation, route }: { navigation: any; ro
                     component={ProdutosPorCategoria}
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="CadastrarNovoProduto"
+                    component={CadastrarNovoProduto}
+                    options={{ headerShown: false }}
+                />
+
                 {/* <Stack.Screen
                         name="CriarNovaCampanha"
                         component={CriarNovaCampanha}
