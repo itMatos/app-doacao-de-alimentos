@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Divider, Icon, IconButton, Surface, Text, TextInput } from 'react-native-paper';
-import { ArrecadacaoType, CategoriaType, ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
+import {
+    ArrecadacaoType,
+    CategoriaType,
+    ProdutoEncontradoApiType,
+    ProdutoType,
+} from '@/types/types';
 import {
     Modal,
     StyleSheet,
@@ -14,7 +19,13 @@ import ProdutoEncontrado from './ProdutoEncontrado';
 import { IsNumeric, vh } from '@/utils/utils';
 import RegistradoComSucesso from './RegistradoComSucesso';
 import { Picker } from '@react-native-picker/picker';
-import { createNewCategory, getAllCategories, getAllCategoriesAndMeasures, saveNewArrecadacao, saveNewProduct } from '@/services/RotaryApi';
+import {
+    createNewCategory,
+    getAllCategories,
+    getAllCategoriesAndMeasures,
+    saveNewArrecadacao,
+    saveNewProduct,
+} from '@/services/RotaryApi';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 import { measure } from 'react-native-reanimated';
 
@@ -23,8 +34,8 @@ const produtoTesteApiResult: ProdutoEncontradoApiType = {
     gtin: '7893500020134',
     id_produto_categoria: 'Arroz',
     codigo_ncm: '10063021',
-    medida_por_embalagem: null,
-    produto_medida_sigla: null,
+    medida_por_embalagem: '1',
+    produto_medida_sigla: 'kg',
     produto_marca: 'NÃO INFORMADO',
     nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
     nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
@@ -43,82 +54,104 @@ const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
 
 const mapProdutoToProdutoApi = (data: ProdutoType): ProdutoEncontradoApiType => ({
     gtin: data.codigoDeBarras,
-    id_produto_categoria: data.categoriaId || "",
-    codigo_ncm: data.codigoNCM || "",
-    medida_por_embalagem: data.quantidadePorEmbalagem || "",
-    produto_medida_sigla: data.siglaMedida || "",
-    produto_marca: data.marca || "",
-    nome: data.nome || "",
-    nome_sem_acento: data.nome.replace('ã', 'a').replace('á', 'a').replace('é', 'e').replace('õ', 'o').replace('ê', 'e').replace('ó', 'o').replace('í', 'i').replace('ú', 'u') || ""
-})
+    id_produto_categoria: data.categoriaId || '',
+    codigo_ncm: data.codigoNCM || '',
+    medida_por_embalagem: data.quantidadePorEmbalagem || '',
+    produto_medida_sigla: data.siglaMedida || '',
+    produto_marca: data.marca || '',
+    nome: data.nome || '',
+    nome_sem_acento:
+        data.nome
+            .replace('ã', 'a')
+            .replace('á', 'a')
+            .replace('é', 'e')
+            .replace('õ', 'o')
+            .replace('ê', 'e')
+            .replace('ó', 'o')
+            .replace('í', 'i')
+            .replace('ú', 'u') || '',
+});
 
 export default function ModalCadastrarNovoProduto({
     visible,
     hideModalProductNotFound,
     isLoading,
-    code,
+    onDismiss,
 }: {
     visible: boolean;
     hideModalProductNotFound: () => void;
     isLoading: boolean;
-    code: string;
+    onDismiss: () => void;
 }) {
+    const { campanhaState } = useContext(CampanhaContext);
+    const campanhaAtualId = campanhaState.campanhaAtualId;
     const [successRegister, setSuccessRegister] = useState(false);
-
-    const showSuccessRegister = () => setSuccessRegister(true);
-    const hideSuccessRegister = () => setSuccessRegister(false);
-
-    const produtoFiltered = mapProdutoEncontrado(produtoTesteApiResult);
-
-    const {campanhaAtualId} = useContext(CampanhaContext)
-
-    const [categories, setCategories] = useState<String[]>([])
-    const [produto, setProduto] = useState<ProdutoType | null>(
-        { codigoDeBarras: code, categoriaId: '', nome: '', marca: '',  quantidadePorEmbalagem: ''}
-    );
-    
+    const [activeStep, setActiveStep] = useState(1);
+    const [categories, setCategories] = useState<string[]>([]);
+    const defaultState = {
+        codigoDeBarras: '',
+        categoriaId: '',
+        codigoNCM: '',
+        quantidadePorEmbalagem: '',
+        siglaMedida: '',
+        marca: 'NÃO INFORMADO',
+        nome: '',
+        nomeSemAcento: '',
+    };
+    const [produto, setProduto] = useState(defaultState);
     const [validateInputs, setValidateInputs] = useState({
         gtin: true,
         nome: true,
         //categoria: true,
         marca: true,
         peso: true,
-    })
-    
-    const [novaCategoria, setNovaCategoria] = useState<CategoriaType>({nome_categoria: '', medida_sigla: ''})
-    const [isNovaCategoriaValid, setisNovaCategoriaValid] = useState<boolean>(true)
+    });
+    const [novaCategoria, setNovaCategoria] = useState<CategoriaType>({
+        nome_categoria: '',
+        medida_sigla: '',
+    });
+    const [isNovaCategoriaValid, setisNovaCategoriaValid] = useState<boolean>(true);
+    const [medidaSigla, setMedidaSigla] = useState<string>('');
+    const [novaArrecadacao, setNovaArrecadacao] = useState<ArrecadacaoType>({
+        id_campanha: campanhaAtualId,
+        id_produto: produto.codigoDeBarras,
+        qtd_total: 0,
+    });
+    const [showCreateNewCategory, setShowCreateNewCategory] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [pacotesInput, setPacotesInput] = useState('');
 
-    const [medidaSigla, setMedidaSigla] = useState<string>("")
+    const showSuccessRegister = () => setSuccessRegister(true);
+    const hideSuccessRegister = () => setSuccessRegister(false);
 
-    const [novaArrecadacao, setNovaArrecadacao] = useState<ArrecadacaoType>({id_campanha: campanhaAtualId, id_produto: produto.codigoDeBarras, qtd_total: 0})
+    const produtoFiltered = mapProdutoEncontrado(produtoTesteApiResult);
 
     useEffect(() => {
         const getCategories = async () => {
             await getAllCategories()
-            .then(categoriesList => setCategories(categoriesList))
-            .catch(error => console.error(error))
-        }
-    
-        getCategories()
-      }, [produto.categoriaId]);
+                .then((categoriesList) => setCategories(categoriesList))
+                .catch((error) => console.error(error));
+        };
 
+        getCategories();
+    }, [produto?.categoriaId]);
 
-      useEffect(() => {
+    useEffect(() => {
         const getMeasureFromCategory = async () => {
-            await getAllCategoriesAndMeasures().then(categoriesList => {
+            await getAllCategoriesAndMeasures().then((categoriesList) => {
                 if (produto.categoriaId.length > 0) {
-                    const medida = categoriesList.filter(categoria => categoria.nome_categoria == produto.categoriaId).at(0)?.medida_sigla || ""
-                    setMedidaSigla(medida)
-                    setProduto({...produto, siglaMedida: medida})
+                    const medida =
+                        categoriesList
+                            .filter((categoria) => categoria.nome_categoria == produto.categoriaId)
+                            .at(0)?.medida_sigla || '';
+                    setMedidaSigla(medida);
+                    setProduto({ ...produto, siglaMedida: medida });
                 }
-            }
-            )
-        }
+            });
+        };
 
-        getMeasureFromCategory()
-      }, [produto.categoriaId])
-    
-      
+        getMeasureFromCategory();
+    }, [produto.categoriaId]);
 
     // TODO: Implementar a lógica de captura de código de barras
     // produto encontrado: ok
@@ -134,63 +167,59 @@ export default function ModalCadastrarNovoProduto({
         hideModalProductNotFound();
     };
 
-    const [activeStep, setActiveStep] = useState(1);
-    
-    const validate = (produto: ProdutoType): boolean => {
+    const handleInputChange = (field: string, value: string) => {
+        setProduto({ ...produto, [field]: value });
+    };
 
-        setValidateInputs(
-            {
-                gtin: !!(produto.codigoDeBarras.length > 0 || produto.codigoDeBarras),
-                nome: !!(produto.nome.length >= 3 || produto.nome),
-                //categoria: !!(produto.categoriaId || produto.categoriaId != ''),
-                marca: !!(produto.marca.length >= 2 || produto.marca),
-                peso: !!(IsNumeric(produto.quantidadePorEmbalagem) && produto.quantidadePorEmbalagem),
-            }
-
-        )
-        //se tiver algum falso ja retorna que deu erro
-        return !Object.values(validateInputs).includes(false)
-
-    }
+    const step1InputIsValid = () => {
+        const validateInputsFromStep1 = {
+            gtin: !!(produto.codigoDeBarras.length > 0 || produto.codigoDeBarras),
+            nome: !!(produto.nome.length >= 3 || produto.nome),
+            //categoria: !!(produto.categoriaId || produto.categoriaId != ''),
+            marca: !!(produto.marca.length >= 2 || produto.marca),
+            peso: !!(IsNumeric(produto.quantidadePorEmbalagem) && produto.quantidadePorEmbalagem),
+        };
+        setValidateInputs(validateInputsFromStep1);
+        const isStep1Valid = !Object.values(validateInputsFromStep1).includes(false);
+        return isStep1Valid;
+    };
 
     const validateNovaCategoria = (novaCategoria: CategoriaType): boolean => {
         return !!(
-        novaCategoria.nome_categoria != '' 
-        && novaCategoria.medida_sigla != '' 
-        && !IsNumeric(novaCategoria.nome_categoria)
-        && !IsNumeric(novaCategoria.medida_sigla))
-    }
+            novaCategoria.nome_categoria != '' &&
+            novaCategoria.medida_sigla != '' &&
+            !IsNumeric(novaCategoria.nome_categoria) &&
+            !IsNumeric(novaCategoria.medida_sigla)
+        );
+    };
 
     const validateSelectedCategoria = (): boolean => {
-        return !!(produto.categoriaId || produto.categoriaId != '')
-    }
+        return !!(produto.categoriaId || produto.categoriaId != '');
+    };
 
     const handleNewCategory = async () => {
-        try{
-            await createNewCategory(novaCategoria)
+        try {
+            await createNewCategory(novaCategoria);
+        } catch (error) {
+            console.error(error);
         }
-        catch(error){
-            console.error(error)
-        }
-    }
+    };
 
     const handleNewArrecadacao = async () => {
-        try{
-            await saveNewArrecadacao(novaArrecadacao)
+        try {
+            await saveNewArrecadacao(novaArrecadacao);
+        } catch (error) {
+            console.error(error);
         }
-        catch(error){
-            console.error(error)
-        }
-    }
+    };
 
     const handleNewProduct = async () => {
-        try{
-            await saveNewProduct(mapProdutoToProdutoApi(produto))
+        try {
+            await saveNewProduct(mapProdutoToProdutoApi(produto));
+        } catch (error) {
+            console.error(error);
         }
-        catch(error){
-            console.error(error)
-        }
-    }
+    };
 
     const handleNextStep = () => {
         if (activeStep < 3) setActiveStep((prev) => prev + 1);
@@ -201,7 +230,6 @@ export default function ModalCadastrarNovoProduto({
     };
 
     const handleSaveProduct = () => {
-        // Lógica para salvar produto
         hideModalProductNotFound();
     };
 
@@ -211,9 +239,7 @@ export default function ModalCadastrarNovoProduto({
         return (
             <View key={step} style={styles.stepWrapper}>
                 <View style={[styles.line, isActive && styles.activeLine]} />
-                <TouchableOpacity 
-                onPress={() => setActiveStep(step)} 
-                style={styles.circleWrapper}>
+                <TouchableOpacity onPress={() => setActiveStep(step)} style={styles.circleWrapper}>
                     <View style={[styles.circle, isActive && styles.activeCircle]}>
                         <Text style={[styles.label, isActive && styles.activeLabel]}>{step}</Text>
                     </View>
@@ -231,16 +257,47 @@ export default function ModalCadastrarNovoProduto({
                 return selectOrCreateCategory();
             case 3:
                 return registerDonation();
-                // return <Text style={styles.card}>This is step 3 content</Text>;
             default:
                 return null;
         }
     };
 
+    const handleClickNextStep = () => {
+        const validateInputs = step1InputIsValid();
+        if (validateInputs) handleNextStep();
+    };
+
+    const handleSelectCategory = (itemValue: string) => {
+        setSelectedCategory(itemValue);
+        if (itemValue == 'newCategory') {
+            setShowCreateNewCategory(true);
+            return;
+        }
+        setShowCreateNewCategory(false);
+        setProduto({ ...produto, categoriaId: itemValue });
+    };
+
+    const handleValidateNewCategory = () => {
+        if (validateNovaCategoria(novaCategoria)) {
+            handleNewCategory();
+            setProduto({
+                ...produto,
+                categoriaId: novaCategoria.nome_categoria,
+            });
+            setisNovaCategoriaValid(true);
+            handleNextStep();
+        } else {
+            if (validateSelectedCategoria()) {
+                setisNovaCategoriaValid(true);
+                handleNextStep();
+            }
+        }
+        setisNovaCategoriaValid(false);
+    };
+
     const createNewProduct = () => {
         return (
-            <View style={styles.container}>
-                <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.innerContainer}>
                     <View style={styles.inputGroup}>
                         <Text style={{ alignSelf: 'center' }} variant="titleLarge">
@@ -254,61 +311,50 @@ export default function ModalCadastrarNovoProduto({
                             keyboardType="numeric"
                             mode="outlined"
                             value={produto.codigoDeBarras}
-                            onChangeText={(value) => setProduto({...produto, codigoDeBarras: value})}
+                            onChangeText={(value) =>
+                                setProduto({ ...produto, codigoDeBarras: value })
+                            }
                             style={styles.input}
                             placeholder="Código de barras"
                         />
-                        {validateInputs.gtin? <></> : <Text style={styles.errorValidation}>O gtin não pode ser vazio</Text>}
+                        {!!validateInputs.gtin ? (
+                            <></>
+                        ) : (
+                            <Text style={styles.errorValidation}>Informe o código de barras</Text>
+                        )}
                     </View>
                     <View style={styles.inputGroup}>
                         <Text style={styles.labelInput}>Nome</Text>
                         <TextInput
                             mode="outlined"
                             value={produto.nome}
-                            onChangeText={(value) => setProduto({...produto, nome: value})}
+                            onChangeText={(value) => setProduto({ ...produto, nome: value })}
                             style={styles.input}
                             placeholder="ex: Arroz Carril Branco"
                         />
-                        {validateInputs.nome? <></> : <Text style={styles.errorValidation}>O nome não pode ser vazio ou com poucos caracteres</Text>}
+                        {validateInputs.nome ? (
+                            <></>
+                        ) : (
+                            <Text style={styles.errorValidation}>Descreva o nome do produto</Text>
+                        )}
                     </View>
                     {/* TODO: fazer chamada para API e ver categorias disponíveis
 					TODO: criar opção de adicionar categoria */}
-                    {/* <View style={styles.inputGroup}>
-                        <Text style={styles.labelInput}>Categoria</Text>
-                        <TextInput
-                            value={produto?.categoriaId}
-                            mode="outlined"
-                            style={{ marginBottom: 16 }}
-                            render={(props) => (
-                                <Picker
-                                    selectedValue={produto.categoriaId}
-                                    onValueChange={(itemValue) => setProduto({ ...produto, categoriaId: itemValue } )}
-                                    mode="dropdown"
-                                >
-                                    <Picker.Item label="Selecione a categoria" value="" />
-                                    {categories.map((category) => (
-                                        <Picker.Item
-                                            key={category}
-                                            label={category}
-                                            value={category}
-                                        />
-                                    ))}
-                                </Picker>
-                            )}
-                        />
-                    {validateInputs.categoria? <></> : <Text style={styles.errorValidation}>Por favor, escolha uma categoria</Text>}
-                    </View> */}
 
                     <View style={styles.inputGroup}>
                         <Text style={styles.labelInput}>Marca</Text>
                         <TextInput
                             mode="outlined"
                             value={produto.marca}
-                            onChangeText={(value) => setProduto({...produto, marca: value})}
+                            onChangeText={(value) => setProduto({ ...produto, marca: value })}
                             style={styles.input}
                             placeholder="Marca"
                         />
-                        {validateInputs.marca? <></> : <Text style={styles.errorValidation}>A marca não pode ser vazia</Text>}
+                        {validateInputs.marca ? (
+                            <></>
+                        ) : (
+                            <Text style={styles.errorValidation}>Informe o nome da marca</Text>
+                        )}
                     </View>
 
                     <View style={styles.inputGroup}>
@@ -316,35 +362,48 @@ export default function ModalCadastrarNovoProduto({
                         <TextInput
                             mode="outlined"
                             value={produto.quantidadePorEmbalagem}
-                            onChangeText={(value) => setProduto({...produto, quantidadePorEmbalagem: value})}
+                            onChangeText={(value) =>
+                                setProduto({ ...produto, quantidadePorEmbalagem: value })
+                            }
                             style={styles.input}
                             placeholder="ex: 1 (kg)"
                         />
-                        {validateInputs.peso? <></> : <Text style={styles.errorValidation}>O peso não pode ser vazio e deve conter apenas números</Text>}
+                        {validateInputs.peso ? (
+                            <></>
+                        ) : (
+                            <Text style={styles.errorValidation}>
+                                O peso não pode ser vazio e deve conter apenas números
+                            </Text>
+                        )}
                     </View>
                     {/* TODO: adicionar validação antes de poder ir para o proximo */}
                     <Button
                         style={styles.button}
                         mode="contained"
-                        onPress={() => {
-                            if(validate(produto))
-                               handleNextStep()
-                            }
-                        }
+                        onPress={() => handleClickNextStep()}
                     >
                         Próximo
                     </Button>
-                </View>
-                </ScrollView>
-            </View>
-        );
 
+                    <Button
+                        style={styles.button}
+                        mode="contained"
+                        onPress={() => hideModalProductNotFound()}
+                    >
+                        Fechar
+                    </Button>
+                </View>
+            </ScrollView>
+        );
     };
 
     const selectOrCreateCategory = () => {
         return (
             <View style={styles.container}>
-                <ScrollView style={{...styles.innerContainer, marginBottom: '10px'}}>
+                <ScrollView
+                    style={{ ...styles.innerContainer, marginBottom: 10 }}
+                    showsVerticalScrollIndicator={false}
+                >
                     <View style={styles.inputGroup}>
                         <Text style={{ alignSelf: 'center' }} variant="titleLarge">
                             Selecione a Categoria do seu Produto
@@ -354,80 +413,111 @@ export default function ModalCadastrarNovoProduto({
                     <View style={styles.inputGroup}>
                         <Text style={styles.labelInput}>Categoria</Text>
                         <TextInput
-                            value={produto?.categoriaId}
+                            value={selectedCategory}
                             mode="outlined"
+                            dense
                             style={{ marginBottom: 16 }}
                             render={(props) => (
-                                <Picker
-                                    selectedValue={produto.categoriaId}
-                                    onValueChange={(itemValue) => setProduto({ ...produto, categoriaId: itemValue } )}
-                                    mode="dropdown"
-                                >
-                                    <Picker.Item label="Selecione a categoria" value="" />
-                                    {categories.map((category) => (
+                                <>
+                                    <Picker
+                                        selectedValue={selectedCategory}
+                                        onValueChange={(itemValue) =>
+                                            handleSelectCategory(itemValue)
+                                        }
+                                        mode="dropdown"
+                                    >
+                                        <Picker.Item label="Selecione a categoria" value="" />
+                                        {categories.map((category, index) => (
+                                            <Picker.Item
+                                                key={`${category}-${index}`}
+                                                label={category}
+                                                value={category}
+                                            />
+                                        ))}
+
                                         <Picker.Item
-                                            key={category}
-                                            label={category}
-                                            value={category}
+                                            label="--------------------------------"
+                                            value="divider"
+                                            enabled={false}
                                         />
-                                    ))}
-                                </Picker>
+
+                                        <Picker.Item
+                                            label="Criar nova categoria"
+                                            value="newCategory"
+                                        />
+                                    </Picker>
+                                </>
                             )}
                         />
                     </View>
 
-                    <View style={styles.inputGroup}>
-                        <Text style={{ alignSelf: 'center' }} variant="titleMedium">
-                            Ou crie uma nova categoria:
-                        </Text>
-                    </View>
+                    {showCreateNewCategory && (
+                        <>
+                            <View style={styles.inputGroup}>
+                                <Text style={{ alignSelf: 'flex-start' }} variant="titleMedium">
+                                    Preencha as informações abaixo
+                                </Text>
+                            </View>
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.labelInput}>Nome da Categoria:</Text>
+                                <TextInput
+                                    mode="outlined"
+                                    value={novaCategoria.nome_categoria}
+                                    onChangeText={(value) =>
+                                        setNovaCategoria({
+                                            ...novaCategoria,
+                                            nome_categoria: value,
+                                        })
+                                    }
+                                    style={styles.input}
+                                    placeholder="ex: Arroz"
+                                />
+                            </View>
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.labelInput}>
+                                    Unidade de medida por embalagem:
+                                </Text>
+                                <TextInput
+                                    mode="outlined"
+                                    value={novaCategoria.medida_sigla}
+                                    onChangeText={(value) =>
+                                        setNovaCategoria({ ...novaCategoria, medida_sigla: value })
+                                    }
+                                    style={styles.input}
+                                    placeholder="ex: kg, L"
+                                />
+                            </View>
+                        </>
+                    )}
 
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.labelInput}>Nome da Categoria:</Text>
-                        <TextInput
-                            mode="outlined"
-                            value={novaCategoria.nome_categoria}
-                            onChangeText={value => setNovaCategoria({...novaCategoria, nome_categoria: value})}
-                            style={styles.input}
-                            placeholder="ex: Arroz"
-                        />
-                    </View>
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.labelInput}>Unidade de medida por embalagem:</Text>
-                        <TextInput
-                            mode="outlined"
-                            value={novaCategoria.medida_sigla}
-                            onChangeText={(value) => setNovaCategoria({...novaCategoria, medida_sigla: value})}
-                            style={styles.input}
-                            placeholder="ex: kg, L"
-                        />
-                    </View>
-        
                     <Button
                         style={styles.button}
                         mode="contained"
-                        onPress={() => {
-                            if(validateNovaCategoria(novaCategoria)){
-                                handleNewCategory()
-                                setProduto({...produto, categoriaId: novaCategoria.nome_categoria})
-                                setisNovaCategoriaValid(true)
-                                handleNextStep()
-                            } else {
-                                if(validateSelectedCategoria()){
-                                    setisNovaCategoriaValid(true)
-                                    handleNextStep()
-                                }
-                            }
-                            setisNovaCategoriaValid(false)
-                            
-                        }}
+                        onPress={() => handleValidateNewCategory()}
                     >
                         Próximo
                     </Button>
-                    {isNovaCategoriaValid? <></> : <Text style={{...styles.errorValidation, marginBottom: 20}}>Verifique se a categoria está preenchida e sem dados numéricos</Text>}
+                    {isNovaCategoriaValid ? (
+                        <></>
+                    ) : (
+                        <Text style={{ ...styles.errorValidation, marginBottom: 20 }}>
+                            Verifique se a categoria está preenchida e sem dados numéricos
+                        </Text>
+                    )}
                 </ScrollView>
             </View>
         );
+    };
+
+    const handleChangePacotes = (value: string) => {
+        setPacotesInput(value);
+        if (IsNumeric(value) && value.length > 0) {
+            const parsedTextToInt = parseInt(value, 10);
+            console.log('parsedTextToInt', parsedTextToInt);
+            setNovaArrecadacao({ ...novaArrecadacao, qtd_total: parsedTextToInt });
+        } else {
+            setNovaArrecadacao({ ...novaArrecadacao, qtd_total: 0 });
+        }
     };
 
     const registerDonation = () => {
@@ -441,12 +531,15 @@ export default function ModalCadastrarNovoProduto({
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.labelInput}>Quantidade de pacotes (numérico)</Text>
+                        <Text style={styles.labelInput}>Quantidade de pacotes</Text>
                         <TextInput
                             mode="outlined"
-                            value={novaArrecadacao.qtd_total}
-                            onChangeText={(value) => {if(IsNumeric(value)) setNovaArrecadacao({...novaArrecadacao, qtd_total: value})}}
+                            value={pacotesInput}
+                            onChangeText={(text) => {
+                                handleChangePacotes(text);
+                            }}
                             style={styles.input}
+                            keyboardType="numeric"
                             placeholder="quantidade de pacotes"
                         />
                     </View>
@@ -455,7 +548,7 @@ export default function ModalCadastrarNovoProduto({
                             Doação total:
                         </Text>
                         <Text style={styles.title} variant="headlineSmall">
-                            {`${novaArrecadacao.qtd_total * produto.quantidadePorEmbalagem} ${medidaSigla}`}
+                            {`${Number(novaArrecadacao.qtd_total)} ${medidaSigla}`}
                         </Text>
                     </View>
 
@@ -463,13 +556,22 @@ export default function ModalCadastrarNovoProduto({
                         style={styles.button}
                         mode="contained"
                         onPress={() => {
-                            handleNewProduct()
-                            handleNewArrecadacao()
-                            handleClickRegisterDonation()
-                        }
-                        }
+                            handleNewProduct();
+                            handleNewArrecadacao();
+                            handleClickRegisterDonation();
+                        }}
                     >
                         Finalizar
+                    </Button>
+
+                    <Button
+                        style={styles.button}
+                        mode="contained"
+                        onPress={() => {
+                            hideModalProductNotFound();
+                        }}
+                    >
+                        Fechar
                     </Button>
                 </View>
             </View>
@@ -482,6 +584,7 @@ export default function ModalCadastrarNovoProduto({
             onRequestClose={hideModalProductNotFound}
             animationType="slide"
             transparent={true}
+            onDismiss={onDismiss}
         >
             <Surface style={styles.surfaceStyle}>
                 {isLoading && <Text>Carregando...</Text>}
@@ -490,15 +593,15 @@ export default function ModalCadastrarNovoProduto({
                         style={{
                             flex: 1,
                             flexDirection: 'column',
-                            alignItems: 'center',
-                            margin: 5,
+
+                            margin: 10,
                         }}
                     >
                         <View style={{ alignItems: 'center', margin: 20 }}>
                             <View
                                 style={{
                                     flexDirection: 'row',
-                                    alignItems: 'center',
+
                                     marginVertical: 20,
                                 }}
                             >
@@ -524,18 +627,16 @@ export default function ModalCadastrarNovoProduto({
     );
 }
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
+
         justifyContent: 'center',
         padding: 4,
     },
     innerContainer: {
         flex: 1,
         padding: 10,
-        width: '100%',
         backgroundColor: '#fff',
         borderRadius: 10,
     },
@@ -558,7 +659,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         paddingVertical: 10,
         borderRadius: 10,
-        backgroundColor: '#6200ee',
+
         color: '#fff',
     },
     surfaceStyle: {
@@ -591,7 +692,7 @@ const styles = StyleSheet.create({
     stepContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 10,
     },
     stepWrapper: {
         flexDirection: 'row',
@@ -630,7 +731,6 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        width: '100%',
     },
     card: {
         fontSize: 16,
@@ -639,6 +739,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     errorValidation: {
-        color: 'red'
+        color: 'red',
     },
 });

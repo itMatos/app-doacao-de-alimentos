@@ -6,18 +6,17 @@ export default function RegistrarManualmente({
     hideManualRegister,
     simulateRequest,
     searchProductInDatabase,
-    code,
-    setCode,
+    isLoading,
 }: {
     hideManualRegister: () => void;
     simulateRequest: () => void;
-    searchProductInDatabase: () => void;
-    code: string;
-    setCode: (code: string) => void;
+    searchProductInDatabase: (code: string) => void;
+    isLoading: boolean;
 }) {
+    const [codeInput, setCodeInput] = useState('');
 
-    const handleBarCodeInput = (code: string) => {
-        setCode(code);
+    const handleClickSearchProductInDatabase = async () => {
+        searchProductInDatabase(codeInput);
     };
 
     return (
@@ -37,17 +36,19 @@ export default function RegistrarManualmente({
                             padding: 2,
                             marginBottom: 10,
                         }}
-                        onChangeText={handleBarCodeInput}
+                        onChangeText={(text) => setCodeInput(text)}
                         placeholder="Código de barras"
                     />
+                    {isLoading && (
+                        <Text style={{ fontSize: 16, marginBottom: 10 }}>
+                            Estamos buscando o produto...
+                        </Text>
+                    )}
                     <Button
                         icon={'magnify'}
                         mode="contained"
-                        onPress={async () => {
-                            {  
-                                searchProductInDatabase()
-                            }
-                        }}
+                        disabled={isLoading}
+                        onPress={async () => handleClickSearchProductInDatabase()}
                         style={{ marginTop: 20 }}
                     >
                         Buscar produto
