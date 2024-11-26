@@ -13,30 +13,30 @@ export default function ProdutoEncontrado({
 }: {
     produto: ProdutoType | null;
     setProduto: (produto: ProdutoEncontradoApiType) => void;
-    handleClickRegisterDonation:(gtinProduto: string, quantidade: number) => Promise<void>;
+    handleClickRegisterDonation: (gtinProduto: string, quantidade: number) => Promise<void>;
     hideModal: () => void;
 }) {
     const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [totalDonation, setTotalDonation] = useState(Number(produto?.quantidadePorEmbalagem));
 
-    const [categories, setCategories] = useState<String[]>([])
+    const [categories, setCategories] = useState<string[]>([]);
 
     useEffect(() => {
         const getCategories = async () => {
             await getAllCategories()
-            .then(categoriesList => setCategories(categoriesList))
-            .catch(error => console.error(error))
-        }
-    
-        getCategories()
-      }, []);
+                .then((categoriesList) => setCategories(categoriesList))
+                .catch((error) => console.error(error));
+        };
+
+        getCategories();
+    }, []);
 
     const handleQuantityChange = (value: number) => {
         const pesoTotal = Number(produto?.quantidadePorEmbalagem) * value;
         setSelectedQuantity(value);
         setTotalDonation(pesoTotal);
-    };    
+    };
 
     return (
         <ScrollView style={{ padding: 16 }}>
@@ -83,11 +83,7 @@ export default function ProdutoEncontrado({
                     >
                         <Picker.Item label="Selecione a categoria" value="" />
                         {categories.map((category) => (
-                            <Picker.Item
-                                key={category}
-                                label={category}
-                                value={category}
-                            />
+                            <Picker.Item key={category} label={category} value={category} />
                         ))}
                     </Picker>
                 )}
@@ -125,7 +121,9 @@ export default function ProdutoEncontrado({
 
             <Button
                 mode="contained"
-                onPress={() => handleClickRegisterDonation(produto?.codigoDeBarras, selectedQuantity )}
+                onPress={() =>
+                    handleClickRegisterDonation(produto?.codigoDeBarras, selectedQuantity)
+                }
                 style={styles.scanButton}
             >
                 Registrar
@@ -163,4 +161,3 @@ const styles = StyleSheet.create({
 // function useEffect(arg0: () => void, arg1: never[]) {
 //     throw new Error('Function not implemented.');
 // }
-

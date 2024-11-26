@@ -77,19 +77,21 @@ export default function ModalCadastrarNovoProduto({
     hideModalProductNotFound,
     isLoading,
     onDismiss,
+    code,
 }: {
     visible: boolean;
     hideModalProductNotFound: () => void;
     isLoading: boolean;
     onDismiss: () => void;
+    code: string;
 }) {
     const { campanhaState } = useContext(CampanhaContext);
     const campanhaAtualId = campanhaState.campanhaAtualId;
     const [successRegister, setSuccessRegister] = useState(false);
     const [activeStep, setActiveStep] = useState(1);
-    const [categories, setCategories] = useState<string[]>([]);
+    const [categories, setCategories] = useState<CategoriaType[]>([]);
     const defaultState = {
-        codigoDeBarras: '',
+        codigoDeBarras: code,
         categoriaId: '',
         codigoNCM: '',
         quantidadePorEmbalagem: '',
@@ -106,7 +108,7 @@ export default function ModalCadastrarNovoProduto({
         marca: true,
         peso: true,
     });
-    const [novaCategoria, setNovaCategoria] = useState<CategoriaType>({
+    const [novaCategoria, setNovaCategoria] = useState({
         nome_categoria: '',
         medida_sigla: '',
     });
@@ -115,49 +117,27 @@ export default function ModalCadastrarNovoProduto({
     const [novaArrecadacao, setNovaArrecadacao] = useState<ArrecadacaoType>({
         id_campanha: campanhaAtualId,
         id_produto: produto.codigoDeBarras,
-        qtd_total: 0,
+        qtd_total: 1,
     });
     const [showCreateNewCategory, setShowCreateNewCategory] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string>('');
-    const [pacotesInput, setPacotesInput] = useState('');
+    const [pacotesInput, setPacotesInput] = useState('1');
 
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
 
-    const produtoFiltered = mapProdutoEncontrado(produtoTesteApiResult);
-
     useEffect(() => {
-        const getCategories = async () => {
-            await getAllCategories()
-                .then((categoriesList) => setCategories(categoriesList))
-                .catch((error) => console.error(error));
-        };
-
         getCategories();
-    }, [produto?.categoriaId]);
+    }, []);
 
-    useEffect(() => {
-        const getMeasureFromCategory = async () => {
-            await getAllCategoriesAndMeasures().then((categoriesList) => {
-                if (produto.categoriaId.length > 0) {
-                    const medida =
-                        categoriesList
-                            .filter((categoria) => categoria.nome_categoria == produto.categoriaId)
-                            .at(0)?.medida_sigla || '';
-                    setMedidaSigla(medida);
-                    setProduto({ ...produto, siglaMedida: medida });
-                }
-            });
-        };
-
-        getMeasureFromCategory();
-    }, [produto.categoriaId]);
-
-    // TODO: Implementar a lógica de captura de código de barras
-    // produto encontrado: ok
-    // produto nao encontrado: ok
-    // falha ao ler código de barras: vai ser usado botao de inserir manualmente
-    // Falha ao clicar no botao de registrar: voltar para a tela de registrar doacao
+    const getCategories = async () => {
+        try {
+            const categoriesList = await getAllCategoriesAndMeasures();
+            setCategories(categoriesList);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const handleClickRegisterDonation = () => {
         showSuccessRegister();
@@ -208,6 +188,7 @@ export default function ModalCadastrarNovoProduto({
     const handleNewArrecadacao = async () => {
         try {
             await saveNewArrecadacao(novaArrecadacao);
+            handleClickRegisterDonation();
         } catch (error) {
             console.error(error);
         }
@@ -252,9 +233,9 @@ export default function ModalCadastrarNovoProduto({
     const renderContent = () => {
         switch (activeStep) {
             case 1:
-                return createNewProduct();
-            case 2:
                 return selectOrCreateCategory();
+            case 2:
+                return createNewProduct();
             case 3:
                 return registerDonation();
             default:
@@ -267,14 +248,34 @@ export default function ModalCadastrarNovoProduto({
         if (validateInputs) handleNextStep();
     };
 
-    const handleSelectCategory = (itemValue: string) => {
+    const handleChangeSelectCategory = (itemValue: string) => {
         setSelectedCategory(itemValue);
+        console.log('itemValue', itemValue);
         if (itemValue == 'newCategory') {
             setShowCreateNewCategory(true);
-            return;
+        } else {
+            setShowCreateNewCategory(false);
+            const categoria = categories
+                .filter((categoria) => categoria.nome_categoria == itemValue)
+                .at(0);
+
+            if (categoria?.medida_sigla && categoria?.nome_categoria) {
+                console.log('tem que entrar aqui 1', categoria);
+
+                const changeCategory = {
+                    ...produto,
+                    categoriaId: categoria.nome_categoria,
+                    siglaMedida: categoria.medida_sigla,
+                };
+                console.log('produto', produto);
+                setProduto({
+                    ...produto,
+                    categoriaId: categoria.nome_categoria,
+                    siglaMedida: categoria.medida_sigla,
+                });
+                setMedidaSigla(categoria.medida_sigla);
+            }
         }
-        setShowCreateNewCategory(false);
-        setProduto({ ...produto, categoriaId: itemValue });
     };
 
     const handleValidateNewCategory = () => {
@@ -283,16 +284,42 @@ export default function ModalCadastrarNovoProduto({
             setProduto({
                 ...produto,
                 categoriaId: novaCategoria.nome_categoria,
+                siglaMedida: novaCategoria.medida_sigla,
             });
             setisNovaCategoriaValid(true);
             handleNextStep();
+            return;
         } else {
             if (validateSelectedCategoria()) {
                 setisNovaCategoriaValid(true);
                 handleNextStep();
+                return;
             }
         }
         setisNovaCategoriaValid(false);
+    };
+
+    const handleValidateCategoryBeforeNextStep = () => {
+        if (showCreateNewCategory) {
+            handleValidateNewCategory();
+        } else {
+            if (validateSelectedCategoria()) {
+                handleNextStep();
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (code) {
+            setProduto({ ...produto, codigoDeBarras: code });
+            setNovaArrecadacao({ ...novaArrecadacao, id_produto: code });
+        }
+    }, [code]);
+
+    const handleChangeBarCode = (value: string) => {
+        if (value.trim().length > 0) {
+            setProduto({ ...produto, codigoDeBarras: value });
+        }
     };
 
     const createNewProduct = () => {
@@ -311,9 +338,7 @@ export default function ModalCadastrarNovoProduto({
                             keyboardType="numeric"
                             mode="outlined"
                             value={produto.codigoDeBarras}
-                            onChangeText={(value) =>
-                                setProduto({ ...produto, codigoDeBarras: value })
-                            }
+                            onChangeText={(value) => handleChangeBarCode(value)}
                             style={styles.input}
                             placeholder="Código de barras"
                         />
@@ -338,8 +363,6 @@ export default function ModalCadastrarNovoProduto({
                             <Text style={styles.errorValidation}>Descreva o nome do produto</Text>
                         )}
                     </View>
-                    {/* TODO: fazer chamada para API e ver categorias disponíveis
-					TODO: criar opção de adicionar categoria */}
 
                     <View style={styles.inputGroup}>
                         <Text style={styles.labelInput}>Marca</Text>
@@ -362,6 +385,9 @@ export default function ModalCadastrarNovoProduto({
                         <TextInput
                             mode="outlined"
                             value={produto.quantidadePorEmbalagem}
+                            right={
+                                <TextInput.Icon icon={() => <Text>{produto.siglaMedida}</Text>} />
+                            }
                             onChangeText={(value) =>
                                 setProduto({ ...produto, quantidadePorEmbalagem: value })
                             }
@@ -376,7 +402,6 @@ export default function ModalCadastrarNovoProduto({
                             </Text>
                         )}
                     </View>
-                    {/* TODO: adicionar validação antes de poder ir para o proximo */}
                     <Button
                         style={styles.button}
                         mode="contained"
@@ -406,7 +431,14 @@ export default function ModalCadastrarNovoProduto({
                 >
                     <View style={styles.inputGroup}>
                         <Text style={{ alignSelf: 'center' }} variant="titleLarge">
-                            Selecione a Categoria do seu Produto
+                            Informe a Categoria do Produto
+                        </Text>
+                        <Text
+                            style={{ alignSelf: 'center', marginTop: 5, marginBottom: 10 }}
+                            variant="titleMedium"
+                        >
+                            Essa informação é importante para agrupar os tipos de produtos. Caso a
+                            categoria não exista, você pode criar uma nova.
                         </Text>
                     </View>
 
@@ -422,16 +454,16 @@ export default function ModalCadastrarNovoProduto({
                                     <Picker
                                         selectedValue={selectedCategory}
                                         onValueChange={(itemValue) =>
-                                            handleSelectCategory(itemValue)
+                                            handleChangeSelectCategory(itemValue)
                                         }
                                         mode="dropdown"
                                     >
                                         <Picker.Item label="Selecione a categoria" value="" />
                                         {categories.map((category, index) => (
                                             <Picker.Item
-                                                key={`${category}-${index}`}
-                                                label={category}
-                                                value={category}
+                                                key={`${category.nome_categoria}-${index}`}
+                                                label={category.nome_categoria}
+                                                value={category.nome_categoria}
                                             />
                                         ))}
 
@@ -472,10 +504,16 @@ export default function ModalCadastrarNovoProduto({
                                     style={styles.input}
                                     placeholder="ex: Arroz"
                                 />
+                                {!isNovaCategoriaValid &&
+                                    novaCategoria.medida_sigla.trim() === '' && (
+                                        <Text style={styles.errorValidation}>
+                                            Insira o nome da categoria corretamente
+                                        </Text>
+                                    )}
                             </View>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.labelInput}>
-                                    Unidade de medida por embalagem:
+                                    Unidade de medida da categoria:
                                 </Text>
                                 <TextInput
                                     mode="outlined"
@@ -486,6 +524,12 @@ export default function ModalCadastrarNovoProduto({
                                     style={styles.input}
                                     placeholder="ex: kg, L"
                                 />
+                                {!isNovaCategoriaValid &&
+                                    novaCategoria.medida_sigla.trim() === '' && (
+                                        <Text style={styles.errorValidation}>
+                                            Insira uma unidade de medida válida
+                                        </Text>
+                                    )}
                             </View>
                         </>
                     )}
@@ -493,7 +537,7 @@ export default function ModalCadastrarNovoProduto({
                     <Button
                         style={styles.button}
                         mode="contained"
-                        onPress={() => handleValidateNewCategory()}
+                        onPress={() => handleValidateCategoryBeforeNextStep()}
                     >
                         Próximo
                     </Button>
@@ -516,9 +560,12 @@ export default function ModalCadastrarNovoProduto({
             console.log('parsedTextToInt', parsedTextToInt);
             setNovaArrecadacao({ ...novaArrecadacao, qtd_total: parsedTextToInt });
         } else {
-            setNovaArrecadacao({ ...novaArrecadacao, qtd_total: 0 });
+            setNovaArrecadacao({ ...novaArrecadacao, qtd_total: 1 });
         }
     };
+
+    const totalDonation =
+        Number(novaArrecadacao.qtd_total) * Number(produto.quantidadePorEmbalagem);
 
     const registerDonation = () => {
         return (
@@ -548,7 +595,7 @@ export default function ModalCadastrarNovoProduto({
                             Doação total:
                         </Text>
                         <Text style={styles.title} variant="headlineSmall">
-                            {`${Number(novaArrecadacao.qtd_total)} ${medidaSigla}`}
+                            {`${totalDonation} ${medidaSigla}`}
                         </Text>
                     </View>
 
@@ -558,7 +605,6 @@ export default function ModalCadastrarNovoProduto({
                         onPress={() => {
                             handleNewProduct();
                             handleNewArrecadacao();
-                            handleClickRegisterDonation();
                         }}
                     >
                         Finalizar
@@ -593,7 +639,6 @@ export default function ModalCadastrarNovoProduto({
                         style={{
                             flex: 1,
                             flexDirection: 'column',
-
                             margin: 10,
                         }}
                     >
@@ -601,8 +646,7 @@ export default function ModalCadastrarNovoProduto({
                             <View
                                 style={{
                                     flexDirection: 'row',
-
-                                    marginVertical: 20,
+                                    marginVertical: 10,
                                 }}
                             >
                                 <Icon source="close-circle-outline" size={30} color="#d32f2f" />
@@ -669,8 +713,8 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
         backgroundColor: '#ffffff',
-        marginHorizontal: 10,
-        marginTop: 10 * vh,
+        marginHorizontal: 5,
+        marginTop: 8 * vh,
         justifyContent: 'center',
     },
     header: {

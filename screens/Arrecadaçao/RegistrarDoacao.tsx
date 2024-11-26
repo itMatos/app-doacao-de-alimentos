@@ -69,6 +69,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
         hideCamera();
         const code = barcode.data;
+        setCode(code);
         searchProductInDatabase(code);
     };
 
@@ -210,6 +211,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                     hideModalProductNotFound={hideModalProductNotFound}
                     isLoading={isLoading}
                     onDismiss={hideModalProductNotFound}
+                    code={code}
                 />
 
                 <ModalRegistroDeDoacao
