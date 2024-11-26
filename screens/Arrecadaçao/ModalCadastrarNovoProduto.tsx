@@ -139,7 +139,26 @@ export default function ModalCadastrarNovoProduto({
         }
     };
 
+    const handleNewProduct = async () => {
+        try {
+            const create = await saveNewProduct(mapProdutoToProdutoApi(produto));
+            console.log('create', create);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleNewArrecadacao = async () => {
+        try {
+            await saveNewArrecadacao(novaArrecadacao);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleClickRegisterDonation = () => {
+        handleNewProduct();
+        handleNewArrecadacao();
         showSuccessRegister();
     };
 
@@ -180,23 +199,6 @@ export default function ModalCadastrarNovoProduto({
     const handleNewCategory = async () => {
         try {
             await createNewCategory(novaCategoria);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleNewArrecadacao = async () => {
-        try {
-            await saveNewArrecadacao(novaArrecadacao);
-            handleClickRegisterDonation();
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleNewProduct = async () => {
-        try {
-            await saveNewProduct(mapProdutoToProdutoApi(produto));
         } catch (error) {
             console.error(error);
         }
@@ -603,8 +605,7 @@ export default function ModalCadastrarNovoProduto({
                         style={styles.button}
                         mode="contained"
                         onPress={() => {
-                            handleNewProduct();
-                            handleNewArrecadacao();
+                            handleClickRegisterDonation();
                         }}
                     >
                         Finalizar
@@ -634,7 +635,7 @@ export default function ModalCadastrarNovoProduto({
         >
             <Surface style={styles.surfaceStyle}>
                 {isLoading && <Text>Carregando...</Text>}
-                {!isLoading && (
+                {!isLoading && !successRegister && (
                     <View
                         style={{
                             flex: 1,
@@ -665,6 +666,9 @@ export default function ModalCadastrarNovoProduto({
                         </View>
                         <View style={styles.contentContainer}>{renderContent()}</View>
                     </View>
+                )}
+                {successRegister && !isLoading && (
+                    <RegistradoComSucesso handleClickNewRegister={handleClickNewRegister} />
                 )}
             </Surface>
         </Modal>
