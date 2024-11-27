@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { all } from 'axios';
 import config from './config';
-import { CategoriaType } from '@/types/types';
+import { ArrecadacaoType, CategoriaType, ProdutoEncontradoApiType } from '@/types/types';
 
 const RotaryApi = axios.create({ baseURL: config.RotaryApi, withCredentials: true });
 
@@ -40,17 +40,32 @@ export async function getAllProductsByCategory(category: string) {
     return res;
 }
 
-export async function createNewCategory(category: CategoriaType) {
-    const payload = {
-        nome_categoria: category.nomeCategoria,
-        medida_sigla: category.medidaSigla,
-    };
-    if (!category) {
-        throw new Error('Categoria não informada');
-    }
+export async function getAllCategoriesAndMeasures(): Promise<CategoriaType[]> {
+    console.log('getAllCategoriesAndMeeasures', config.RotaryApi);
+
     const endpoint = `/categorias`;
-    const res = await RotaryApi.post(endpoint, payload)
-        .then((res) => res.data)
-        .then((response) => response);
+    const res = await RotaryApi.get(endpoint)
+    .then(res => res.data)
     return res;
+}
+
+export async function saveNewArrecadacao(newArrecadacao: ArrecadacaoType) {
+    console.log('saveNewArrecadacao: ', newArrecadacao);
+
+    const endpoint = `/arrecadacao`;
+    await RotaryApi.post(endpoint, newArrecadacao)
+}
+
+export async function saveNewProduct(newProduct: ProdutoEncontradoApiType) {
+    console.log('saveNewProduct: ', newProduct);
+
+    const endpoint = `/produtos`;
+    await RotaryApi.post(endpoint, newProduct)
+}
+
+export async function createNewCategory(newCategory: CategoriaType) {
+    console.log('createNewCategory: ', newCategory);
+
+    const endpoint = `/categorias`;
+    await RotaryApi.post(endpoint, newCategory)
 }

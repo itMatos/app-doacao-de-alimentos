@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Animated, Modal, TouchableOpacity } from 'react-native';
-import { Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
+import { ActivityIndicator, Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
 import { CameraType, CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { vh } from '@/utils/utils';
 import { ProdutoEncontradoApiType } from '@/types/types';
@@ -15,7 +15,7 @@ const produtoTeste: ProdutoEncontradoApiType = {
     id_produto_categoria: 'Arroz',
     codigo_ncm: '10063021',
     medida_por_embalagem: '2',
-    produto_medida_sigla: null,
+    produto_medida_sigla: 'kg',
     produto_marca: 'NÃO INFORMADO',
     nome: 'Arroz Minamimai Curto Japones T1 5kg',
     nome_sem_acento: 'Arroz Minamimai Curto Japones T1 5kg',
@@ -28,10 +28,15 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const [cameraVisible, setCameraVisible] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [manualRegister, setManualRegister] = useState(false);
-    const [visibleModalProductNotFoundVisible, setVisibleModalProductNotFound] = useState(false);
+    const [modalProductUnregistered, setModalProductUnregistered] = useState(false);
+    const [produto, setProduto] = useState<any | null>({});
+    const [code, setCode] = useState<string>('');
 
-    const showModal = () => setVisibleModal(true);
-    const hideModal = () => setVisibleModal(false);
+    const showModalProductFoundSuccessfully = () => setVisibleModal(true);
+    const hideModalProductFoundSuccessfully = () => {
+        setVisibleModal(false);
+        showCamera();
+    };
 
     const showCamera = () => setCameraVisible(true);
     const hideCamera = () => setCameraVisible(false);
@@ -39,17 +44,14 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     const showManualRegister = () => setManualRegister(true);
     const hideManualRegister = () => setManualRegister(false);
 
-    const showModalProductNotFound = () => setVisibleModalProductNotFound(true);
-    const hideModalProductNotFound = () => setVisibleModalProductNotFound(false);
-
-    // TODO: Implementar a lógica de captura de código de barras
-    // produto encontrado
-    // produto nao encontrado
-    // falha ao ler código de barras
-    // Falha ao clicar no botao de registrar
+    const showModalProductNotFound = () => setModalProductUnregistered(true);
+    const hideModalProductNotFound = () => {
+        setModalProductUnregistered(false);
+        showCamera();
+    };
 
     const simulateRequest = async () => {
-        showModal();
+        hideCamera();
         setIsLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setProduto(produtoTeste);
@@ -57,29 +59,30 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
     };
 
     const simulateNotFound = async () => {
+        hideCamera();
         showModalProductNotFound();
         setIsLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setIsLoading(false);
     };
 
-    const [produto, setProduto] = useState<any | null>({});
-
     const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
+        hideCamera();
         const code = barcode.data;
+        setCode(code);
         searchProductInDatabase(code);
     };
 
     const searchProductInDatabase = async (code: string) => {
-        showModal();
         setIsLoading(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
             const response = await getProductByBarCode(code);
             setProduto(response);
-            hideModalProductNotFound();
+            showModalProductFoundSuccessfully();
         } catch (error: any) {
-            showModalProductNotFound()
+            // TODO aqui precisa validar se o produto nao foi encontrado ou se teve erro na hora de ler o codigo de barras
+            showModalProductNotFound();
         } finally {
             setIsLoading(false);
         }
@@ -113,6 +116,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         hideManualRegister={hideManualRegister}
                         simulateRequest={simulateRequest}
                         searchProductInDatabase={searchProductInDatabase}
+                        isLoading={isLoading}
                     />
                 ) : (
                     <View
@@ -139,7 +143,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                                 }}
                                 style={styles.scanButton}
                             >
-                                simular request
+                                simular produto encontrado
                             </Button>
 
                             <Button
@@ -155,7 +159,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             </Button>
                         </View>
 
-                        {!visibleModalProductNotFoundVisible && (
+                        {cameraVisible && (
                             <CameraView
                                 style={styles.camera}
                                 facing={facing}
@@ -172,6 +176,15 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             </CameraView>
                         )}
 
+                        {isLoading && (
+                            <>
+                                <ActivityIndicator animating={true} />
+                                <Text style={styles.message} variant="titleMedium">
+                                    Estamos buscando o produto...
+                                </Text>
+                            </>
+                        )}
+
                         <View
                             style={{
                                 flex: 1,
@@ -184,6 +197,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                                     margin: 20,
                                     borderRadius: 10,
                                 }}
+                                disabled={isLoading}
                                 onPress={() => showManualRegister()}
                             >
                                 Inserir código manualmente
@@ -191,17 +205,18 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         </View>
                     </View>
                 )}
-                {visibleModalProductNotFoundVisible && (
-                    <ModalCadastrarNovoProduto
-                        visible={visibleModalProductNotFoundVisible}
-                        hideModalProductNotFound={hideModalProductNotFound}
-                        isLoading={isLoading}
-                        code={'123123123'}
-                    />
-                )}
+
+                <ModalCadastrarNovoProduto
+                    visible={modalProductUnregistered}
+                    hideModalProductNotFound={hideModalProductNotFound}
+                    isLoading={isLoading}
+                    onDismiss={hideModalProductNotFound}
+                    code={code}
+                />
+
                 <ModalRegistroDeDoacao
                     visible={visibleModal}
-                    hideModal={hideModal}
+                    hideModal={hideModalProductFoundSuccessfully}
                     isLoading={isLoading}
                     produto={produto}
                 />
