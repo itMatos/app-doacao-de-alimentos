@@ -36,7 +36,8 @@ export default function ModalRegistroDeDoacao({
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
 
-    const {campanhaAtualId} = useContext(CampanhaContext);
+    const { campanhaState } = useContext(CampanhaContext);
+    const { campanhaAtualId } = campanhaState;
 
     const produtoFiltered = mapProdutoEncontrado(produto);
 
@@ -49,18 +50,17 @@ export default function ModalRegistroDeDoacao({
     // const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
 
     const handleClickRegisterDonation = async (gtinProduto: string, quantidade: number) => {
-        const newArrecadacao : ArrecadacaoType = {
+        const newArrecadacao: ArrecadacaoType = {
             id_campanha: campanhaAtualId,
             id_produto: gtinProduto,
-            qtd_total: quantidade
+            qtd_total: quantidade,
         };
 
-        console.log("Enviando arrecadacao: ", newArrecadacao)
-        try{
-            await saveNewArrecadacao(newArrecadacao)
-        }
-        catch(error) {
-            console.error("erro ao salvar arrecadacao: ", error)
+        console.log('Enviando arrecadacao: ', newArrecadacao);
+        try {
+            await saveNewArrecadacao(newArrecadacao);
+        } catch (error) {
+            console.error('erro ao salvar arrecadacao: ', error);
         }
 
         showSuccessRegister();
