@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
@@ -13,33 +13,33 @@ export default function ProdutoEncontrado({
 }: {
     produto: ProdutoType | null;
     setProduto: (produto: ProdutoEncontradoApiType) => void;
-    handleClickRegisterDonation: () => void;
+    handleClickRegisterDonation: (gtinProduto: string, quantidade: number) => Promise<void>;
     hideModal: () => void;
 }) {
     const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [totalDonation, setTotalDonation] = useState(Number(produto?.quantidadePorEmbalagem));
 
-    const [categories, setCategories] = useState<String[]>([])
+    const [categories, setCategories] = useState<string[]>([]);
 
     useEffect(() => {
         const getCategories = async () => {
             await getAllCategories()
-            .then(categoriesList => setCategories(categoriesList))
-            .catch(error => console.error(error))
-        }
-    
-        getCategories()
-      }, []);
+                .then((categoriesList) => setCategories(categoriesList))
+                .catch((error) => console.error(error));
+        };
+
+        getCategories();
+    }, []);
 
     const handleQuantityChange = (value: number) => {
         const pesoTotal = Number(produto?.quantidadePorEmbalagem) * value;
         setSelectedQuantity(value);
         setTotalDonation(pesoTotal);
-    };    
+    };
 
     return (
-        <View style={{ padding: 16 }}>
+        <ScrollView style={{ padding: 16 }}>
             <View style={{ alignItems: 'center', marginBottom: 20 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon source="check-circle-outline" size={30} color="#81c784" />
@@ -83,11 +83,7 @@ export default function ProdutoEncontrado({
                     >
                         <Picker.Item label="Selecione a categoria" value="" />
                         {categories.map((category) => (
-                            <Picker.Item
-                                key={category}
-                                label={category}
-                                value={category}
-                            />
+                            <Picker.Item key={category} label={category} value={category} />
                         ))}
                     </Picker>
                 )}
@@ -125,7 +121,9 @@ export default function ProdutoEncontrado({
 
             <Button
                 mode="contained"
-                onPress={handleClickRegisterDonation}
+                onPress={() =>
+                    handleClickRegisterDonation(produto?.codigoDeBarras, selectedQuantity)
+                }
                 style={styles.scanButton}
             >
                 Registrar
@@ -138,7 +136,7 @@ export default function ProdutoEncontrado({
             >
                 Voltar
             </Button>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -163,4 +161,3 @@ const styles = StyleSheet.create({
 // function useEffect(arg0: () => void, arg1: never[]) {
 //     throw new Error('Function not implemented.');
 // }
-
