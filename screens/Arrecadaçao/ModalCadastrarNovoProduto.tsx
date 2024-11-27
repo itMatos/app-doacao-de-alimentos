@@ -597,7 +597,7 @@ export default function ModalCadastrarNovoProduto({
                             Doação total:
                         </Text>
                         <Text style={styles.title} variant="headlineSmall">
-                            {`${totalDonation} ${medidaSigla}`}
+                            {`${totalDonation} ${produto.siglaMedida}`}
                         </Text>
                     </View>
 
