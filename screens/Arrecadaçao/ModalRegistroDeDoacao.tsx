@@ -9,6 +9,18 @@ import { useContextKey } from 'expo-router/build/Route';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 import { saveNewArrecadacao } from '@/services/RotaryApi';
 
+// objeto para teste sem precisar utilizar api
+const produtoTesteApiResult: ProdutoEncontradoApiType = {
+    gtin: '7893500020134',
+    id_produto_categoria: 'Arroz',
+    codigo_ncm: '10063021',
+    medida_por_embalagem: '2',
+    produto_medida_sigla: '',
+    produto_marca: 'NÃO INFORMADO',
+    nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
+    nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
+};
+
 const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
     codigoDeBarras: data.gtin,
     categoriaId: data.id_produto_categoria ?? 'Arroz',

@@ -16,6 +16,7 @@ export const months = [
 ];
 
 export const vh = Dimensions.get('window').height / 100;
+export const vw = Dimensions.get('window').width / 100;
 
 export const IsNumeric = (value: string): boolean => {
     const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
