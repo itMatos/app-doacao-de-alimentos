@@ -44,8 +44,7 @@ export async function getAllCategoriesAndMeasures(): Promise<CategoriaType[]> {
     console.log('getAllCategoriesAndMeeasures', config.RotaryApi);
 
     const endpoint = `/categorias`;
-    const res = await RotaryApi.get(endpoint)
-    .then(res => res.data)
+    const res = await RotaryApi.get(endpoint).then((res) => res.data);
     return res;
 }
 
@@ -53,19 +52,27 @@ export async function saveNewArrecadacao(newArrecadacao: ArrecadacaoType) {
     console.log('saveNewArrecadacao: ', newArrecadacao);
 
     const endpoint = `/arrecadacao`;
-    await RotaryApi.post(endpoint, newArrecadacao)
+    await RotaryApi.post(endpoint, newArrecadacao);
 }
 
 export async function saveNewProduct(newProduct: ProdutoEncontradoApiType) {
     console.log('saveNewProduct: ', newProduct);
 
     const endpoint = `/produtos`;
-    await RotaryApi.post(endpoint, newProduct)
+    await RotaryApi.post(endpoint, newProduct);
 }
 
 export async function createNewCategory(newCategory: CategoriaType) {
     console.log('createNewCategory: ', newCategory);
 
     const endpoint = `/categorias`;
-    await RotaryApi.post(endpoint, newCategory)
+    await RotaryApi.post(endpoint, newCategory);
+}
+
+export async function getAllCampanhas() {
+    const endpoint = `/campanhas`;
+    const res = await RotaryApi.get(endpoint)
+        .then((res) => res.data)
+        .then((response) => response);
+    return res;
 }

@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EstoqueTabScreens from '@/screens/Produtos/EstoqueScreens';
 import ArrecadacaoTab from '@/screens/Arrecadaçao/ArrecadacaoTab';
 import ProdutosTab from '@/screens/Produtos/ProdutosTab';
+import CampanhasTab from '@/screens/Campanhas/CampanhasTab';
 
 export default function TabLayout() {
     const Tab = createBottomTabNavigator();
@@ -72,7 +73,7 @@ export default function TabLayout() {
             />
             <Tab.Screen
                 name="Campanhas"
-                component={EstoqueTabScreens}
+                component={CampanhasTab}
                 options={{
                     tabBarLabel: 'Campanhas',
                     tabBarIcon: ({ color, size }) => {
