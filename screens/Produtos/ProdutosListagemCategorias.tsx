@@ -20,38 +20,58 @@ export default function ProdutosListagemCategorias({
                 </Appbar.Header>
             </View>
 
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                <Button
-                    mode="contained"
-                    onPress={() => navigation.navigate('CadastrarNovoProduto')}
-                    style={styles.scanButton}
-                >
-                    Cadastrar novo produto
-                </Button>
-            </View>
-
             <Surface style={styles.surface} mode="flat" elevation={5}>
                 <View style={styles.header}>
                     <Text variant="titleMedium" style={styles.title}>
-                        Consultar produtos
+                        Cadastrar produto
                     </Text>
                     <Text variant="titleSmall" style={styles.title}>
-                        Verifique se um produto já foi cadastrado
+                        Registre um novo produto
                     </Text>
                 </View>
-                <Divider />
+                <Divider style={{ marginBottom: 10 }} />
                 <View style={styles.innerContainer}>
-                    <IconButton
+                    {/* <IconButton
                         icon="barcode-scan"
                         mode="contained"
                         size={100}
                         style={styles.iconButton}
                         onPress={() => navigation.navigate('ConsultarUsandoCamera')}
-                    />
+                    /> */}
+                    <Button
+                        mode="contained"
+                        onPress={() => navigation.navigate('CadastrarNovoProduto')}
+                        style={styles.scanButton}
+                        icon={'plus'}
+                    >
+                        Cadastrar novo produto
+                    </Button>
+                </View>
+            </Surface>
+
+            <Surface style={styles.surface} mode="flat" elevation={5}>
+                <View style={styles.header}>
+                    <Text variant="titleMedium" style={styles.title}>
+                        Buscar produtos
+                    </Text>
+                    <Text variant="titleSmall" style={styles.title}>
+                        Verifique se um produto já foi cadastrado
+                    </Text>
+                </View>
+                <Divider style={{ marginBottom: 10 }} />
+                <View style={styles.innerContainer}>
+                    {/* <IconButton
+                        icon="barcode-scan"
+                        mode="contained"
+                        size={100}
+                        style={styles.iconButton}
+                        onPress={() => navigation.navigate('ConsultarUsandoCamera')}
+                    /> */}
                     <Button
                         mode="contained"
                         onPress={() => navigation.navigate('ConsultarUsandoCamera')}
                         style={styles.scanButton}
+                        icon={'magnify'}
                     >
                         Consultar usando a câmera
                     </Button>

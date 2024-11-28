@@ -224,6 +224,7 @@ export default function CadastrarNovoProduto({ navigation }: { navigation: any }
                         <View style={{ flex: 1 }}>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.labelInput}>Código de barras</Text>
+                                {/* TODO: verificar se o código de barras é válido ou se já existe no banco de dados */}
                                 <TextInput
                                     keyboardType="numeric"
                                     mode="outlined"
