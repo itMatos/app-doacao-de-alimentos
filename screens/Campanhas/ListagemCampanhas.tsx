@@ -1,26 +1,39 @@
 import { getAllCampanhas } from '@/services/RotaryApi';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
-import { Appbar, Button, Chip, Divider, Icon, IconButton, Surface, Text } from 'react-native-paper';
+import { StyleSheet, View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
+import {
+    ActivityIndicator,
+    Appbar,
+    Button,
+    Chip,
+    Divider,
+    Icon,
+    IconButton,
+    Surface,
+    Text,
+} from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function ListagemCampanhas({ navigation, route }: { navigation: any; route: any }) {
     const [campanhas, setCampanhas] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true);
         getCampanhasHistory();
     }, []);
 
     const getCampanhasHistory = async () => {
         const campanhas = await getAllCampanhas();
         console.log('campanhas', campanhas);
+        setLoading(false);
         setCampanhas(campanhas);
     };
 
     const dataFormatada = (dataFim: string) => {
-        return format(new Date(dataFim), "EEE, dd MMM 'de' yyyy", {
+        return format(new Date(dataFim), "EEEEEE, dd MMM 'de' yyyy", {
             locale: ptBR,
         });
     };
@@ -32,12 +45,22 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                     <Appbar.Content title="Campanhas" />
                 </Appbar.Header>
             </View>
-            <View style={styles.content}>
-                <Text>Campanhas</Text>
-            </View>
+            {loading && (
+                <>
+                    <ActivityIndicator animating={true} />
+                    <Text style={styles.message} variant="titleMedium">
+                        Carregando
+                    </Text>
+                </>
+            )}
             <ScrollView>
+                {!loading && campanhas.length === 0 && (
+                    <Text style={styles.message} variant="titleMedium">
+                        Nenhuma campanha encontrada
+                    </Text>
+                )}
                 {campanhas.map((campanha: any) => (
-                    <Surface key={campanha.id} style={{ margin: 10, padding: 10 }} elevation={1}>
+                    <Surface key={campanha.id} style={{ margin: 10, padding: 20 }} elevation={1}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text>{campanha.label}</Text>
 
@@ -69,9 +92,40 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                                 </Chip>
                             )}
                         </View>
-                        <Text>{campanha.nome_campanha}</Text>
-                        <Text>{dataFormatada(campanha.data_inicio)}</Text>
-                        <Text>{campanha.data_fim}</Text>
+                        <View style={{ flex: 1 }}>
+                            {campanha?.data_fim !== null && (
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <View style={{ flexDirection: 'column' }}>
+                                        <Text>Início</Text>
+                                        <Text variant="labelLarge">
+                                            {dataFormatada(campanha.data_inicio)}
+                                        </Text>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flex: 1,
+                                            flexDirection: 'column',
+                                            marginHorizontal: 20,
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <Divider bold />
+                                    </View>
+
+                                    <View style={{ flexDirection: 'column' }}>
+                                        <Text>Fim</Text>
+                                        <Text variant="labelLarge">
+                                            {dataFormatada(campanha?.data_fim)}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
                     </Surface>
                 ))}
             </ScrollView>
@@ -87,5 +141,10 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: 10,
+    },
+    message: {
+        textAlign: 'center',
+        paddingBottom: 10,
+        margin: 5,
     },
 });
