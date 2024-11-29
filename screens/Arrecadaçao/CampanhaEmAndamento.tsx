@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { StyleSheet, View, StatusBar, ScrollView, Dimensions } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, View, StatusBar, ScrollView, Dimensions, Modal } from 'react-native';
 import { Appbar, Divider, Surface, Text, Button, IconButton, Chip, Icon } from 'react-native-paper';
 import InfoCategoria from './InfoCategoria';
 import { SafeAreaView } from 'react-native';
@@ -11,10 +11,16 @@ const vw = Dimensions.get('window').width / 100;
 type CampanhaEmAndamentoProps = {
     navigation: any;
     route: any;
+    showModal: () => void;
 };
 
-export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAndamentoProps) {
+export default function CampanhaEmAndamento({
+    navigation,
+    route,
+    showModal,
+}: CampanhaEmAndamentoProps) {
     const { state, dispatch } = useContext(ArrecadacaoContext);
+    const [visible, setVisible] = useState(false);
 
     const mockData = [
         {
@@ -38,23 +44,6 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
             packages: 80,
         },
     ];
-
-    const handleCloseCampaign = () => {
-        const arrecadacaoEmAndamento = state.arrecadacaoEmAndamento;
-        // TODO - adicionar modal de confirmação
-        if (arrecadacaoEmAndamento) {
-            closeCampaign();
-            // TODO: redirecionar para a tela de campanhas
-            navigation.navigate('ArrecadacaoTelaInicial');
-        } else {
-            // TODO: adicionar snackbar
-            console.log('Erro ao encerrar campanha');
-        }
-    };
-
-    const closeCampaign = () => {
-        dispatch({ type: 'EncerrarCampanha', arrecadacaoEmAndamento: false });
-    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -127,7 +116,7 @@ export default function CampanhaEmAndamento({ navigation, route }: CampanhaEmAnd
                         <Button
                             mode="contained"
                             icon={'checkbox-marked-circle-outline'}
-                            onPress={() => handleCloseCampaign()}
+                            onPress={() => showModal()}
                             style={styles.buttonCloseCampaign}
                         >
                             Encerrar campanha

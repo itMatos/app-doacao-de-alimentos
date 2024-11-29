@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
-import { Appbar, FAB, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Appbar, FAB, Text, TextInput } from 'react-native-paper';
 import { Button } from 'react-native-paper';
 import { StatusBar } from 'react-native';
 import { ScrollView } from 'react-native';
@@ -12,17 +12,21 @@ import DateTimePicker, {
     DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
+import { PostNewCampaignType } from '@/types/types';
+import { createNewCampaign } from '@/services/RotaryApi';
 
 const vh = Dimensions.get('window').height / 100;
 
 export default function CriarNovaCampanha({ navigation, route }: { navigation: any; route: any }) {
     const { state, dispatch } = useContext(ArrecadacaoContext);
+    const [creatingNewCampaign, setCreatingNewCampaign] = useState(false);
+    const [status, setStatus] = useState<number>(0);
 
     const currentDate = new Date();
     const todayDate = `${currentDate.getDate()}/${
         months[currentDate.getMonth()]
     }/${currentDate.getFullYear()}`;
-    const [name, setName] = useState(`Campanha de arrecadação ${todayDate}`);
+    const [name, setName] = useState(`Arrecadação ${todayDate}`);
 
     const handleName = (text: string) => {
         setName(text);
@@ -50,15 +54,31 @@ export default function CriarNovaCampanha({ navigation, route }: { navigation: a
 
     const formattedDate = dayjs(date).format('DD/MM/YYYY');
 
-    const createNewCampaign = () => {
-        toggleCampanhaEmAndamento();
-        navigation.navigate('ArrecadacaoTelaInicial');
+    const handleCreateNewCampaign = async () => {
+        setCreatingNewCampaign(true);
+        const initialDate = new Date();
+        const payload: PostNewCampaignType = {
+            label: name,
+            data_inicio: String(initialDate),
+            data_fim: null,
+        };
+
+        try {
+            const response = await createNewCampaign(payload);
+            setStatus(response.status);
+            toggleCampanhaEmAndamento();
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setCreatingNewCampaign(false);
+        }
     };
 
     const toggleCampanhaEmAndamento = () => {
         const arrecadacaoEmAndamento = state.arrecadacaoEmAndamento;
         if (!arrecadacaoEmAndamento) {
             dispatch({ type: 'NovaCampanha', arrecadacaoEmAndamento: true });
+            navigation.navigate('ArrecadacaoTelaInicial');
         } else {
             console.log('Já existe uma campanha em andamento');
         }
@@ -72,6 +92,15 @@ export default function CriarNovaCampanha({ navigation, route }: { navigation: a
                 <Appbar.BackAction onPress={() => navigation.navigate('ArrecadacaoTelaInicial')} />
                 <Appbar.Content title="Nova campanha" />
             </Appbar.Header>
+
+            {creatingNewCampaign && (
+                <>
+                    <ActivityIndicator animating={true} size={'large'} />
+                    <Text style={styles.message} variant="titleLarge">
+                        Criando nova campanha
+                    </Text>
+                </>
+            )}
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -142,12 +171,13 @@ export default function CriarNovaCampanha({ navigation, route }: { navigation: a
                             mode="contained"
                             icon="plus"
                             onPress={() => {
-                                createNewCampaign();
+                                handleCreateNewCampaign();
                             }}
                             contentStyle={{
                                 height: 60,
                             }}
                             style={{ borderRadius: 10 }}
+                            disabled={name.trim() === ''}
                         >
                             <Text variant="titleMedium" style={styles.textNewCampaign}>
                                 Criar campanha
@@ -160,6 +190,7 @@ export default function CriarNovaCampanha({ navigation, route }: { navigation: a
                             contentStyle={{
                                 height: 60,
                             }}
+                            disabled={creatingNewCampaign}
                         >
                             Voltar
                         </Button>
@@ -197,5 +228,10 @@ const styles = StyleSheet.create({
     },
     calendarContainer: {
         backgroundColor: '#FFFFFF',
+    },
+    message: {
+        textAlign: 'center',
+        paddingBottom: 10,
+        margin: 5,
     },
 });

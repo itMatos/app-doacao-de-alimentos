@@ -9,27 +9,38 @@ import {
     Divider,
     Icon,
     IconButton,
+    Snackbar,
     Surface,
     Text,
 } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ca, ptBR } from 'date-fns/locale';
 
 export default function ListagemCampanhas({ navigation, route }: { navigation: any; route: any }) {
     const [campanhas, setCampanhas] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [errorLoadingCampanhasMessage, setErrorLoadingCampanhasMessage] = useState('');
 
     useEffect(() => {
-        setLoading(true);
         getCampanhasHistory();
     }, []);
 
     const getCampanhasHistory = async () => {
-        const campanhas = await getAllCampanhas();
-        console.log('campanhas', campanhas);
-        setLoading(false);
-        setCampanhas(campanhas);
+        setLoading(true);
+        try {
+            const campanhas = await getAllCampanhas();
+            setCampanhas(campanhas);
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const reloadCampanhas = async () => {
+        setLoading(true);
+        getCampanhasHistory();
     };
 
     const dataFormatada = (dataFim: string) => {
@@ -43,6 +54,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Campanhas" />
+                    <Appbar.Action icon={'reload'} onPress={() => reloadCampanhas()} />
                 </Appbar.Header>
             </View>
             {loading && (
@@ -129,6 +141,18 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                     </Surface>
                 ))}
             </ScrollView>
+            <Snackbar
+                visible={errorLoadingCampanhasMessage !== ''}
+                onDismiss={() => setErrorLoadingCampanhasMessage('')}
+                action={{
+                    label: 'OK',
+                    onPress: () => {
+                        setErrorLoadingCampanhasMessage('');
+                    },
+                }}
+            >
+                {errorLoadingCampanhasMessage}
+            </Snackbar>
         </View>
     );
 }

@@ -1,6 +1,11 @@
 import axios, { all } from 'axios';
 import config from './config';
-import { ArrecadacaoType, CategoriaType, ProdutoEncontradoApiType } from '@/types/types';
+import {
+    ArrecadacaoType,
+    CategoriaType,
+    PostNewCampaignType,
+    ProdutoEncontradoApiType,
+} from '@/types/types';
 
 const RotaryApi = axios.create({ baseURL: config.RotaryApi, withCredentials: true });
 
@@ -75,4 +80,22 @@ export async function getAllCampanhas() {
         .then((res) => res.data)
         .then((response) => response);
     return res;
+}
+
+export async function getCampanhaInProgress() {
+    const endpoint = `/campanhas/in-progress`;
+    const res = await RotaryApi.get(endpoint)
+        .then((res) => res.data)
+        .then((response) => response);
+    return res;
+}
+
+export async function closeCurrentCampanha(campanhaId: string) {
+    const endpoint = `/campanhas/close/${campanhaId}`;
+    return await RotaryApi.patch(endpoint);
+}
+
+export async function createNewCampaign(payloadNewCampaign: PostNewCampaignType) {
+    const endpoint = `/campanhas`;
+    return await RotaryApi.post(endpoint, payloadNewCampaign);
 }
