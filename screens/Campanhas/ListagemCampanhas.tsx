@@ -85,7 +85,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                                             color="#FFF"
                                         />
                                     )}
-                                    style={{ backgroundColor: '#C62828' }}
+                                    style={{ backgroundColor: '#0288d1' }}
                                     compact={true}
                                     textStyle={{ color: '#FFF' }}
                                 >
@@ -96,7 +96,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                                     icon={() => (
                                         <Icon source="progress-clock" size={16} color="#FFF" />
                                     )}
-                                    style={{ backgroundColor: '#81c784' }}
+                                    style={{ backgroundColor: '#67c16b' }}
                                     compact={true}
                                     textStyle={{ color: '#FFF' }}
                                 >

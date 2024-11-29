@@ -99,3 +99,8 @@ export async function createNewCampaign(payloadNewCampaign: PostNewCampaignType)
     const endpoint = `/campanhas`;
     return await RotaryApi.post(endpoint, payloadNewCampaign);
 }
+
+export async function getResumoGeralByCampanhaId(campanhaId: string) {
+    const endpoint = `/campanhas/${campanhaId}/resumo`;
+    return await RotaryApi.get(endpoint).then((res) => res.data);
+}

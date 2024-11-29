@@ -31,22 +31,6 @@ export default function ProdutosTab({ navigation, route }: { navigation: any; ro
                     component={CadastrarNovoProduto}
                     options={{ headerShown: false }}
                 />
-
-                {/* <Stack.Screen
-                        name="CriarNovaCampanha"
-                        component={CriarNovaCampanha}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name="CampanhaEmAndamento"
-                        component={CampanhaEmAndamento}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name="RegistrarDoacao"
-                        component={RegistrarDoacao}
-                        options={{ headerShown: false }}
-                    /> */}
             </Stack.Navigator>
         </SafeAreaProvider>
     );

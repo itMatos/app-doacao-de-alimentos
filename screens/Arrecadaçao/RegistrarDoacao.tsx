@@ -75,7 +75,6 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
 
     const searchProductInDatabase = async (code: string) => {
         setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
             const response = await getProductByBarCode(code);
             setProduto(response);

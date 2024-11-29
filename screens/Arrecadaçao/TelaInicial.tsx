@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, StatusBar, ScrollView, Modal } from 'react-native';
+import { StyleSheet, View, StatusBar, ScrollView, Modal, RefreshControl } from 'react-native';
 import {
     ActivityIndicator,
     Appbar,
@@ -88,8 +88,10 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Arrecadação" />
+                    <Appbar.Action icon="menu" onPress={() => {}} />
                 </Appbar.Header>
             </View>
+
             {loading ? (
                 <>
                     <ActivityIndicator animating={true} />
@@ -222,5 +224,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 2,
         elevation: 5,
+    },
+    scrollView: {
+        backgroundColor: 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
