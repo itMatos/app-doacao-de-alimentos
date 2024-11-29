@@ -1,5 +1,5 @@
 import { CategoriaType } from '@/types/types';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
 import {
     ActivityIndicator,
@@ -18,19 +18,23 @@ import { Picker } from '@react-native-picker/picker';
 
 const mockMedidas = ['kg', 'g', 'ml', 'L'];
 
-export default function ListagemCategorias({ navigation }: { navigation: any }) {
+const ListagemCategorias = forwardRef(({ navigation }: { navigation: any }, ref: any) => {
     const [allCategories, setAllCategories] = useState<string[]>([]);
     const [modalNewCategoryVisible, setModalNewCategoryVisible] = useState(false);
+    const [reloading, setReloading] = useState(false);
 
     const showModalNewCategory = () => setModalNewCategoryVisible(true);
     const hideModalNewCategory = () => setModalNewCategoryVisible(false);
 
     const getCategories = async () => {
+        setReloading(true);
         try {
             const response = await getAllCategories();
             setAllCategories(response);
         } catch (error) {
             console.error('Error fetching categories', error);
+        } finally {
+            setReloading(false);
         }
     };
 
@@ -54,7 +58,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
             throw new Error('Categoria não informada');
         }
         try {
-            await createNewCategory(formNewCategory as CategoriaType);
+            await createNewCategory(formNewCategory as unknown as CategoriaType);
             getCategories();
         } catch (error) {
             console.error('Error creating new category', error);
@@ -62,6 +66,15 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
             hideModalNewCategory();
         }
     };
+
+    const reloadData = () => {
+        getCategories();
+        // Adicione aqui a lógica de recarregamento necessária
+    };
+
+    useImperativeHandle(ref, () => ({
+        reloadData,
+    }));
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -76,7 +89,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
 
                 <View style={styles.innerContainer}>
                     <Divider />
-                    {allCategories.length === 0 && (
+                    {(allCategories.length === 0 || reloading) && (
                         <ActivityIndicator animating={true} style={{ marginVertical: 10 }} />
                     )}
                     {allCategories.map((categoria, index) => (
@@ -216,7 +229,7 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
             </Portal>
         </ScrollView>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -291,3 +304,5 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
 });
+
+export default ListagemCategorias;

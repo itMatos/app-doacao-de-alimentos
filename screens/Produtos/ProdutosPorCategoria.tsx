@@ -99,10 +99,10 @@ export default function ProdutosPorCategoria({
         const filteredProducts = productsByCategory.filter(
             (produto) => produto.id_produto_categoria === selectedCategory
         );
-        const sorted = filteredProducts.sort((a, b) =>
-            a.nome_sem_acento.localeCompare(b.nome_sem_acento)
-        );
-        const grouped = sorted.reduce(
+        // const sorted = filteredProducts.sort((a, b) =>
+        //     a.nome_sem_acento.localeCompare(b.nome_sem_acento)
+        // );
+        const grouped = filteredProducts.reduce(
             (acc: Record<string, ProdutoEncontradoApiType[]>, produto) => {
                 const initial = produto.nome_sem_acento[0].toUpperCase();
                 if (!acc[initial]) {
@@ -205,7 +205,7 @@ export default function ProdutosPorCategoria({
                             <ActivityIndicator animating={true} />
                         </View>
                     )}
-                    {Object.keys(filteredGroupedProducts).length === 0 && !isLoading && (
+                    {Object.keys(filteredGroupedProducts)?.length === 0 && !isLoading && (
                         <View style={{ alignItems: 'center', marginTop: 20 }}>
                             <Text style={styles.labelInput}>Nenhum produto encontrado</Text>
                         </View>

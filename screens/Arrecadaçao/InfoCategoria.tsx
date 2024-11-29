@@ -23,7 +23,7 @@ export default function InfoCategoria({
                     <Chip compact={true} mode="outlined" style={styles.chipCategoryOutlined}>
                         {`${packages} pacotes`}
                     </Chip>
-                    <Button
+                    {/* <Button
                         icon={() => <Icon source="arrow-right" size={16} />}
                         mode="text"
                         onPress={() => console.log('Ver detalhes feijão')}
@@ -33,7 +33,7 @@ export default function InfoCategoria({
                         }}
                     >
                         Ver detalhes
-                    </Button>
+                    </Button> */}
                 </View>
             </View>
             <Divider />
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     chipCategory: {
-        backgroundColor: '#4fc3f7',
+        backgroundColor: '#90caf9',
         marginVertical: 4,
     },
     buttonDetails: {

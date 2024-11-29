@@ -18,6 +18,7 @@ export default function ProdutoEncontrado({
     showSuccessRegister: () => void;
 }) {
     const { state } = useContext(ArrecadacaoContext);
+    const { idCampanhaEmAndamento } = state;
 
     const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
@@ -44,7 +45,6 @@ export default function ProdutoEncontrado({
     };
 
     const handleClickRegisterDonation = async (gtinProduto: string, quantidade: number) => {
-        const { idCampanhaEmAndamento } = state;
         if (idCampanhaEmAndamento === null) {
             return;
         }
@@ -64,7 +64,6 @@ export default function ProdutoEncontrado({
         } catch (error) {
             console.error('erro ao salvar arrecadacao: ', error);
         }
-
         showSuccessRegister();
     };
 

@@ -22,6 +22,7 @@ type Campanha = {
 
 export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
     const { state, dispatch } = useContext(ArrecadacaoContext);
+    const { arrecadacaoEmAndamento } = state;
     const [inProgress, setInProgress] = useState<Campanha[]>([]);
     const [loading, setLoading] = useState(true);
     const [closingCampaignInProgress, setClosingCampaignInProgress] = useState(false);
@@ -50,6 +51,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
     useEffect(() => {
         if (inProgress.length > 0) {
             const campanha = inProgress[0];
+            console.log('campanha em andamento', campanha);
             dispatch({
                 type: 'CampanhaEmAndamento',
                 arrecadacaoEmAndamento: true,
@@ -57,6 +59,10 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
             });
         }
     }, [inProgress]);
+
+    useEffect(() => {
+        checkCampanhaInProgress();
+    }, [arrecadacaoEmAndamento]);
 
     const handleClickConfirmCloseCampaign = async () => {
         setClosingCampaignInProgress(true);
@@ -88,7 +94,6 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Arrecadação" />
-                    <Appbar.Action icon="menu" onPress={() => {}} />
                 </Appbar.Header>
             </View>
 

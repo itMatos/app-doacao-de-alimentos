@@ -127,7 +127,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                         <Text style={styles.messageCamera} variant="headlineSmall">
                             Aponte a câmera do dispositivo para o código de barras
                         </Text>
-                        <View
+                        {/* <View
                             style={{
                                 flex: 1,
                                 justifyContent: 'center',
@@ -156,7 +156,7 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
                             >
                                 simular produto nao encontrado
                             </Button>
-                        </View>
+                        </View> */}
 
                         {cameraVisible && (
                             <CameraView

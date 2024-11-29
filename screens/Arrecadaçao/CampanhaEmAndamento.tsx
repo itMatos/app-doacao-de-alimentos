@@ -23,7 +23,7 @@ import InfoCategoria from './InfoCategoria';
 import { SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
-import { getResumoGeralByCampanhaId } from '@/services/RotaryApi';
+import { getAllCampanhas, getResumoGeralByCampanhaId } from '@/services/RotaryApi';
 const vh = Dimensions.get('window').height / 100;
 const vw = Dimensions.get('window').width / 100;
 
@@ -54,6 +54,7 @@ export default function CampanhaEmAndamento({
     const [campaignReport, setCampaignReport] = useState<CampaignReportType | {}>({});
     const [refreshing, setRefreshing] = useState(false);
     const [showHint, setShowHint] = useState(false);
+    const [labelCampaign, setLabelCampaign] = useState('');
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -63,6 +64,7 @@ export default function CampanhaEmAndamento({
     useEffect(() => {
         if (idCampanhaEmAndamento !== null) {
             handleGetResumoCampanha();
+            handleGetResumoLabel();
         }
     }, [idCampanhaEmAndamento]);
 
@@ -73,6 +75,20 @@ export default function CampanhaEmAndamento({
                 idCampanhaEmAndamento
             );
             setCampaignReport(resumoCampanha);
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    const handleGetResumoLabel = async () => {
+        if (idCampanhaEmAndamento === null) return;
+        try {
+            const campanhas = await getAllCampanhas();
+            const campanha = campanhas.find((item: any) => item.id === idCampanhaEmAndamento);
+            setLabelCampaign(campanha.label);
         } catch (error) {
             console.log('error', error);
         } finally {
@@ -144,7 +160,7 @@ export default function CampanhaEmAndamento({
                     <Surface style={styles.surface}>
                         <View style={styles.header}>
                             <Text variant="titleMedium" style={styles.title}>
-                                Campanha 1
+                                {labelCampaign}
                             </Text>
                             <Chip
                                 icon={() => (

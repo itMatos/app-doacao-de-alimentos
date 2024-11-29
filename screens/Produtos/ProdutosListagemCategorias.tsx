@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView } from 'react-native';
 import { Appbar, Button, Divider, IconButton, Surface, Text } from 'react-native-paper';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -12,11 +12,19 @@ export default function ProdutosListagemCategorias({
     navigation: any;
     route: any;
 }) {
+    const childRef = useRef<any>(null);
+    const handleReloadCategories = () => {
+        if (childRef.current) {
+            childRef.current.reloadData();
+        }
+    };
+
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Produtos" />
+                    <Appbar.Action icon={'reload'} onPress={() => handleReloadCategories()} />
                 </Appbar.Header>
             </View>
 
@@ -78,7 +86,7 @@ export default function ProdutosListagemCategorias({
                 </View>
             </Surface>
 
-            <ListagemCategorias navigation={navigation} />
+            <ListagemCategorias navigation={navigation} ref={childRef} />
         </ScrollView>
     );
 }

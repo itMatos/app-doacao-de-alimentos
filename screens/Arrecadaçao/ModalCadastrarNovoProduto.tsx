@@ -28,29 +28,7 @@ import {
 } from '@/services/RotaryApi';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 import { measure } from 'react-native-reanimated';
-
-// objeto para teste sem precisar utilizar api
-const produtoTesteApiResult: ProdutoEncontradoApiType = {
-    gtin: '7893500020134',
-    id_produto_categoria: 'Arroz',
-    codigo_ncm: '10063021',
-    medida_por_embalagem: '1',
-    produto_medida_sigla: 'kg',
-    produto_marca: 'NÃO INFORMADO',
-    nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
-    nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
-};
-
-const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
-    codigoDeBarras: data.gtin,
-    categoriaId: data.id_produto_categoria ?? 'Arroz',
-    codigoNCM: data.codigo_ncm,
-    quantidadePorEmbalagem: data.medida_por_embalagem ?? '1',
-    siglaMedida: data.produto_medida_sigla ?? 'kg',
-    marca: data.produto_marca ?? 'MARCA NÃO INFORMADA',
-    nome: data.nome,
-    nomeSemAcento: data.nome_sem_acento,
-});
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 const mapProdutoToProdutoApi = (data: ProdutoType): ProdutoEncontradoApiType => ({
     gtin: data.codigoDeBarras,
@@ -85,8 +63,9 @@ export default function ModalCadastrarNovoProduto({
     onDismiss: () => void;
     code: string;
 }) {
-    const { campanhaState } = useContext(CampanhaContext);
-    const campanhaAtualId = campanhaState.campanhaAtualId;
+    const { state } = useContext(ArrecadacaoContext);
+    const idCampanhaEmAndamento = state.idCampanhaEmAndamento ?? '';
+
     const [successRegister, setSuccessRegister] = useState(false);
     const [activeStep, setActiveStep] = useState(1);
     const [categories, setCategories] = useState<CategoriaType[]>([]);
@@ -115,7 +94,7 @@ export default function ModalCadastrarNovoProduto({
     const [isNovaCategoriaValid, setisNovaCategoriaValid] = useState<boolean>(true);
     const [medidaSigla, setMedidaSigla] = useState<string>('');
     const [novaArrecadacao, setNovaArrecadacao] = useState<ArrecadacaoType>({
-        id_campanha: campanhaAtualId,
+        id_campanha: Number(idCampanhaEmAndamento),
         id_produto: produto.codigoDeBarras,
         qtd_total: 1,
     });
@@ -256,6 +235,7 @@ export default function ModalCadastrarNovoProduto({
         if (itemValue == 'newCategory') {
             setShowCreateNewCategory(true);
         } else {
+            console.log('categoria selecionada ja esta cadastrada');
             setShowCreateNewCategory(false);
             const categoria = categories
                 .filter((categoria) => categoria.nome_categoria == itemValue)
@@ -263,12 +243,6 @@ export default function ModalCadastrarNovoProduto({
 
             if (categoria?.medida_sigla && categoria?.nome_categoria) {
                 console.log('tem que entrar aqui 1', categoria);
-
-                const changeCategory = {
-                    ...produto,
-                    categoriaId: categoria.nome_categoria,
-                    siglaMedida: categoria.medida_sigla,
-                };
                 console.log('produto', produto);
                 setProduto({
                     ...produto,

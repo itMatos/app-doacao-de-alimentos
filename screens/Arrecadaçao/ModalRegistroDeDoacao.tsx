@@ -8,6 +8,7 @@ import RegistradoComSucesso from './RegistradoComSucesso';
 import { useContextKey } from 'expo-router/build/Route';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 import { saveNewArrecadacao } from '@/services/RotaryApi';
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 // objeto para teste sem precisar utilizar api
 // const produtoTesteApiResult: ProdutoEncontradoApiType = {
@@ -44,13 +45,8 @@ export default function ModalRegistroDeDoacao({
     produto: ProdutoEncontradoApiType;
 }) {
     const [successRegister, setSuccessRegister] = useState(false);
-
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
-
-    const { campanhaState } = useContext(CampanhaContext);
-    const { campanhaAtualId } = campanhaState;
-
     const produtoFiltered = mapProdutoEncontrado(produto);
 
     // TODO: Implementar a lógica de captura de código de barras
@@ -58,8 +54,6 @@ export default function ModalRegistroDeDoacao({
     // produto nao encontrado: ok
     // falha ao ler código de barras: vai ser usado botao de inserir manualmente
     // Falha ao clicar no botao de registrar: voltar para a tela de registrar doacao
-
-    // const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
 
     const handleClickNewRegister = () => {
         hideSuccessRegister();
