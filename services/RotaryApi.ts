@@ -1,6 +1,11 @@
 import axios, { all } from 'axios';
 import config from './config';
-import { ArrecadacaoType, CategoriaType, ProdutoEncontradoApiType } from '@/types/types';
+import {
+    ArrecadacaoType,
+    CategoriaType,
+    PostNewCampaignType,
+    ProdutoEncontradoApiType,
+} from '@/types/types';
 
 const RotaryApi = axios.create({ baseURL: config.RotaryApi, withCredentials: true });
 
@@ -44,8 +49,7 @@ export async function getAllCategoriesAndMeasures(): Promise<CategoriaType[]> {
     console.log('getAllCategoriesAndMeeasures', config.RotaryApi);
 
     const endpoint = `/categorias`;
-    const res = await RotaryApi.get(endpoint)
-    .then(res => res.data)
+    const res = await RotaryApi.get(endpoint).then((res) => res.data);
     return res;
 }
 
@@ -53,19 +57,45 @@ export async function saveNewArrecadacao(newArrecadacao: ArrecadacaoType) {
     console.log('saveNewArrecadacao: ', newArrecadacao);
 
     const endpoint = `/arrecadacao`;
-    await RotaryApi.post(endpoint, newArrecadacao)
+    await RotaryApi.post(endpoint, newArrecadacao);
 }
 
 export async function saveNewProduct(newProduct: ProdutoEncontradoApiType) {
     console.log('saveNewProduct: ', newProduct);
 
     const endpoint = `/produtos`;
-    await RotaryApi.post(endpoint, newProduct)
+    await RotaryApi.post(endpoint, newProduct);
 }
 
 export async function createNewCategory(newCategory: CategoriaType) {
     console.log('createNewCategory: ', newCategory);
 
     const endpoint = `/categorias`;
-    await RotaryApi.post(endpoint, newCategory)
+    await RotaryApi.post(endpoint, newCategory);
+}
+
+export async function getAllCampanhas() {
+    const endpoint = `/campanhas`;
+    const res = await RotaryApi.get(endpoint)
+        .then((res) => res.data)
+        .then((response) => response);
+    return res;
+}
+
+export async function getCampanhaInProgress() {
+    const endpoint = `/campanhas/in-progress`;
+    const res = await RotaryApi.get(endpoint)
+        .then((res) => res.data)
+        .then((response) => response);
+    return res;
+}
+
+export async function closeCurrentCampanha(campanhaId: string) {
+    const endpoint = `/campanhas/close/${campanhaId}`;
+    return await RotaryApi.patch(endpoint);
+}
+
+export async function createNewCampaign(payloadNewCampaign: PostNewCampaignType) {
+    const endpoint = `/campanhas`;
+    return await RotaryApi.post(endpoint, payloadNewCampaign);
 }
