@@ -62,18 +62,20 @@ export default function ProdutosPorCategoria({
 
     const getCategories = async () => {
         try {
-            setIsLoading(true);
+            // setIsLoading(true);
             const response = await getAllCategories();
             setAllCategories(response);
         } catch (error) {
             console.error('Error fetching categories', error);
-        } finally {
-            setIsLoading(false);
         }
+		//  finally {
+        //     setIsLoading(false);
+        // }
     };
 
     const getProductsByCategory = async (category: string) => {
-        try {
+		try {
+			console.log("precisa entrar aqui")
             setIsLoading(true);
             const response = await getAllProductsByCategory(category);
             setProductsByCategory(response);
@@ -89,13 +91,21 @@ export default function ProdutosPorCategoria({
     }, []);
 
     useEffect(() => {
-        if (selectedCategory) {
+        if (selectedCategory.trim() !== '') {
             getProductsByCategory(selectedCategory);
         }
     }, [selectedCategory]);
 
+	const handleChangeFilterByCategory = (category: string) => {
+		if (category !== 'Selecione uma categoria') {
+			setSelectedCategory(category);
+			// getProductsByCategory(category);
+		}
+	}
+
     // Usar useMemo para otimizar a filtragem, ordenação e agrupamento
     const filteredAndGroupedProducts = useMemo(() => {
+		console.log("talvez entre aqui")
         const filteredProducts = productsByCategory.filter(
             (produto) => produto.id_produto_categoria === selectedCategory
         );
@@ -167,7 +177,7 @@ export default function ProdutosPorCategoria({
                     render={(props) => (
                         <Picker
                             selectedValue={selectedCategory}
-                            onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                            onValueChange={(itemValue) => handleChangeFilterByCategory(itemValue)}
                             mode="dropdown"
                         >
                             <Picker.Item

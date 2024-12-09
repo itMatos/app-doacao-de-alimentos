@@ -24,6 +24,8 @@ import { SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 import { getAllCampanhas, getResumoGeralByCampanhaId } from '@/services/RotaryApi';
+import { getResumoByCampanhaId } from '@/services/RotaryApi';
+import { RelatorioCategoriaType, ResumoCampanhaType } from '../Campanhas/types';
 const vh = Dimensions.get('window').height / 100;
 const vw = Dimensions.get('window').width / 100;
 
@@ -160,7 +162,7 @@ export default function CampanhaEmAndamento({
                     <Surface style={styles.surface}>
                         <View style={styles.header}>
                             <Text variant="titleMedium" style={styles.title}>
-                                {labelCampaign}
+                                {state.labelCampanhaEmAndamento}
                             </Text>
                             <Chip
                                 icon={() => (

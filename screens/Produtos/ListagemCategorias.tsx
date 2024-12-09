@@ -7,6 +7,7 @@ import {
     Chip,
     Divider,
     Icon,
+    IconButton,
     Modal,
     Portal,
     Surface,
@@ -37,6 +38,10 @@ const ListagemCategorias = forwardRef(({ navigation }: { navigation: any }, ref:
             setReloading(false);
         }
     };
+
+	const handleReload = () => {
+		getCategories();
+	}
 
     // TODO trazer as medidas da api
 
@@ -82,6 +87,13 @@ const ListagemCategorias = forwardRef(({ navigation }: { navigation: any }, ref:
                 <View style={styles.header}>
                     <Text variant="titleMedium" style={styles.title}>
                         Produtos por categoria
+                    </Text>
+                    <Text style={{ alignSelf: 'center' }}>
+                        <IconButton
+                            icon="reload"
+                            size={20}
+                            onPress={() => handleReload()}
+                        />
                     </Text>
                 </View>
 
