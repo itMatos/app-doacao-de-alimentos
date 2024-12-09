@@ -7,6 +7,7 @@ import {
     Chip,
     Divider,
     Icon,
+    IconButton,
     Modal,
     Portal,
     Surface,
@@ -21,6 +22,7 @@ const mockMedidas = ['kg', 'g', 'ml', 'L'];
 export default function ListagemCategorias({ navigation }: { navigation: any }) {
     const [allCategories, setAllCategories] = useState<string[]>([]);
     const [modalNewCategoryVisible, setModalNewCategoryVisible] = useState(false);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
     const showModalNewCategory = () => setModalNewCategoryVisible(true);
     const hideModalNewCategory = () => setModalNewCategoryVisible(false);
@@ -31,8 +33,15 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
             setAllCategories(response);
         } catch (error) {
             console.error('Error fetching categories', error);
-        }
+        } finally {
+			setIsRefreshing(false);
+		}
     };
+
+	const handleReload = () => {
+		setIsRefreshing(true);
+		getCategories();
+	}
 
     // TODO trazer as medidas da api
 
@@ -70,13 +79,20 @@ export default function ListagemCategorias({ navigation }: { navigation: any }) 
                     <Text variant="titleMedium" style={styles.title}>
                         Produtos por categoria
                     </Text>
+                    <Text style={{ alignSelf: 'center' }}>
+                        <IconButton
+                            icon="reload"
+                            size={20}
+                            onPress={() => handleReload()}
+                        />
+                    </Text>
                 </View>
 
                 <Divider />
 
                 <View style={styles.innerContainer}>
                     <Divider />
-                    {allCategories.length === 0 && (
+                    {(allCategories.length === 0 || isRefreshing) &&  (
                         <ActivityIndicator animating={true} style={{ marginVertical: 10 }} />
                     )}
                     {allCategories.map((categoria, index) => (

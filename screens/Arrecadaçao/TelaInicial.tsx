@@ -18,6 +18,7 @@ import { vh } from '@/utils/utils';
 
 type Campanha = {
     id: string;
+    label: string;
 };
 
 export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
@@ -50,10 +51,12 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
     useEffect(() => {
         if (inProgress.length > 0) {
             const campanha = inProgress[0];
+            console.log('Campanha em andamento', campanha);
             dispatch({
                 type: 'CampanhaEmAndamento',
                 arrecadacaoEmAndamento: true,
                 idCampanhaEmAndamento: campanha.id,
+                labelCampanhaEmAndamento: campanha.label,
             });
         }
     }, [inProgress]);

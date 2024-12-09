@@ -1,24 +1,23 @@
-import { getAllCampanhas } from '@/services/RotaryApi';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
+import { getAllCampanhas, getAllCampanhasResumo } from '@/services/RotaryApi';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import {
     ActivityIndicator,
     Appbar,
-    Button,
     Chip,
     Divider,
     Icon,
-    IconButton,
     Snackbar,
     Surface,
     Text,
 } from 'react-native-paper';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
-import { ca, ptBR } from 'date-fns/locale';
+import { ptBR } from 'date-fns/locale';
+import { ResumoCampanhaType } from './types';
+import ResumoCampanha from './ResumoCampanha';
 
 export default function ListagemCampanhas({ navigation, route }: { navigation: any; route: any }) {
-    const [campanhas, setCampanhas] = useState([]);
+    const [campanhas, setCampanhas] = useState<ResumoCampanhaType[]>([]);
     const [loading, setLoading] = useState(true);
     const [errorLoadingCampanhasMessage, setErrorLoadingCampanhasMessage] = useState('');
 
@@ -29,8 +28,9 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
     const getCampanhasHistory = async () => {
         setLoading(true);
         try {
-            const campanhas = await getAllCampanhas();
+            const campanhas = await getAllCampanhasResumo();
             setCampanhas(campanhas);
+            console.log('Campanhas', campanhas);
         } catch (error) {
             console.log('error', error);
         } finally {
@@ -44,9 +44,18 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
     };
 
     const dataFormatada = (dataFim: string) => {
-        return format(new Date(dataFim), "EEEEEE, dd MMM 'de' yyyy", {
-            locale: ptBR,
-        });
+        const data = new Date(dataFim);
+        const anoAtual = new Date().getFullYear();
+        const anoData = data.getFullYear();
+
+        // Formato condicional com ou sem o ano
+        return format(
+            data,
+            anoData === anoAtual ? 'EEEEEE., dd MMM' : "EEEEEE., dd MMM 'de' yyyy",
+            {
+                locale: ptBR,
+            }
+        );
     };
 
     return (
@@ -71,40 +80,53 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                         Nenhuma campanha encontrada
                     </Text>
                 )}
-                {campanhas.map((campanha: any) => (
-                    <Surface key={campanha.id} style={{ margin: 10, padding: 20 }} elevation={1}>
+                {campanhas.map((campanha: ResumoCampanhaType) => (
+                    <Surface
+                        key={campanha.id_campanha}
+                        style={{ margin: 10, padding: 20, borderRadius: 8 }}
+                        elevation={3}
+                        mode="flat"
+                    >
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text>{campanha.label}</Text>
-
-                            {!!campanha?.data_fim ? (
-                                <Chip
-                                    icon={() => (
-                                        <Icon
-                                            source="check-circle-outline"
-                                            size={16}
-                                            color="#FFF"
-                                        />
-                                    )}
-                                    style={{ backgroundColor: '#C62828' }}
-                                    compact={true}
-                                    textStyle={{ color: '#FFF' }}
-                                >
-                                    Encerrado
-                                </Chip>
-                            ) : (
-                                <Chip
-                                    icon={() => (
-                                        <Icon source="progress-clock" size={16} color="#FFF" />
-                                    )}
-                                    style={{ backgroundColor: '#81c784' }}
-                                    compact={true}
-                                    textStyle={{ color: '#FFF' }}
-                                >
-                                    Em andamento
-                                </Chip>
-                            )}
+                            <Text
+                                style={{ flex: 1, marginRight: 5 }}
+                                variant="titleMedium"
+                                numberOfLines={2}
+                                ellipsizeMode="tail"
+                            >
+                                {campanha.label}
+                            </Text>
+                            <>
+                                {!!campanha?.data_fim ? (
+                                    <Chip
+                                        icon={() => (
+                                            <Icon
+                                                source="check-circle-outline"
+                                                size={16}
+                                                color="#FFF"
+                                            />
+                                        )}
+                                        style={{ backgroundColor: '#C62828', height: 32 }}
+                                        compact={true}
+                                        textStyle={{ color: '#FFF' }}
+                                    >
+                                        Encerrado
+                                    </Chip>
+                                ) : (
+                                    <Chip
+                                        icon={() => (
+                                            <Icon source="progress-clock" size={16} color="#FFF" />
+                                        )}
+                                        style={{ backgroundColor: '#81c784', height: 32 }}
+                                        compact={true}
+                                        textStyle={{ color: '#FFF' }}
+                                    >
+                                        Em andamento
+                                    </Chip>
+                                )}
+                            </>
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1, marginVertical: 10 }}>
                             {campanha?.data_fim !== null && (
                                 <View
                                     style={{
@@ -114,7 +136,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                                 >
                                     <View style={{ flexDirection: 'column' }}>
                                         <Text>Início</Text>
-                                        <Text variant="labelLarge">
+                                        <Text variant="bodyLarge">
                                             {dataFormatada(campanha.data_inicio)}
                                         </Text>
                                     </View>
@@ -131,13 +153,15 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
 
                                     <View style={{ flexDirection: 'column' }}>
                                         <Text>Fim</Text>
-                                        <Text variant="labelLarge">
+                                        <Text variant="bodyLarge">
                                             {dataFormatada(campanha?.data_fim)}
                                         </Text>
                                     </View>
                                 </View>
                             )}
                         </View>
+
+                        <ResumoCampanha categorias={campanha.relatorio_categorias} />
                     </Surface>
                 ))}
             </ScrollView>

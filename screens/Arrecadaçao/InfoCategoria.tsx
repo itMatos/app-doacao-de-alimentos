@@ -6,10 +6,12 @@ export default function InfoCategoria({
     category,
     quantity,
     packages,
+    measure,
 }: {
     category: string;
     quantity: number;
     packages: number;
+    measure: string;
 }) {
     return (
         <>
@@ -21,7 +23,7 @@ export default function InfoCategoria({
                         {`${quantity} kg`}
                     </Chip>
                     <Chip compact={true} mode="outlined" style={styles.chipCategoryOutlined}>
-                        {`${packages} pacotes`}
+                        {`${packages} ${measure}`}
                     </Chip>
                     <Button
                         icon={() => <Icon source="arrow-right" size={16} />}

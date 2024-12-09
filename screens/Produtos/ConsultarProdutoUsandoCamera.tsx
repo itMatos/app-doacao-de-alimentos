@@ -44,6 +44,7 @@ export default function ConsultarProdutoUsandoCamera({
     const [productDetails, setProductDetails] = useState<ProdutoEncontradoApiType | null>(null);
     const [facing, setFacing] = useState<CameraType>('back');
     const [showModalProductDetails, setShowModalProductDetails] = useState(true);
+	const [errorSearchProductMessage, setErrorSearchProductMessage] = useState('');
 
     const [isLoadingProductInfo, setIsLoadingProductInfo] = useState(false);
     const showLoadingProductInfo = () => setIsLoadingProductInfo(true);
@@ -74,6 +75,7 @@ export default function ConsultarProdutoUsandoCamera({
             // hideModalProductNotFound();
         } catch (error: any) {
             console.log('error', error);
+			setErrorSearchProductMessage('Produto não encontrado');
             // showModalProductNotFound();
         } finally {
             setIsLoadingProductInfo(false);
@@ -132,6 +134,12 @@ export default function ConsultarProdutoUsandoCamera({
                     showCloseDetailsButton={false}
                 />
             )}
+
+			{!visibleCamera && productDetails === null && (
+				<View style={styles.content}>
+					<Title>{errorSearchProductMessage}.</Title>
+				</View>
+			)}
         </>
     );
 }
