@@ -147,11 +147,6 @@ export default function ConsultarProdutoUsandoCamera({
                 />
             )}
 
-			{!visibleCamera && productDetails === null && (
-				<View style={styles.content}>
-					<Title>{errorSearchProductMessage}.</Title>
-				</View>
-			)}
         </>
     );
 }

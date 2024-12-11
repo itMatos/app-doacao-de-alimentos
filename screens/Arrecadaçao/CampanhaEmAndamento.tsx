@@ -37,10 +37,13 @@ type CampanhaEmAndamentoProps = {
 
 type CampaignReportType = {
     idCampanha: string;
-    categorias: {
-        nome: string;
-        qtd_total_pacotes: number;
-        qtd_total_peso: number | null;
+	label: string;
+	data_inicio: string;
+	data_fim: string | null;
+    relatorio_categorias: {
+        categoria: string;
+        qtd_total: number;
+        peso_total: number | null;
         medida: string | null;
     }[];
 };
@@ -73,9 +76,10 @@ export default function CampanhaEmAndamento({
     const handleGetResumoCampanha = async () => {
         if (idCampanhaEmAndamento === null) return;
         try {
-            const resumoCampanha: CampaignReportType[] = await getResumoGeralByCampanhaId(
+            const resumoCampanha: CampaignReportType = await getResumoGeralByCampanhaId(
                 idCampanhaEmAndamento
             );
+			console.log("resumoCampanha", resumoCampanha);
             setCampaignReport(resumoCampanha);
         } catch (error) {
             console.log('error', error);
@@ -186,8 +190,8 @@ export default function CampanhaEmAndamento({
                         )}
 
                         {!loading &&
-                            'categorias' in campaignReport &&
-                            campaignReport.categorias.length === 0 && (
+                            'relatorio_categorias' in campaignReport &&
+                            campaignReport.relatorio_categorias.length === 0 && (
                                 <View style={{ margin: 20 }}>
                                     <Text variant="titleMedium">Sem arrecadação registrada.</Text>
 
@@ -198,16 +202,17 @@ export default function CampanhaEmAndamento({
                             )}
 
                         {!loading &&
-                            'categorias' in campaignReport &&
-                            campaignReport.categorias.length > 0 && (
+                            'relatorio_categorias' in campaignReport &&
+                            campaignReport.relatorio_categorias.length > 0 && (
                                 <View style={styles.innerContainer}>
                                     <Surface style={styles.categoryContainer}>
-                                        {campaignReport.categorias.map((data) => (
+                                        {campaignReport.relatorio_categorias.map((data) => (
                                             <InfoCategoria
-                                                key={data.nome}
-                                                category={data.nome}
-                                                quantity={data.qtd_total_peso ?? 0}
-                                                packages={data.qtd_total_pacotes}
+                                                key={data.categoria}
+                                                category={data.categoria}
+                                                packages={data.qtd_total}
+												quantity={data.peso_total || 0}
+                                                measure={data.medida || ''}
                                             />
                                         ))}
                                     </Surface>

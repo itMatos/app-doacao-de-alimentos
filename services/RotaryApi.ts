@@ -120,3 +120,8 @@ export async function getResumoByCampanhaId(campanhaId: string) {
         .then((response) => response);
     return res;
 }
+
+export async function deleteProductByGtin(gtin: string) {
+    const endpoint = `/produtos/${gtin}`;
+    return await RotaryApi.delete(endpoint);
+}

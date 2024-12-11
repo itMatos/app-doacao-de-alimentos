@@ -88,13 +88,6 @@ const ListagemCategorias = forwardRef(({ navigation }: { navigation: any }, ref:
                     <Text variant="titleMedium" style={styles.title}>
                         Produtos por categoria
                     </Text>
-                    <Text style={{ alignSelf: 'center' }}>
-                        <IconButton
-                            icon="reload"
-                            size={20}
-                            onPress={() => handleReload()}
-                        />
-                    </Text>
                 </View>
 
                 <Divider />

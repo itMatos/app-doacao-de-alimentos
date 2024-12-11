@@ -20,10 +20,10 @@ export default function InfoCategoria({
 
                 <View style={styles.rightContainer}>
                     <Chip style={styles.chipCategory} compact={true}>
-                        {`${quantity} kg`}
+                        {`${quantity} ${measure}`}
                     </Chip>
                     <Chip compact={true} mode="outlined" style={styles.chipCategoryOutlined}>
-                        {`${packages} ${measure}`}
+                        {`${packages} embalagens`}
                     </Chip>
                     {/* <Button
                         icon={() => <Icon source="arrow-right" size={16} />}
