@@ -14,11 +14,13 @@ import DateTimePicker, {
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 import { PostNewCampaignType } from '@/types/types';
 import { createNewCampaign } from '@/services/RotaryApi';
+import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 
 const vh = Dimensions.get('window').height / 100;
 
 export default function CriarNovaCampanha({ navigation, route }: { navigation: any; route: any }) {
     const { state, dispatch } = useContext(ArrecadacaoContext);
+    const { campanhaState, dispatchCampanha } = useContext(CampanhaContext);
     const [creatingNewCampaign, setCreatingNewCampaign] = useState(false);
     const [status, setStatus] = useState<number>(0);
 

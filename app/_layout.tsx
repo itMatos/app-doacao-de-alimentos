@@ -1,8 +1,10 @@
+import React from 'react';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { PaperProvider } from 'react-native-paper';
+import { CampanhaProvider } from '@/context/Campanha/CampanhaContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -24,11 +26,13 @@ export default function RootLayout() {
     }
 
     return (
-        <PaperProvider>
-            <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-            </Stack>
-        </PaperProvider>
+        <CampanhaProvider>
+            <PaperProvider>
+                <Stack>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="+not-found" />
+                </Stack>
+            </PaperProvider>
+        </CampanhaProvider>
     );
 }

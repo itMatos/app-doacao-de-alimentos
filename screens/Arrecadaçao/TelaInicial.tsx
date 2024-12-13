@@ -13,8 +13,14 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SemArrecadacao from './SemArrecadacao';
 import CampanhaEmAndamento from './CampanhaEmAndamento';
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
-import { closeCurrentCampanha, getCampanhaInProgress } from '@/services/RotaryApi';
+import {
+    closeCurrentCampanha,
+    getCampanhaInProgress,
+    getResumoGeralByCampanhaId,
+} from '@/services/RotaryApi';
 import { vh } from '@/utils/utils';
+import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
+import { ResumoCampanhaType } from '../Campanhas/types';
 
 type Campanha = {
     id: string;
@@ -23,6 +29,7 @@ type Campanha = {
 
 export default function TelaInicial({ navigation, route }: { navigation: any; route: any }) {
     const { state, dispatch } = useContext(ArrecadacaoContext);
+    const { dispatchCampanha } = useContext(CampanhaContext);
     const { arrecadacaoEmAndamento } = state;
     const [inProgress, setInProgress] = useState<Campanha[]>([]);
     const [loading, setLoading] = useState(true);
@@ -53,6 +60,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
         if (inProgress.length > 0) {
             const campanha = inProgress[0];
             console.log('campanha em andamento', campanha);
+            getCurrentCampanhaResumo(campanha.id);
             dispatch({
                 type: 'CampanhaEmAndamento',
                 arrecadacaoEmAndamento: true,
@@ -61,6 +69,15 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
             });
         }
     }, [inProgress]);
+
+    const getCurrentCampanhaResumo = async (id: string) => {
+        try {
+            const campanha: ResumoCampanhaType = await getResumoGeralByCampanhaId(id);
+            dispatchCampanha({ type: 'AdicionarCampanha', campanha: campanha });
+        } catch (error) {
+            console.log('error', error);
+        }
+    };
 
     useEffect(() => {
         checkCampanhaInProgress();
@@ -80,6 +97,7 @@ export default function TelaInicial({ navigation, route }: { navigation: any; ro
 
         try {
             await closeCurrentCampanha(campanha.id);
+            dispatchCampanha({ type: 'EncerrarCampanha', id_campanha: campanha.id });
             navigation.navigate('ArrecadacaoTelaInicial');
             dispatch({ type: 'EncerrarCampanha', arrecadacaoEmAndamento: false });
         } catch (error) {

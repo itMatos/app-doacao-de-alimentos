@@ -1,3 +1,4 @@
+import { deleteProductByGtin } from '@/services/RotaryApi';
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
@@ -65,12 +66,23 @@ export default function DetalhesDoProduto({
         produto = Object.assign(produto, formData);
     };
 
-    const handleDeleteProduct = () => {
+    const handleDeleteProduct = (productId: string) => {
         // TODO adicionar loading enquanto deleta
         // TODO - adicionar lógica para deletar produto
-        hideModalDelete();
-        // onDelete();
-        goBackToProductsList();
+        // hideModalDelete();
+        // goBackToProductsList();
+        deleteProductById(productId);
+    };
+
+    const deleteProductById = async (id: string) => {
+        try {
+            await deleteProductByGtin(id);
+        } catch (error) {
+            console.error('Erro ao deletar produto', error);
+        } finally {
+            hideModalDelete();
+            goBackToProductsList();
+        }
     };
 
     const containerStyle = { backgroundColor: 'none', padding: 20, margin: 20 };
@@ -83,7 +95,7 @@ export default function DetalhesDoProduto({
             ) : (
                 <View style={styles.content}>
                     {!editInformation && (
-                        <Card style={styles.card}>
+                        <Card style={styles.card} mode="contained">
                             <Card.Content style={{ gap: 10 }}>
                                 <Title>{produto.nome_sem_acento}</Title>
                                 <Paragraph>
@@ -282,8 +294,13 @@ export default function DetalhesDoProduto({
 
                     {showCloseDetailsButton && (
                         <View style={styles.footer}>
-                            <Button mode="outlined" onPress={hideModal} style={{ margin: 'auto' }}>
-                                Fechar
+                            <Button
+                                mode="outlined"
+                                onPress={hideModal}
+                                style={{ margin: 'auto' }}
+                                icon={'chevron-left'}
+                            >
+                                Voltar
                             </Button>
                         </View>
                     )}
@@ -311,7 +328,10 @@ export default function DetalhesDoProduto({
                                 <Divider style={{ marginTop: 20 }} />
                                 <Card.Actions>
                                     {/* TODO adicionar logica para deletar produto e voltar para a listagem de produtos */}
-                                    <Button mode="outlined" onPress={() => handleDeleteProduct()}>
+                                    <Button
+                                        mode="outlined"
+                                        onPress={() => handleDeleteProduct(produto.gtin)}
+                                    >
                                         Sim, excluir
                                     </Button>
                                     <Button mode="contained" onPress={() => hideModalDelete()}>
@@ -344,6 +364,7 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         justifyContent: 'center',
+        elevation: 0,
     },
     input: {
         marginBottom: 16,
@@ -356,6 +377,7 @@ const styles = StyleSheet.create({
         elevation: 0,
         borderRadius: 8,
         marginBottom: 16,
+        backgroundColor: '#efefef',
     },
     label: {
         fontWeight: '400',

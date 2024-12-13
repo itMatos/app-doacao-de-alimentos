@@ -125,3 +125,8 @@ export async function deleteProductByGtin(gtin: string) {
     const endpoint = `/produtos/${gtin}`;
     return await RotaryApi.delete(endpoint);
 }
+
+export async function getProductByCategoryPaginated(category: string, page: number, limit: number) {
+    const endpoint = `/produtos/categorias/${category}/pagination?page=${page}&limit=${limit}`;
+    return await RotaryApi.get(endpoint).then((res) => res.data);
+}

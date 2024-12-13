@@ -1,5 +1,5 @@
 import { getAllCampanhas, getAllCampanhasResumo } from '@/services/RotaryApi';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import {
     ActivityIndicator,
@@ -15,8 +15,12 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ResumoCampanhaType } from './types';
 import ResumoCampanha from './ResumoCampanha';
+import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 
 export default function ListagemCampanhas({ navigation, route }: { navigation: any; route: any }) {
+    const { campanhaState, dispatchCampanha } = useContext(CampanhaContext);
+    const { listagemCampanhas } = campanhaState;
+
     const [campanhas, setCampanhas] = useState<ResumoCampanhaType[]>([]);
     const [loading, setLoading] = useState(true);
     const [errorLoadingCampanhasMessage, setErrorLoadingCampanhasMessage] = useState('');
@@ -30,7 +34,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
         try {
             const campanhas = await getAllCampanhasResumo();
             setCampanhas(campanhas);
-            console.log('Campanhas', campanhas);
+            dispatchCampanha({ type: 'ListarTodasCampanhas', listagemCampanhas: campanhas });
         } catch (error) {
             console.log('error', error);
         } finally {
@@ -80,7 +84,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                         Nenhuma campanha encontrada
                     </Text>
                 )}
-                {campanhas.map((campanha: ResumoCampanhaType) => (
+                {listagemCampanhas.map((campanha: ResumoCampanhaType) => (
                     <Surface
                         key={campanha.id_campanha}
                         style={{ margin: 10, padding: 20, borderRadius: 8 }}
