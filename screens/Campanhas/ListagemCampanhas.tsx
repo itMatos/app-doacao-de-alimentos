@@ -18,8 +18,8 @@ import ResumoCampanha from './ResumoCampanha';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 
 export default function ListagemCampanhas({ navigation, route }: { navigation: any; route: any }) {
-    const { campanhaState, dispatchCampanha } = useContext(CampanhaContext);
-    const { listagemCampanhas } = campanhaState;
+    // const { campanhaState, dispatchCampanha } = useContext(CampanhaContext);
+    // const { listagemCampanhas } = campanhaState;
 
     const [campanhas, setCampanhas] = useState<ResumoCampanhaType[]>([]);
     const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
         try {
             const campanhas = await getAllCampanhasResumo();
             setCampanhas(campanhas);
-            dispatchCampanha({ type: 'ListarTodasCampanhas', listagemCampanhas: campanhas });
+            // dispatchCampanha({ type: 'ListarTodasCampanhas', listagemCampanhas: campanhas });
         } catch (error) {
             console.log('error', error);
         } finally {
@@ -63,7 +63,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
     };
 
     return (
-        <View style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }}>
             <View>
                 <Appbar.Header mode="center-aligned" elevated>
                     <Appbar.Content title="Campanhas" />
@@ -84,17 +84,21 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
                         Nenhuma campanha encontrada
                     </Text>
                 )}
-                {listagemCampanhas.map((campanha: ResumoCampanhaType) => (
+                {campanhas.map((campanha: ResumoCampanhaType) => (
                     <Surface
                         key={campanha.id_campanha}
-                        style={{ margin: 10, padding: 20, borderRadius: 8 }}
+                        style={{ margin: 10, padding: 20, borderRadius: 8, marginTop: 24 }}
                         elevation={3}
                         mode="flat"
                     >
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text
-                                style={{ flex: 1, marginRight: 5 }}
-                                variant="titleMedium"
+                                style={{
+                                    flex: 1,
+                                    marginRight: 5,
+                                    fontSize: 18,
+                                    fontWeight: 'bold',
+                                }}
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                             >
@@ -181,7 +185,7 @@ export default function ListagemCampanhas({ navigation, route }: { navigation: a
             >
                 {errorLoadingCampanhasMessage}
             </Snackbar>
-        </View>
+        </ScrollView>
     );
 }
 

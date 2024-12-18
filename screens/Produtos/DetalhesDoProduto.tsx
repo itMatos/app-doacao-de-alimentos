@@ -13,7 +13,9 @@ import {
     Modal,
     Text,
     TextInput,
+	Chip,
 } from 'react-native-paper';
+import DeletingChip from './DeletingChip';
 
 const categories = ['Arroz', 'Feijão', 'Óleo', 'Leite', 'Açúcar', 'Farinha', 'Macarrão', 'Fubá'];
 const medidas = ['kg', 'L', 'un'];
@@ -25,6 +27,7 @@ export default function DetalhesDoProduto({
     produto,
     goBackToProductsList,
     showCloseDetailsButton,
+	removeProductFromList,
 }: {
     visible: boolean;
     isLoading: boolean;
@@ -32,9 +35,11 @@ export default function DetalhesDoProduto({
     produto: ProdutoEncontradoApiType;
     goBackToProductsList: () => void;
     showCloseDetailsButton: boolean;
+	removeProductFromList: (gtin: string) => void;
 }) {
     const [modalConfirmationDelete, setModalConfirmationDelete] = useState(false);
     const [editInformation, setEditInformation] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
     const showModalDelete = () => setModalConfirmationDelete(true);
     const hideModalDelete = () => setModalConfirmationDelete(false);
@@ -67,21 +72,20 @@ export default function DetalhesDoProduto({
     };
 
     const handleDeleteProduct = (productId: string) => {
-        // TODO adicionar loading enquanto deleta
-        // TODO - adicionar lógica para deletar produto
-        // hideModalDelete();
-        // goBackToProductsList();
+		setIsDeleting(true);
         deleteProductById(productId);
     };
 
     const deleteProductById = async (id: string) => {
         try {
             await deleteProductByGtin(id);
+			removeProductFromList(id);
         } catch (error) {
             console.error('Erro ao deletar produto', error);
         } finally {
             hideModalDelete();
             goBackToProductsList();
+			setIsDeleting(false);
         }
     };
 
@@ -327,16 +331,23 @@ export default function DetalhesDoProduto({
                                 </Card.Content>
                                 <Divider style={{ marginTop: 20 }} />
                                 <Card.Actions>
-                                    {/* TODO adicionar logica para deletar produto e voltar para a listagem de produtos */}
-                                    <Button
-                                        mode="outlined"
-                                        onPress={() => handleDeleteProduct(produto.gtin)}
-                                    >
-                                        Sim, excluir
-                                    </Button>
-                                    <Button mode="contained" onPress={() => hideModalDelete()}>
-                                        Cancelar
-                                    </Button>
+                                    {isDeleting && <DeletingChip isDeleting={isDeleting} />}
+                                    {!isDeleting && (
+                                        <>
+                                            <Button
+                                                mode="outlined"
+                                                onPress={() => handleDeleteProduct(produto.gtin)}
+                                            >
+                                                Sim, excluir
+                                            </Button>
+                                            <Button
+                                                mode="contained"
+                                                onPress={() => hideModalDelete()}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </>
+                                    )}
                                 </Card.Actions>
                             </Card>
                         </Modal>

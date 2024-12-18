@@ -8,7 +8,7 @@ export default function ResumoCampanha({ categorias }: { categorias: RelatorioCa
     return (
         <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-                <Text style={{ marginVertical: 10 }} variant="titleLarge">
+                <Text style={{ marginVertical: 10, fontWeight: '600', fontSize: 18 }}>
                     Arrecadação por categoria
                 </Text>
             </View>
@@ -17,9 +17,10 @@ export default function ResumoCampanha({ categorias }: { categorias: RelatorioCa
                 style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
             >
                 {categorias.length === 0 && (
-                    <Text style={{ fontWeight: 'bold', marginBottom: 5 }} variant="bodyLarge">
-                        Sem arrecadação registrada
-                    </Text>
+                    
+					<Chip compact={true} mode='outlined' icon={'progress-alert'}>
+						Sem arrecadação registrada
+					</Chip>
                 )}
                 {categorias.map((categoria) => (
                     <Surface
@@ -35,8 +36,7 @@ export default function ResumoCampanha({ categorias }: { categorias: RelatorioCa
                         mode="flat"
                     >
                         <Text
-                            style={{ marginBottom: 5, marginHorizontal: 'auto' }}
-                            variant="titleMedium"
+                            style={{ marginBottom: 5, marginHorizontal: 'auto', fontSize: 16 }}
                         >
                             {categoria.categoria}
                         </Text>

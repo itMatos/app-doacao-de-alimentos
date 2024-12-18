@@ -37,9 +37,9 @@ type CampanhaEmAndamentoProps = {
 
 type CampaignReportType = {
     idCampanha: string;
-	label: string;
-	data_inicio: string;
-	data_fim: string | null;
+    label: string;
+    data_inicio: string;
+    data_fim: string | null;
     relatorio_categorias: {
         categoria: string;
         qtd_total: number;
@@ -79,7 +79,7 @@ export default function CampanhaEmAndamento({
             const resumoCampanha: CampaignReportType = await getResumoGeralByCampanhaId(
                 idCampanhaEmAndamento
             );
-			console.log("resumoCampanha", resumoCampanha);
+            console.log('resumoCampanha', resumoCampanha);
             setCampaignReport(resumoCampanha);
         } catch (error) {
             console.log('error', error);
@@ -139,7 +139,7 @@ export default function CampanhaEmAndamento({
                         </>
                     )}
 
-                    <Surface style={styles.surface}>
+                    <Surface style={styles.surface} mode="flat" elevation={5}>
                         <View style={styles.header}>
                             <Text variant="titleMedium" style={styles.title}>
                                 Registrar doação
@@ -163,7 +163,7 @@ export default function CampanhaEmAndamento({
                         </View>
                     </Surface>
 
-                    <Surface style={styles.surface}>
+                    <Surface style={styles.surface} mode="flat" elevation={5}>
                         <View style={styles.header}>
                             <Text variant="titleMedium" style={styles.title}>
                                 {state.labelCampanhaEmAndamento}
@@ -211,7 +211,7 @@ export default function CampanhaEmAndamento({
                                                 key={data.categoria}
                                                 category={data.categoria}
                                                 packages={data.qtd_total}
-												quantity={data.peso_total || 0}
+                                                quantity={data.peso_total || 0}
                                                 measure={data.medida || ''}
                                             />
                                         ))}
