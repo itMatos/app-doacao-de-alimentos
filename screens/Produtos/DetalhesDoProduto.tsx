@@ -1,3 +1,4 @@
+import { deleteProductByGtin } from '@/services/RotaryApi';
 import { ProdutoEncontradoApiType } from '@/types/types';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
@@ -12,7 +13,9 @@ import {
     Modal,
     Text,
     TextInput,
+	Chip,
 } from 'react-native-paper';
+import DeletingChip from './DeletingChip';
 
 const categories = ['Arroz', 'Feijão', 'Óleo', 'Leite', 'Açúcar', 'Farinha', 'Macarrão', 'Fubá'];
 const medidas = ['kg', 'L', 'un'];
@@ -24,6 +27,7 @@ export default function DetalhesDoProduto({
     produto,
     goBackToProductsList,
     showCloseDetailsButton,
+	removeProductFromList,
 }: {
     visible: boolean;
     isLoading: boolean;
@@ -31,9 +35,11 @@ export default function DetalhesDoProduto({
     produto: ProdutoEncontradoApiType;
     goBackToProductsList: () => void;
     showCloseDetailsButton: boolean;
+	removeProductFromList: (gtin: string) => void;
 }) {
     const [modalConfirmationDelete, setModalConfirmationDelete] = useState(false);
     const [editInformation, setEditInformation] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
     const showModalDelete = () => setModalConfirmationDelete(true);
     const hideModalDelete = () => setModalConfirmationDelete(false);
@@ -65,12 +71,22 @@ export default function DetalhesDoProduto({
         produto = Object.assign(produto, formData);
     };
 
-    const handleDeleteProduct = () => {
-        // TODO adicionar loading enquanto deleta
-        // TODO - adicionar lógica para deletar produto
-        hideModalDelete();
-        // onDelete();
-        goBackToProductsList();
+    const handleDeleteProduct = (productId: string) => {
+		setIsDeleting(true);
+        deleteProductById(productId);
+    };
+
+    const deleteProductById = async (id: string) => {
+        try {
+            await deleteProductByGtin(id);
+			removeProductFromList(id);
+        } catch (error) {
+            console.error('Erro ao deletar produto', error);
+        } finally {
+            hideModalDelete();
+            goBackToProductsList();
+			setIsDeleting(false);
+        }
     };
 
     const containerStyle = { backgroundColor: 'none', padding: 20, margin: 20 };
@@ -83,7 +99,7 @@ export default function DetalhesDoProduto({
             ) : (
                 <View style={styles.content}>
                     {!editInformation && (
-                        <Card style={styles.card}>
+                        <Card style={styles.card} mode="contained">
                             <Card.Content style={{ gap: 10 }}>
                                 <Title>{produto.nome_sem_acento}</Title>
                                 <Paragraph>
@@ -282,8 +298,13 @@ export default function DetalhesDoProduto({
 
                     {showCloseDetailsButton && (
                         <View style={styles.footer}>
-                            <Button mode="outlined" onPress={hideModal} style={{ margin: 'auto' }}>
-                                Fechar
+                            <Button
+                                mode="outlined"
+                                onPress={hideModal}
+                                style={{ margin: 'auto' }}
+                                icon={'chevron-left'}
+                            >
+                                Voltar
                             </Button>
                         </View>
                     )}
@@ -310,13 +331,23 @@ export default function DetalhesDoProduto({
                                 </Card.Content>
                                 <Divider style={{ marginTop: 20 }} />
                                 <Card.Actions>
-                                    {/* TODO adicionar logica para deletar produto e voltar para a listagem de produtos */}
-                                    <Button mode="outlined" onPress={() => handleDeleteProduct()}>
-                                        Sim, excluir
-                                    </Button>
-                                    <Button mode="contained" onPress={() => hideModalDelete()}>
-                                        Cancelar
-                                    </Button>
+                                    {isDeleting && <DeletingChip isDeleting={isDeleting} />}
+                                    {!isDeleting && (
+                                        <>
+                                            <Button
+                                                mode="outlined"
+                                                onPress={() => handleDeleteProduct(produto.gtin)}
+                                            >
+                                                Sim, excluir
+                                            </Button>
+                                            <Button
+                                                mode="contained"
+                                                onPress={() => hideModalDelete()}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </>
+                                    )}
                                 </Card.Actions>
                             </Card>
                         </Modal>
@@ -344,6 +375,7 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         justifyContent: 'center',
+        elevation: 0,
     },
     input: {
         marginBottom: 16,
@@ -356,6 +388,7 @@ const styles = StyleSheet.create({
         elevation: 0,
         borderRadius: 8,
         marginBottom: 16,
+        backgroundColor: '#efefef',
     },
     label: {
         fontWeight: '400',

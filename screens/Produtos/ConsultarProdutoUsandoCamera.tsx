@@ -22,16 +22,16 @@ import { ProdutoEncontradoApiType } from '@/types/types';
 import DetalhesDoProduto from './DetalhesDoProduto';
 
 // objeto para teste sem precisar utilizar api
-const produtoTesteApiResult: ProdutoEncontradoApiType = {
-    gtin: '7893500020134',
-    id_produto_categoria: 'Arroz',
-    codigo_ncm: '10063021',
-    medida_por_embalagem: '2',
-    produto_medida_sigla: null,
-    produto_marca: 'NÃO INFORMADO',
-    nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
-    nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
-};
+// const produtoTesteApiResult: ProdutoEncontradoApiType = {
+//     gtin: '7893500020134',
+//     id_produto_categoria: 'Arroz',
+//     codigo_ncm: '10063021',
+//     medida_por_embalagem: '2',
+//     produto_medida_sigla: '',
+//     produto_marca: 'NÃO INFORMADO',
+//     nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
+//     nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
+// };
 
 export default function ConsultarProdutoUsandoCamera({
     navigation,
@@ -44,6 +44,7 @@ export default function ConsultarProdutoUsandoCamera({
     const [productDetails, setProductDetails] = useState<ProdutoEncontradoApiType | null>(null);
     const [facing, setFacing] = useState<CameraType>('back');
     const [showModalProductDetails, setShowModalProductDetails] = useState(true);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const [isLoadingProductInfo, setIsLoadingProductInfo] = useState(false);
     const showLoadingProductInfo = () => setIsLoadingProductInfo(true);
@@ -74,6 +75,7 @@ export default function ConsultarProdutoUsandoCamera({
             // hideModalProductNotFound();
         } catch (error: any) {
             console.log('error', error);
+            setErrorMessage('Produto não encontrado. Tente novamente ou registre o produto.');
             // showModalProductNotFound();
         } finally {
             setIsLoadingProductInfo(false);
@@ -97,6 +99,18 @@ export default function ConsultarProdutoUsandoCamera({
                 />
                 <Appbar.Content title="Consultar produto" />
             </Appbar.Header>
+            {errorMessage.trim() !== '' && (
+                <View style={styles.content}>
+                    <Title>{errorMessage}</Title>
+                    <Button
+                        onPress={() => navigation.navigate('CadastrarNovoProduto')}
+                        mode="contained"
+                        style={{ marginTop: 10 }}
+                    >
+                        Registrar novo produto
+                    </Button>
+                </View>
+            )}
             {visibleCamera && (
                 <CameraView
                     facing={facing}
@@ -118,7 +132,7 @@ export default function ConsultarProdutoUsandoCamera({
                 <View style={styles.content}>
                     <ActivityIndicator animating={true} style={{ marginVertical: 10 }} />
 
-                    <Title>Carregando informações do produto...</Title>
+                    <Title>Buscando informações do produto...</Title>
                 </View>
             )}
 
@@ -132,6 +146,7 @@ export default function ConsultarProdutoUsandoCamera({
                     showCloseDetailsButton={false}
                 />
             )}
+
         </>
     );
 }

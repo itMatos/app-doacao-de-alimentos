@@ -1,90 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Animated, Modal, TouchableOpacity } from 'react-native';
-import { ActivityIndicator, Appbar, Button, Portal, Surface, Text } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Appbar, Button, Text } from 'react-native-paper';
 import { CameraType, CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { vh } from '@/utils/utils';
 import { ProdutoEncontradoApiType } from '@/types/types';
 import ModalRegistroDeDoacao from './ModalRegistroDeDoacao';
 import { getProductByBarCode } from '@/services/RotaryApi';
-import axios from 'axios';
 import RegistrarManualmente from './RegistrarManualmente';
-import ModalCadastrarNovoProduto from './ModalCadastrarNovoProduto';
-
-const produtoTeste: ProdutoEncontradoApiType = {
-    gtin: '7897954900073',
-    id_produto_categoria: 'Arroz',
-    codigo_ncm: '10063021',
-    medida_por_embalagem: '2',
-    produto_medida_sigla: 'kg',
-    produto_marca: 'NÃO INFORMADO',
-    nome: 'Arroz Minamimai Curto Japones T1 5kg',
-    nome_sem_acento: 'Arroz Minamimai Curto Japones T1 5kg',
-};
+import ModalProductNotFound from './ModalProductNotFound';
 
 export default function RegistrarDoacao({ navigation, route }: { navigation: any; route: any }) {
-    const [facing, setFacing] = useState<CameraType>('back');
-    const [permission, requestPermission] = useCameraPermissions();
-    const [visibleModal, setVisibleModal] = useState(false);
-    const [cameraVisible, setCameraVisible] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [manualRegister, setManualRegister] = useState(false);
-    const [modalProductUnregistered, setModalProductUnregistered] = useState(false);
-    const [produto, setProduto] = useState<any | null>({});
-    const [code, setCode] = useState<string>('');
+    // Estados relacionados à câmera
+    const [cameraType, setCameraType] = useState<CameraType>('back');
+    const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+    const [isCameraActive, setCameraActive] = useState(true);
 
-    const showModalProductFoundSuccessfully = () => setVisibleModal(true);
-    const hideModalProductFoundSuccessfully = () => {
-        setVisibleModal(false);
-        showCamera();
+    // Funções de controle da câmera
+    const activateCamera = () => setCameraActive(true);
+    const deactivateCamera = () => setCameraActive(false);
+
+    // Estados relacionados à funcionalidade
+    const [isLoading, setLoading] = useState(false);
+    const [isManualEntry, setManualEntry] = useState(false);
+    const [isModalProdutoNaoEncontradoVisible, setModalProdutoNaoEncontradoVisible] =
+        useState(false);
+
+    // Dados do produto
+    const [product, setProduct] = useState<ProdutoEncontradoApiType>();
+    const [scannedBarcode, setScannedBarcode] = useState<string>('');
+
+    // Modal de sucesso
+    const [isModalProdutoEncontradoVisible, setModalProdutoEncontradoVisible] = useState(false);
+
+    // Funções para lidar com modais
+    const showModalProdutoEncontrado = () => setModalProdutoEncontradoVisible(true);
+    const hideModalProdutoEncontrado = () => {
+        setModalProdutoEncontradoVisible(false);
+        activateCamera();
     };
 
-    const showCamera = () => setCameraVisible(true);
-    const hideCamera = () => setCameraVisible(false);
-
-    const showManualRegister = () => setManualRegister(true);
-    const hideManualRegister = () => setManualRegister(false);
-
-    const showModalProductNotFound = () => setModalProductUnregistered(true);
-    const hideModalProductNotFound = () => {
-        setModalProductUnregistered(false);
-        showCamera();
+    const showModalProdutoNaoEncontrado = () => setModalProdutoNaoEncontradoVisible(true);
+    const hideModalProdutoNaoEncontrado = () => {
+        activateCamera();
+        setModalProdutoNaoEncontradoVisible(false);
     };
 
-    const simulateRequest = async () => {
-        hideCamera();
-        setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setProduto(produtoTeste);
-        setIsLoading(false);
-    };
+    // Controle de entrada manual
+    const enableManualEntry = () => setManualEntry(true);
+    const disableManualEntry = () => setManualEntry(false);
 
-    const simulateNotFound = async () => {
-        hideCamera();
-        showModalProductNotFound();
-        setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setIsLoading(false);
-    };
-
-    const handleBarCodeScanned = (barcode: BarcodeScanningResult) => {
-        hideCamera();
+    // Lógica de busca de produto
+    const handleBarcodeScan = (barcode: BarcodeScanningResult) => {
+        deactivateCamera();
         const code = barcode.data;
-        setCode(code);
-        searchProductInDatabase(code);
+        setScannedBarcode(code);
+        fetchProductFromDatabase(code);
     };
 
-    const searchProductInDatabase = async (code: string) => {
-        setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+    const fetchProductFromDatabase = async (barcode: string) => {
+        setLoading(true);
         try {
-            const response = await getProductByBarCode(code);
-            setProduto(response);
-            showModalProductFoundSuccessfully();
+            const response = await getProductByBarCode(barcode);
+            setProduct(response);
+            showModalProdutoEncontrado();
         } catch (error: any) {
-            // TODO aqui precisa validar se o produto nao foi encontrado ou se teve erro na hora de ler o codigo de barras
-            showModalProductNotFound();
+            showModalProdutoNaoEncontrado();
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
@@ -92,134 +74,77 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
             <Appbar.Header mode="center-aligned" elevated>
                 <Appbar.BackAction onPress={() => navigation.navigate('ArrecadacaoTelaInicial')} />
-                <Appbar.Content title="Registrar doação" />
+                <Appbar.Content title="Registrar Doação" />
             </Appbar.Header>
-            <View style={styles.container}>
-                {!permission && (
-                    <View style={styles.container}>
-                        <Text style={styles.message} variant="titleMedium">
-                            É necessário permissão para acessar a câmera do dispositivo
-                        </Text>
 
-                        <Button
-                            onPress={requestPermission}
-                            mode="contained"
-                            style={styles.allowCamera}
-                        >
-                            Conceder permissão
+            <View style={styles.container}>
+                {!cameraPermission?.granted ? (
+                    <View style={styles.permissionContainer}>
+                        <Text style={styles.message}>
+                            É necessário conceder permissão para acessar a câmera.
+                        </Text>
+                        <Button onPress={requestCameraPermission} mode="contained">
+                            Conceder Permissão
                         </Button>
                     </View>
-                )}
-
-                {manualRegister ? (
-                    <RegistrarManualmente
-                        hideManualRegister={hideManualRegister}
-                        simulateRequest={simulateRequest}
-                        searchProductInDatabase={searchProductInDatabase}
-                        isLoading={isLoading}
-                    />
                 ) : (
-                    <View
-                        style={{
-                            flex: 1,
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <Text style={styles.messageCamera} variant="headlineSmall">
-                            Aponte a câmera do dispositivo para o código de barras
-                        </Text>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Button
-                                mode="contained"
-                                onPress={() => {
-                                    {
-                                        simulateRequest();
-                                    }
-                                }}
-                                style={styles.scanButton}
-                            >
-                                simular produto encontrado
-                            </Button>
-
-                            <Button
-                                mode="contained"
-                                onPress={() => {
-                                    {
-                                        simulateNotFound();
-                                    }
-                                }}
-                                style={styles.scanButton}
-                            >
-                                simular produto nao encontrado
-                            </Button>
-                        </View>
-
-                        {cameraVisible && (
-                            <CameraView
-                                style={styles.camera}
-                                facing={facing}
-                                barcodeScannerSettings={{
-                                    barcodeTypes: ['ean13', 'ean8'],
-                                }}
-                                onBarcodeScanned={handleBarCodeScanned}
-                            >
-                                <View style={styles.buttonContainer}>
-                                    <TouchableOpacity style={styles.button} onPress={() => {}}>
-                                        <Text style={styles.text}>{''}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </CameraView>
-                        )}
-
-                        {isLoading && (
-                            <>
-                                <ActivityIndicator animating={true} />
-                                <Text style={styles.message} variant="titleMedium">
-                                    Estamos buscando o produto...
+                    <>
+                        {isCameraActive && !isManualEntry && (
+                            <View style={styles.cameraContainer}>
+                                <Text style={styles.messageCamera}>
+                                    Aponte a câmera para o código de barras
                                 </Text>
-                            </>
+                                <CameraView
+                                    style={styles.camera}
+                                    facing={cameraType}
+                                    barcodeScannerSettings={{
+                                        barcodeTypes: ['ean13', 'ean8'],
+                                    }}
+                                    onBarcodeScanned={handleBarcodeScan}
+                                />
+                                {isLoading && (
+                                    <>
+                                        <ActivityIndicator animating />
+                                        <Text style={styles.message}>Buscando produto...</Text>
+                                    </>
+                                )}
+                                <Button
+                                    mode="contained"
+                                    style={styles.manualEntryButton}
+                                    onPress={enableManualEntry}
+                                    disabled={isLoading}
+                                >
+                                    Inserir Código Manualmente
+                                </Button>
+                            </View>
                         )}
 
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Button
-                                mode="contained"
-                                style={{
-                                    margin: 20,
-                                    borderRadius: 10,
-                                }}
-                                disabled={isLoading}
-                                onPress={() => showManualRegister()}
-                            >
-                                Inserir código manualmente
-                            </Button>
-                        </View>
-                    </View>
+                        {isManualEntry && (
+                            <RegistrarManualmente
+                                hideManualRegister={disableManualEntry}
+                                searchProductInDatabase={fetchProductFromDatabase}
+                                isLoading={isLoading}
+                            />
+                        )}
+                    </>
                 )}
 
-                <ModalCadastrarNovoProduto
-                    visible={modalProductUnregistered}
-                    hideModalProductNotFound={hideModalProductNotFound}
+                <ModalProductNotFound
+                    visible={isModalProdutoNaoEncontradoVisible}
+                    hideModalProductNotFound={hideModalProdutoNaoEncontrado}
                     isLoading={isLoading}
-                    onDismiss={hideModalProductNotFound}
-                    code={code}
+                    code={scannedBarcode}
+                    navigation={navigation}
                 />
 
-                <ModalRegistroDeDoacao
-                    visible={visibleModal}
-                    hideModal={hideModalProductFoundSuccessfully}
-                    isLoading={isLoading}
-                    produto={produto}
-                />
+                {product && (
+                    <ModalRegistroDeDoacao
+                        visible={isModalProdutoEncontradoVisible}
+                        hideModal={hideModalProdutoEncontrado}
+                        isLoading={isLoading}
+                        produto={product as ProdutoEncontradoApiType}
+                    />
+                )}
             </View>
         </ScrollView>
     );
@@ -227,6 +152,9 @@ export default function RegistrarDoacao({ navigation, route }: { navigation: any
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+    },
+    cameraContainer: {
         flex: 1,
     },
     message: {
@@ -302,5 +230,14 @@ const styles = StyleSheet.create({
         margin: 20,
         borderRadius: 10,
         backgroundColor: '#81c784',
+    },
+    permissionContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    manualEntryButton: {
+        margin: 20,
+        borderRadius: 10,
     },
 });

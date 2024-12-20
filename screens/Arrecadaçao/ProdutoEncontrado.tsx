@@ -1,26 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Button, Divider, Icon, Text, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
-import { getAllCategories } from '@/services/RotaryApi';
+import { ArrecadacaoType, ProdutoEncontradoApiType, ProdutoType } from '@/types/types';
+import { getAllCategories, saveNewArrecadacao } from '@/services/RotaryApi';
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 export default function ProdutoEncontrado({
     produto,
     setProduto,
-    handleClickRegisterDonation,
     hideModal,
+    showSuccessRegister,
 }: {
-    produto: ProdutoType | null;
+    produto: ProdutoType;
     setProduto: (produto: ProdutoEncontradoApiType) => void;
-    handleClickRegisterDonation: (gtinProduto: string, quantidade: number) => Promise<void>;
     hideModal: () => void;
+    showSuccessRegister: () => void;
 }) {
+    const { state } = useContext(ArrecadacaoContext);
+    const { idCampanhaEmAndamento } = state;
+
     const [selectedCategory, setSelectedCategory] = useState(produto?.categoriaId);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [totalDonation, setTotalDonation] = useState(Number(produto?.quantidadePorEmbalagem));
-
     const [categories, setCategories] = useState<string[]>([]);
+    const [loadingRegisterDonation, setLoadingRegisterDonation] = useState(false);
+
+    console.log('produto encontrado', produto);
 
     useEffect(() => {
         const getCategories = async () => {
@@ -36,6 +42,29 @@ export default function ProdutoEncontrado({
         const pesoTotal = Number(produto?.quantidadePorEmbalagem) * value;
         setSelectedQuantity(value);
         setTotalDonation(pesoTotal);
+    };
+
+    const handleClickRegisterDonation = async (gtinProduto: string, quantidade: number) => {
+        if (idCampanhaEmAndamento === null) {
+            return;
+        }
+        if (gtinProduto.trim() === '' || quantidade === 0) {
+            console.log('Produto ou quantidade inválidos');
+            return;
+        }
+        const newArrecadacao: ArrecadacaoType = {
+            id_campanha: Number(idCampanhaEmAndamento),
+            id_produto: gtinProduto,
+            qtd_total: quantidade,
+        };
+
+        console.log('Enviando arrecadacao: ', newArrecadacao);
+        try {
+            await saveNewArrecadacao(newArrecadacao);
+        } catch (error) {
+            console.error('erro ao salvar arrecadacao: ', error);
+        }
+        showSuccessRegister();
     };
 
     return (
@@ -119,12 +148,22 @@ export default function ProdutoEncontrado({
                 </Text>
             </View>
 
+            {loadingRegisterDonation && (
+                <>
+                    <ActivityIndicator animating={true} />
+                    <Text style={styles.message} variant="titleMedium">
+                        Registrando doação
+                    </Text>
+                </>
+            )}
+
             <Button
                 mode="contained"
                 onPress={() =>
-                    handleClickRegisterDonation(produto?.codigoDeBarras, selectedQuantity)
+                    handleClickRegisterDonation(produto.codigoDeBarras, selectedQuantity)
                 }
                 style={styles.scanButton}
+                disabled={loadingRegisterDonation}
             >
                 Registrar
             </Button>
@@ -132,6 +171,7 @@ export default function ProdutoEncontrado({
             <Button
                 mode="outlined"
                 onPress={hideModal}
+                disabled={loadingRegisterDonation}
                 style={[styles.scanButton, { marginTop: 10 }]}
             >
                 Voltar
@@ -157,7 +197,8 @@ const styles = StyleSheet.create({
         margin: 20,
         borderRadius: 10,
     },
+    message: {
+        textAlign: 'center',
+        paddingBottom: 10,
+    },
 });
-// function useEffect(arg0: () => void, arg1: never[]) {
-//     throw new Error('Function not implemented.');
-// }

@@ -8,29 +8,29 @@ export default function SemArrecadacao({ navigation, route }: { navigation: any;
     return (
         <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
             <View style={styles.viewContainer}>
-                <Text variant="headlineLarge">Sem arrecadação em andamento.</Text>
-                <Text variant="headlineSmall">
-                    Crie uma nova campanha de arrecadação para começar a registrar doações.
-                </Text>
-            </View>
-            <View
-                style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Button
-                    mode="contained"
-                    icon="plus"
-                    onPress={() => navigation.navigate('CriarNovaCampanha')}
-                    style={styles.buttonNewCampaign}
-                    contentStyle={{
-                        height: 60,
+                <View>
+                    <Text variant="headlineLarge">Sem arrecadação em andamento.</Text>
+                    <Text variant="headlineSmall">
+                        Crie uma nova campanha de arrecadação para começar a registrar doações.
+                    </Text>
+                </View>
+                <View
+                    style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
-                    uppercase={true}
                 >
-                    Criar nova campanha de arrecadação
-                </Button>
+                    <Button
+                        mode="contained"
+                        icon="plus"
+                        onPress={() => navigation.navigate('CriarNovaCampanha')}
+                        style={styles.buttonNewCampaign}
+                        contentStyle={{ height: 60 }}
+                        uppercase={true}
+                    >
+                        Criar campanha de arrecadação
+                    </Button>
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
         elevation: 0,
         alignContent: 'center',
         alignItems: 'center',
+        marginTop: 20,
     },
     textNewCampaign: {
         color: 'white',

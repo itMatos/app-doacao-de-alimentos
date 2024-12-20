@@ -1,47 +1,128 @@
-import React, { createContext, useContext, useReducer } from 'react';
-import { useState } from 'react';
-
-// export type dispatchType = (action: PayloadReducer) => void;
-
-export const CampanhaContext = createContext(
-    {} as {
-        campanhaState: CampanhaInitialStateType;
-        dispatchCampanha: React.Dispatch<PayloadReducer>;
-    }
-);
+import React, { createContext, useReducer } from 'react';
+import { RelatorioCategoriaType, ResumoCampanhaType } from '@/screens/Campanhas/types';
 
 export type CampanhaInitialStateType = {
-    campanhaAtualId: number;
+    listagemCampanhas: ResumoCampanhaType[];
 };
 
-const initialState = {
-    campanhaAtualId: 1,
+export type dispatchType = (action: PayloadReducer) => void;
+
+export type CampanhaContextType = {
+    campanhaState: CampanhaInitialStateType;
+    dispatchCampanha: dispatchType;
 };
 
-export type PayloadReducer = {
-    type: string;
-    campanhaAtualId: number;
+const initialState: CampanhaInitialStateType = {
+    listagemCampanhas: [],
 };
 
-const campanhaReducer = (state: CampanhaInitialStateType, action: PayloadReducer) => {
+export type PayloadReducer =
+    | {
+          type: 'ListarTodasCampanhas';
+          listagemCampanhas: ResumoCampanhaType[];
+      }
+    | {
+          type: 'AdicionarCampanha';
+          campanha: ResumoCampanhaType;
+      }
+    | {
+          type: 'RemoverCampanha';
+          id_campanha: string;
+      }
+    | {
+          type: 'AtualizarCampanha';
+          campanhaAtualizada: ResumoCampanhaType;
+      }
+    | {
+          type: 'AtualizarCategoriaDeCampanha';
+          id_campanha: string;
+          categoriaAtualizada: RelatorioCategoriaType;
+      }
+    | {
+          type: 'EncerrarCampanha';
+          id_campanha: string;
+      };
+
+const campanhaReducer = (
+    state: CampanhaInitialStateType,
+    action: PayloadReducer
+): CampanhaInitialStateType => {
+    console.log('action', action);
+    console.log('state', state);
     switch (action.type) {
-        case 'NovaCampanha':
+        case 'ListarTodasCampanhas':
             return {
                 ...state,
-                campanhaAtualId: action.campanhaAtualId,
+                listagemCampanhas: action.listagemCampanhas,
             };
+
+        case 'AdicionarCampanha':
+            return {
+                ...state,
+                listagemCampanhas: [...state.listagemCampanhas, action.campanha],
+            };
+
+        case 'RemoverCampanha':
+            return {
+                ...state,
+                listagemCampanhas: state.listagemCampanhas.filter(
+                    (campanha) => campanha.id_campanha !== action.id_campanha
+                ),
+            };
+
+        case 'AtualizarCampanha':
+            return {
+                ...state,
+                listagemCampanhas: state.listagemCampanhas.map((campanha) =>
+                    campanha.id_campanha === action.campanhaAtualizada.id_campanha
+                        ? action.campanhaAtualizada
+                        : campanha
+                ),
+            };
+
+        case 'AtualizarCategoriaDeCampanha': {
+            return {
+                ...state,
+                listagemCampanhas: state.listagemCampanhas.map((campanha) => {
+                    if (campanha.id_campanha === action.id_campanha) {
+                        // Atualiza apenas a categoria desejada
+                        const novasCategorias = campanha.relatorio_categorias.map((categoria) =>
+                            categoria.categoria === action.categoriaAtualizada.categoria
+                                ? { ...categoria, ...action.categoriaAtualizada }
+                                : categoria
+                        );
+
+                        return {
+                            ...campanha,
+                            relatorio_categorias: novasCategorias,
+                        };
+                    }
+                    return campanha;
+                }),
+            };
+        }
+
         case 'EncerrarCampanha':
             return {
                 ...state,
-                campanhaAtualId: action.campanhaAtualId,
+                listagemCampanhas: state.listagemCampanhas.map((campanha) =>
+                    campanha.id_campanha === action.id_campanha
+                        ? { ...campanha, data_fim: new Date().toISOString() }
+                        : campanha
+                ),
             };
+
         default:
             return state;
     }
 };
 
+export const CampanhaContext = createContext<CampanhaContextType>({
+    campanhaState: initialState,
+    dispatchCampanha: (() => null) as dispatchType,
+});
+
 export const CampanhaProvider = ({ children }: { children: React.ReactNode }) => {
-    const [campanhaAtualId, setcampanhaAtualId] = useState(1);
     const [campanhaState, dispatchCampanha] = useReducer(campanhaReducer, initialState);
 
     return (

@@ -8,18 +8,19 @@ import RegistradoComSucesso from './RegistradoComSucesso';
 import { useContextKey } from 'expo-router/build/Route';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
 import { saveNewArrecadacao } from '@/services/RotaryApi';
+import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 // objeto para teste sem precisar utilizar api
-const produtoTesteApiResult: ProdutoEncontradoApiType = {
-    gtin: '7893500020134',
-    id_produto_categoria: 'Arroz',
-    codigo_ncm: '10063021',
-    medida_por_embalagem: '2',
-    produto_medida_sigla: '',
-    produto_marca: 'NÃO INFORMADO',
-    nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
-    nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
-};
+// const produtoTesteApiResult: ProdutoEncontradoApiType = {
+//     gtin: '7893500020134',
+//     id_produto_categoria: 'Arroz',
+//     codigo_ncm: '10063021',
+//     medida_por_embalagem: '2',
+//     produto_medida_sigla: '',
+//     produto_marca: 'NÃO INFORMADO',
+//     nome: 'Arroz Polido Tipo 1 Tio JoÃ£o 100 GrÃ£os Nobres Pacote 2kg',
+//     nome_sem_acento: 'Arroz Polido Tipo 1 Tio Joao 100 Graos Nobres Pacote 2kg',
+// };
 
 const mapProdutoEncontrado = (data: ProdutoEncontradoApiType): ProdutoType => ({
     codigoDeBarras: data.gtin,
@@ -44,13 +45,8 @@ export default function ModalRegistroDeDoacao({
     produto: ProdutoEncontradoApiType;
 }) {
     const [successRegister, setSuccessRegister] = useState(false);
-
     const showSuccessRegister = () => setSuccessRegister(true);
     const hideSuccessRegister = () => setSuccessRegister(false);
-
-    const { campanhaState } = useContext(CampanhaContext);
-    const { campanhaAtualId } = campanhaState;
-
     const produtoFiltered = mapProdutoEncontrado(produto);
 
     // TODO: Implementar a lógica de captura de código de barras
@@ -58,25 +54,6 @@ export default function ModalRegistroDeDoacao({
     // produto nao encontrado: ok
     // falha ao ler código de barras: vai ser usado botao de inserir manualmente
     // Falha ao clicar no botao de registrar: voltar para a tela de registrar doacao
-
-    // const [produto, setProduto] = useState<ProdutoType | null>(produtoFiltered);
-
-    const handleClickRegisterDonation = async (gtinProduto: string, quantidade: number) => {
-        const newArrecadacao: ArrecadacaoType = {
-            id_campanha: campanhaAtualId,
-            id_produto: gtinProduto,
-            qtd_total: quantidade,
-        };
-
-        console.log('Enviando arrecadacao: ', newArrecadacao);
-        try {
-            await saveNewArrecadacao(newArrecadacao);
-        } catch (error) {
-            console.error('erro ao salvar arrecadacao: ', error);
-        }
-
-        showSuccessRegister();
-    };
 
     const handleClickNewRegister = () => {
         hideSuccessRegister();
@@ -91,8 +68,8 @@ export default function ModalRegistroDeDoacao({
                     <ProdutoEncontrado
                         produto={produtoFiltered}
                         setProduto={() => {}}
-                        handleClickRegisterDonation={handleClickRegisterDonation}
                         hideModal={handleClickNewRegister}
+                        showSuccessRegister={showSuccessRegister}
                     />
                 )}
                 {successRegister && !isLoading && (

@@ -10,6 +10,7 @@ export type ArrecadacaoContextType = {
 export type ArrecadacaoInitialStateType = {
     arrecadacaoEmAndamento: boolean;
     idCampanhaEmAndamento: string | null;
+    labelCampanhaEmAndamento: string;
 };
 
 // Tipagem da ação do reducer
@@ -17,12 +18,14 @@ export type PayloadReducer = {
     type: 'NovaCampanha' | 'EncerrarCampanha' | 'CampanhaEmAndamento';
     arrecadacaoEmAndamento: boolean;
     idCampanhaEmAndamento?: string; // `idCampanhaEmAndamento` pode ser opcional dependendo da ação
+    labelCampanhaEmAndamento?: string;
 };
 
 // Estado inicial do contexto
 const initialState: ArrecadacaoInitialStateType = {
     arrecadacaoEmAndamento: false,
     idCampanhaEmAndamento: null,
+    labelCampanhaEmAndamento: '',
 };
 export type dispatchType = (action: PayloadReducer) => void;
 
@@ -54,6 +57,7 @@ const arrecadacaoReducer = (
                 ...state,
                 arrecadacaoEmAndamento: action.arrecadacaoEmAndamento,
                 idCampanhaEmAndamento: action.idCampanhaEmAndamento ?? null,
+                labelCampanhaEmAndamento: action.labelCampanhaEmAndamento ?? '',
             };
         default:
             return state;

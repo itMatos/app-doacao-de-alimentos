@@ -27,3 +27,5 @@ export const IsNumeric = (value: string): boolean => {
 
     return true
 }
+
+export const isValidNumber = (value: string) => !isNaN(+value) && isFinite(+value) && !/e/i.test(value);

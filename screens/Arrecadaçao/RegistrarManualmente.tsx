@@ -4,12 +4,10 @@ import { Button, Text, TextInput } from 'react-native-paper';
 
 export default function RegistrarManualmente({
     hideManualRegister,
-    simulateRequest,
     searchProductInDatabase,
     isLoading,
 }: {
     hideManualRegister: () => void;
-    simulateRequest: () => void;
     searchProductInDatabase: (code: string) => void;
     isLoading: boolean;
 }) {

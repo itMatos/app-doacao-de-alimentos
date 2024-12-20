@@ -13,7 +13,7 @@ export type ProdutoEncontradoApiType = {
     id_produto_categoria: string | '';
     codigo_ncm: string | '';
     medida_por_embalagem: string | '';
-    produto_medida_sigla: string | '';
+    produto_medida_sigla: string | 'kg';
     produto_marca: string | '';
     nome: string | '';
     nome_sem_acento: string | '';

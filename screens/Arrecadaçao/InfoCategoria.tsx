@@ -6,10 +6,12 @@ export default function InfoCategoria({
     category,
     quantity,
     packages,
+    measure,
 }: {
     category: string;
     quantity: number;
     packages: number;
+    measure: string;
 }) {
     return (
         <>
@@ -18,12 +20,12 @@ export default function InfoCategoria({
 
                 <View style={styles.rightContainer}>
                     <Chip style={styles.chipCategory} compact={true}>
-                        {`${quantity} kg`}
+                        {`${quantity} ${measure}`}
                     </Chip>
                     <Chip compact={true} mode="outlined" style={styles.chipCategoryOutlined}>
-                        {`${packages} pacotes`}
+                        {`${packages} embalagens`}
                     </Chip>
-                    <Button
+                    {/* <Button
                         icon={() => <Icon source="arrow-right" size={16} />}
                         mode="text"
                         onPress={() => console.log('Ver detalhes feijão')}
@@ -33,7 +35,7 @@ export default function InfoCategoria({
                         }}
                     >
                         Ver detalhes
-                    </Button>
+                    </Button> */}
                 </View>
             </View>
             <Divider />
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     chipCategory: {
-        backgroundColor: '#4fc3f7',
+        backgroundColor: '#90caf9',
         marginVertical: 4,
     },
     buttonDetails: {
