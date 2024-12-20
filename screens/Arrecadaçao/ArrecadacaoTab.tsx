@@ -7,6 +7,7 @@ import { ArrecadacaoProvider } from '@/context/Arrecadacao/ArrecadacaoContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RegistrarDoacao from './RegistrarDoacao';
 import { CampanhaProvider } from '@/context/Campanha/CampanhaContext';
+import CadastrarNovoProduto from '../Produtos/CadastrarNovoProduto';
 
 export default function ArrecadacaoTab({ navigation, route }: { navigation: any; route: any }) {
     const Stack = createNativeStackNavigator();

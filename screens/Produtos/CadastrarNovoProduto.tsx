@@ -19,6 +19,16 @@ import {
     Icon,
 } from 'react-native-paper';
 
+const defaultFormData = {
+    nome_sem_acento: '',
+    gtin: '',
+    id_produto_categoria: 'Arroz',
+    produto_medida_sigla: 'kg',
+    medida_por_embalagem: '1',
+    produto_marca: 'NÃO INFORMADO',
+    codigo_ncm: 'NÃO INFORMADO',
+};
+
 export default function CadastrarNovoProduto({ navigation }: { navigation: any }) {
     const [permission, requestPermission] = useCameraPermissions();
     const facing = useState<CameraType>('back');
@@ -229,7 +239,12 @@ export default function CadastrarNovoProduto({ navigation }: { navigation: any }
             <StatusBar barStyle="dark-content" />
 
             <Appbar.Header mode="center-aligned" elevated>
-                <Appbar.BackAction onPress={() => navigation.goBack()} />
+                <Appbar.BackAction
+                    onPress={() => {
+                        navigation.navigate('ProdutosListagemCategorias');
+                        setFormData(defaultFormData);
+                    }}
+                />
                 <Appbar.Content title="Novo produto" />
             </Appbar.Header>
             <View style={styles.container}>

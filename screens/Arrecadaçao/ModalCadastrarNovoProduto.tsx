@@ -16,7 +16,7 @@ import {
     ScrollView,
 } from 'react-native';
 import ProdutoEncontrado from './ProdutoEncontrado';
-import { IsNumeric, vh } from '@/utils/utils';
+import { vh, isValidNumber } from '@/utils/utils';
 import RegistradoComSucesso from './RegistradoComSucesso';
 import { Picker } from '@react-native-picker/picker';
 import {
@@ -27,7 +27,6 @@ import {
     saveNewProduct,
 } from '@/services/RotaryApi';
 import { CampanhaContext } from '@/context/Campanha/CampanhaContext';
-import { measure } from 'react-native-reanimated';
 import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
 
 const mapProdutoToProdutoApi = (data: ProdutoType): ProdutoEncontradoApiType => ({
@@ -118,10 +117,15 @@ export default function ModalCadastrarNovoProduto({
         }
     };
 
+    const registerDonationFromNewProduct = () => {
+        handleNewProduct();
+    };
+
     const handleNewProduct = async () => {
         try {
             const create = await saveNewProduct(mapProdutoToProdutoApi(produto));
             console.log('create', create);
+            handleNewArrecadacao();
         } catch (error) {
             console.error(error);
         }
@@ -130,15 +134,10 @@ export default function ModalCadastrarNovoProduto({
     const handleNewArrecadacao = async () => {
         try {
             await saveNewArrecadacao(novaArrecadacao);
+            showSuccessRegister();
         } catch (error) {
             console.error(error);
         }
-    };
-
-    const handleClickRegisterDonation = () => {
-        handleNewProduct();
-        handleNewArrecadacao();
-        showSuccessRegister();
     };
 
     const handleClickNewRegister = () => {
@@ -155,7 +154,9 @@ export default function ModalCadastrarNovoProduto({
             nome: !!(produto.nome.length >= 3 || produto.nome),
             //categoria: !!(produto.categoriaId || produto.categoriaId != ''),
             marca: !!(produto.marca.length >= 2 || produto.marca),
-            peso: !!(IsNumeric(produto.quantidadePorEmbalagem) && produto.quantidadePorEmbalagem),
+            peso: !!(
+                isValidNumber(produto.quantidadePorEmbalagem) && produto.quantidadePorEmbalagem
+            ),
         };
         setValidateInputs(validateInputsFromStep1);
         const isStep1Valid = !Object.values(validateInputsFromStep1).includes(false);
@@ -166,8 +167,8 @@ export default function ModalCadastrarNovoProduto({
         return !!(
             novaCategoria.nome_categoria != '' &&
             novaCategoria.medida_sigla != '' &&
-            !IsNumeric(novaCategoria.nome_categoria) &&
-            !IsNumeric(novaCategoria.medida_sigla)
+            !isValidNumber(novaCategoria.nome_categoria) &&
+            !isValidNumber(novaCategoria.medida_sigla)
         );
     };
 
@@ -175,7 +176,7 @@ export default function ModalCadastrarNovoProduto({
         return !!(produto.categoriaId || produto.categoriaId != '');
     };
 
-    const handleNewCategory = async () => {
+    const handleCreateNewCategory = async () => {
         try {
             await createNewCategory(novaCategoria);
         } catch (error) {
@@ -242,8 +243,6 @@ export default function ModalCadastrarNovoProduto({
                 .at(0);
 
             if (categoria?.medida_sigla && categoria?.nome_categoria) {
-                console.log('tem que entrar aqui 1', categoria);
-                console.log('produto', produto);
                 setProduto({
                     ...produto,
                     categoriaId: categoria.nome_categoria,
@@ -256,7 +255,7 @@ export default function ModalCadastrarNovoProduto({
 
     const handleValidateNewCategory = () => {
         if (validateNovaCategoria(novaCategoria)) {
-            handleNewCategory();
+            handleCreateNewCategory();
             setProduto({
                 ...produto,
                 categoriaId: novaCategoria.nome_categoria,
@@ -357,7 +356,7 @@ export default function ModalCadastrarNovoProduto({
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.labelInput}>Peso por embalagem (numero)</Text>
+                        <Text style={styles.labelInput}>Peso por embalagem</Text>
                         <TextInput
                             mode="outlined"
                             value={produto.quantidadePorEmbalagem}
@@ -413,8 +412,7 @@ export default function ModalCadastrarNovoProduto({
                             style={{ alignSelf: 'center', marginTop: 5, marginBottom: 10 }}
                             variant="titleMedium"
                         >
-                            Essa informação é importante para agrupar os tipos de produtos. Caso a
-                            categoria não exista, você pode criar uma nova.
+                            Essa informação é utilizada para agrupar os tipos de produtos.
                         </Text>
                     </View>
 
@@ -531,7 +529,7 @@ export default function ModalCadastrarNovoProduto({
 
     const handleChangePacotes = (value: string) => {
         setPacotesInput(value);
-        if (IsNumeric(value) && value.length > 0) {
+        if (isValidNumber(value) && value.length > 0) {
             const parsedTextToInt = parseInt(value, 10);
             console.log('parsedTextToInt', parsedTextToInt);
             setNovaArrecadacao({ ...novaArrecadacao, qtd_total: parsedTextToInt });
@@ -579,7 +577,7 @@ export default function ModalCadastrarNovoProduto({
                         style={styles.button}
                         mode="contained"
                         onPress={() => {
-                            handleClickRegisterDonation();
+                            registerDonationFromNewProduct();
                         }}
                     >
                         Finalizar
