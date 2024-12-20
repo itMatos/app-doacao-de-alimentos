@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "app-doacao-alimentos",
+    "name": "Cesta Solidaria",
     "slug": "app-doacao-alimentos",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,20 +21,14 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.italomatos19.appdoacaoalimentos",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-camera"
-    ],
+    "plugins": ["expo-router", "expo-camera"],
     "experiments": {
       "typedRoutes": true
     },
