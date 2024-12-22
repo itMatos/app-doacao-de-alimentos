@@ -1,20 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
-import {
-    ActivityIndicator,
-    Appbar,
-    Button,
-    Card,
-    Divider,
-    IconButton,
-    Paragraph,
-    Surface,
-    Text,
-    Title,
-} from 'react-native-paper';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { ArrecadacaoContext } from '@/context/Arrecadacao/ArrecadacaoContext';
-import ListagemCategorias from './ListagemCategorias';
+import { ActivityIndicator, Appbar, Button, Text, Title } from 'react-native-paper';
 import { BarcodeScanningResult, CameraType, CameraView } from 'expo-camera';
 import { vh } from '@/utils/utils';
 import { getProductByBarCode } from '@/services/RotaryApi';
@@ -144,9 +130,9 @@ export default function ConsultarProdutoUsandoCamera({
                     produto={productDetails}
                     goBackToProductsList={goBackToProductsList}
                     showCloseDetailsButton={false}
+                    removeProductFromList={() => {}}
                 />
             )}
-
         </>
     );
 }

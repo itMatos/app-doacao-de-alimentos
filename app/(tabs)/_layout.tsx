@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomNavigation } from 'react-native-paper';
+import { BottomNavigation, TouchableRipple } from 'react-native-paper';
 import { CommonActions } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EstoqueTabScreens from '@/screens/Produtos/EstoqueScreens';
@@ -14,7 +14,7 @@ export default function TabLayout() {
 
     return (
         <Tab.Navigator
-            id="(tabs)"
+            key="(tabs)"
             initialRouteName="Arrecadação"
             screenOptions={{
                 headerShown: false,
@@ -47,6 +47,9 @@ export default function TabLayout() {
 
                         return null;
                     }}
+                    renderTouchable={({ key, ...props }) => (
+                        <TouchableRipple key={key} {...props} />
+                    )}
                     getLabelText={({ route }) => {
                         const { options } = descriptors[route.key];
                         const label =

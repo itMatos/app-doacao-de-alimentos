@@ -144,10 +144,6 @@ export default function ModalCadastrarNovoProduto({
         hideModalProductNotFound();
     };
 
-    const handleInputChange = (field: string, value: string) => {
-        setProduto({ ...produto, [field]: value });
-    };
-
     const step1InputIsValid = () => {
         const validateInputsFromStep1 = {
             gtin: !!(produto.codigoDeBarras.length > 0 || produto.codigoDeBarras),

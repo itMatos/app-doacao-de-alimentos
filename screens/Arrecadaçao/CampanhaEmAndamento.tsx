@@ -114,6 +114,7 @@ export default function CampanhaEmAndamento({
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={'default'} translucent={true} hidden={false} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.container}
